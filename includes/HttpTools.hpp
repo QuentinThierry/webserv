@@ -1,23 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   shared.hpp                                         :+:      :+:    :+:   */
+/*   httpTools.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/04 15:07:56 by jvigny            #+#    #+#             */
-/*   Updated: 2024/04/04 17:39:08 by acardona         ###   ########.fr       */
+/*   Created: 2024/04/04 19:43:37 by acardona          #+#    #+#             */
+/*   Updated: 2024/04/04 19:55:37 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SHARED_HPP
-# define SHARED_HPP
+#ifndef HTTPTOOLS_HPP
+# define HTTPTOOLS_HPP
 
-# define SUCCESS 0
-# define FAILURE 1
+# include "shared.hpp"
 
-# include <string>
-# include <iostream>
-# include <exception>
+bool contain_one_single_colon(std::string const & str);
 
 #endif

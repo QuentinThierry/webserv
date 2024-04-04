@@ -1,23 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   shared.hpp                                         :+:      :+:    :+:   */
+/*   HttpRequestLine.class.hpp                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/04 15:07:56 by jvigny            #+#    #+#             */
-/*   Updated: 2024/04/04 17:39:08 by acardona         ###   ########.fr       */
+/*   Created: 2024/04/04 17:32:04 by acardona          #+#    #+#             */
+/*   Updated: 2024/04/04 19:59:10 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SHARED_HPP
-# define SHARED_HPP
+#ifndef HTTPREQUESTLINE_CLASS_HPP
+# define HTTPREQUESTLINE_CLASS_HPP
 
-# define SUCCESS 0
-# define FAILURE 1
-
-# include <string>
-# include <iostream>
-# include <exception>
+class HttpRequestLine
+{
+	public:
+		HttpRequestLine; //TODO
+	private:
+		HttpRequestLine( void );
+};
 
 #endif
