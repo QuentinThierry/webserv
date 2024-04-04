@@ -3,19 +3,23 @@
 #include <string>
 #include "Location.hpp"
 
-using namespace std;
-
 class Server
 {
 	public:
+		std::string const &getHost() const;
+		std::string const &serverName() const;
+		uint16_t const &getPort() const;
+		std::string const &getErrorPagePath() const;
+		uint64_t const &getClientmaxBodySize() const;
+
 
 	private:
-		string		_host;
-		uint16_t	_port;
-		string		_server_name;
-		string		_error_page_path;
-		uint64_t	_client_max_body_size;
-		Location	_location;
+		std::string				_host;
+		uint16_t			_port;
+		std::string				_server_name;
+		std::string				_error_page_path;
+		uint64_t			_client_max_body_size;
+		std::vector<Location>	_locations;
 };
 
 #endif
