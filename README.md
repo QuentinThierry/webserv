@@ -1,11 +1,5 @@
 ### [HTTP response](https://en.wikipedia.org/wiki/List_of_HTTP_header_fields#Standard_response_fields)
 
-First line : prtocol/version + status_code + informative text on message (useless)
-
--> example : HTTP/1.1 404 Not Found
-
-
-
 ### [Server conf](http://nginx.org/en/docs/http/ngx_http_core_module.html)
 
 webserv														-> nginx
@@ -19,7 +13,7 @@ webserv														-> nginx
 	- Redirection HTTP										-> *rewrite or return* [doc](http://nginx.org/en/docs/http/ngx_http_rewrite_module.html#rewrite)
 	- Repertoire de start de recherche						-> *root \<path\>;* [doc](http://nginx.org/en/docs/http/ngx_http_core_module.html#root)
 	- Listing repertoires									-> *autoindex on|off* [doc](http://nginx.org/en/docs/http/ngx_http_autoindex_module.html#autoindex)
-	- Fichier par defaut si rep = repertoire				-> *index file1 file2...*
+	- Fichier par defaut si rep = repertoire				-> *index file1 file2...* : default = index index.html
 	- Executer CGI en fonction de certaines extensions		-> ??
 	- Faire fonctionner avec GET ou POST					-> ??
 	- Accepter les fichiers televerses et config			-> ??
@@ -41,12 +35,14 @@ branch rules :
 - error_page -> str
 - client_max_body_size -> uint64
 - location : -> class
-	- path -> str
+	- location_path -> str
 	- accepted_methods -> vector<str>
 	- root_path -> str
 	- has_redirect -> bool
 	- redirect_path -> str
 	- has_autoindex -> bool
 	- default_dir_file -> str
+	- is_accept_upload -> bool
+	- upload_path -> str
 	- has_cgi -> bool
-	- cgi_pass -> str
+	- cgi_path -> str
