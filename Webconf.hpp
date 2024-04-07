@@ -11,4 +11,6 @@
 void	tokenize_file(std::fstream &s, std::queue<std::string> &tokens);
 bool	wrap_getline_throw(std::fstream &s, std::string &buffer);
 
+void	parse_tokens(std::queue<std::string> &tokens);
+
 #endif
