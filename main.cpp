@@ -1,49 +1,81 @@
 #include <iostream>
 #include <fstream>
 #include <unistd.h>
-#include <vector>
+#include <queue>
 #include <exception>
-#include "Server.hpp"
 
 // returns false on eof
 static bool	wrap_getline_throw(std::fstream &s, std::string &buffer)
 {
+	if (s.eof())
+		return false;
 	getline(s, buffer);
 	if (s.fail())
 	{
 		std::cout << "Failed to read conf file" << std::endl;
 		throw std::exception(); // EXCEPTION failed to read
 	}
-	if (s.eof())
-		return false;
 	return true;
 }
 
-
-void	check_server_line_syntax(std::string &line, bool &has_bracket)
+void	skip_white_spaces(std::string &buffer, unsigned int &i)
 {
-	int i = 0;
-	while (line[i] == ' ' || line[i] == '\t')
+	while (buffer[i] == ' ' || buffer[i] == '\t')
 		i++;
-	line.substr(i);
-	if (line.find("server") != 0)
-		throw std::exception(); // wrong conf
-
-	i = line.find_first_of('{');
-	if (i != std::string::npos)
-		has_bracket = true;
-	if (line.find_first_of('{', i + 1) != std::string::npos)
-		throw std::exception(); //wrong conf
 }
 
-
-void	enter_server(std::vector<Server> &servers, std::fstream &s, std::string &line)
+std::string	get_token(std::string &buffer, unsigned int &i)
 {
-	bool	has_bracket = false;
+	if (buffer[i] == '{')
+	{
+		i++;
+		return "{";
+	}
+	if (buffer[i] == '}')
+	{
+		i++;
+		return "}";
+	}
+	if (buffer[i] == ';')
+	{
+		i++;
+		return ";";
+	}
+	int start_pos = i;
+	while (i < buffer.size() && buffer[i] != '{' && buffer[i] != '}' && buffer[i] != ';' && buffer[i] != ' ' && buffer[i] != '\t')
+		i++;
+	return buffer.substr(start_pos, i - start_pos);
+}
 
-	check_server_line_syntax(line, has_bracket);
+void	fill_line_tokens(std::string &buffer, std::queue<std::string> &tokens)
+{
+	unsigned int i = 0;
+	while (i < buffer.size())
+	{
+		skip_white_spaces(buffer, i);
+		if (i >= buffer.size())
+			break;
+		tokens.push(get_token(buffer, i));
+	}
+}
 
-	std::cout << has_bracket << std::endl;
+void	tokenize_file(std::fstream &s, std::queue<std::string> &tokens)
+{
+	while (true)
+	{
+		std::string	buffer;
+		try
+		{
+			if (!wrap_getline_throw(s, buffer))
+				break ;
+			fill_line_tokens(buffer, tokens);
+		}
+		catch (std::exception &e)
+		{
+			std::cout << e.what() << std::endl;
+			return ;
+		}
+	}
 }
 
 
@@ -56,7 +88,6 @@ int	main(int argc, char **argv)
 		return 1;
 
 	std::fstream s;
-	std::vector<Server> servers;
 
 	s.open(argv[1], std::ios::in);
 	if (!s.is_open())
@@ -64,22 +95,12 @@ int	main(int argc, char **argv)
 		std::cout << "Failed to open '" << argv[1] << "'" << std::endl;
 		return 0;
 	}
-	std::string buffer;
-	int i = 0;
-	while (true)
+	std::queue<std::string> tokens;
+	tokenize_file(s, tokens);
+
+	while (!tokens.empty())
 	{
-		try
-		{
-			if (!wrap_getline_throw(s, buffer))
-				break ;
-			// if server is in line
-			if (buffer.find("server") != std::string::npos)
-				enter_server(servers, s, buffer);
-		}
-		catch (std::exception &e)
-		{
-			std::cout << e.what() << std::endl;
-		}
-		s.clear();
+		std::cout << tokens.front() << std::endl;
+		tokens.pop();
 	}
 }
