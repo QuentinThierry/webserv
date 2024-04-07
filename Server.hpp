@@ -1,6 +1,6 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
-#include <string>
+
 #include "Location.hpp"
 
 class Server
@@ -15,10 +15,10 @@ class Server
 
 	private:
 		std::string				_host;
-		uint16_t			_port;
-		std::string				_server_name;
+		uint16_t				_port;
+		std::string				_server_name; // multiple server names ?
 		std::string				_error_page_path;
-		uint64_t			_client_max_body_size;
+		uint64_t				_client_max_body_size;
 		std::vector<Location>	_locations;
 };
 
