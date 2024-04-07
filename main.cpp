@@ -1,11 +1,7 @@
-#include <iostream>
-#include <fstream>
-#include <unistd.h>
-#include <queue>
-#include <exception>
+#include "Webconf.hpp"
 
 // returns false on eof
-static bool	wrap_getline_throw(std::fstream &s, std::string &buffer)
+bool	wrap_getline_throw(std::fstream &s, std::string &buffer)
 {
 	if (s.eof())
 		return false;
@@ -17,68 +13,6 @@ static bool	wrap_getline_throw(std::fstream &s, std::string &buffer)
 	}
 	return true;
 }
-
-void	skip_white_spaces(std::string &buffer, unsigned int &i)
-{
-	while (buffer[i] == ' ' || buffer[i] == '\t')
-		i++;
-}
-
-std::string	get_token(std::string &buffer, unsigned int &i)
-{
-	if (buffer[i] == '{')
-	{
-		i++;
-		return "{";
-	}
-	if (buffer[i] == '}')
-	{
-		i++;
-		return "}";
-	}
-	if (buffer[i] == ';')
-	{
-		i++;
-		return ";";
-	}
-	int start_pos = i;
-	while (i < buffer.size() && buffer[i] != '{' && buffer[i] != '}' && buffer[i] != ';' && buffer[i] != ' ' && buffer[i] != '\t')
-		i++;
-	return buffer.substr(start_pos, i - start_pos);
-}
-
-void	fill_line_tokens(std::string &buffer, std::queue<std::string> &tokens)
-{
-	unsigned int i = 0;
-	while (i < buffer.size())
-	{
-		skip_white_spaces(buffer, i);
-		if (i >= buffer.size())
-			break;
-		tokens.push(get_token(buffer, i));
-	}
-}
-
-void	tokenize_file(std::fstream &s, std::queue<std::string> &tokens)
-{
-	while (true)
-	{
-		std::string	buffer;
-		try
-		{
-			if (!wrap_getline_throw(s, buffer))
-				break ;
-			fill_line_tokens(buffer, tokens);
-		}
-		catch (std::exception &e)
-		{
-			std::cout << e.what() << std::endl;
-			return ;
-		}
-	}
-}
-
-
 
 
 
@@ -97,10 +31,13 @@ int	main(int argc, char **argv)
 	}
 	std::queue<std::string> tokens;
 	tokenize_file(s, tokens);
+	s.close();
+	parse_tokens(tokens);
 
-	while (!tokens.empty())
-	{
-		std::cout << tokens.front() << std::endl;
-		tokens.pop();
-	}
+	// while (!tokens.empty())
+	// {
+	// 	std::cout << tokens.front() << std::endl;
+	// 	tokens.pop();
+	// }
+	std::cout << "All ok :)" << std::endl;
 }
