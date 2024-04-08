@@ -1,4 +1,4 @@
-#include "Webconf.hpp"
+#include "ConfParser.hpp"
 
 static std::string _extract_token(std::queue<std::string> &tokens)
 {
@@ -79,6 +79,8 @@ static void	_enter_server_loop(std::queue<std::string> &tokens)
 {
 	unsigned int nb_open_bracket = 0;
 
+	if (tokens.empty())
+		throw std::exception(); //bad
 	while (!tokens.empty())
 	{
 		std::string token = _extract_token(tokens);
@@ -119,6 +121,8 @@ static void	_enter_server_loop(std::queue<std::string> &tokens)
 
 void	parse_tokens(std::queue<std::string> &tokens)
 {
+	if (tokens.empty())
+		throw std::exception(); //bad
 	while (!tokens.empty())
 	{
 		std::string token = _extract_token(tokens);

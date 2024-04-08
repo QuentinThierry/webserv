@@ -1,12 +1,15 @@
-#include "Webconf.hpp"
+#include "ConfParser.hpp"
 
 // returns false on eof
 bool	wrap_getline_throw(std::fstream &s, std::string &buffer)
 {
-	if (s.eof())
-		return false;
 	getline(s, buffer);
-	if (s.fail())
+	if (s.eof())
+	{
+		if (buffer.empty())
+			return false;
+	}
+	else if (s.fail())
 	{
 		std::cout << "Failed to read conf file" << std::endl;
 		throw std::exception(); // EXCEPTION failed to read
@@ -29,15 +32,16 @@ int	main(int argc, char **argv)
 		std::cout << "Failed to open '" << argv[1] << "'" << std::endl;
 		return 0;
 	}
-	std::queue<std::string> tokens;
-	tokenize_file(s, tokens);
-	s.close();
-	parse_tokens(tokens);
-
-	// while (!tokens.empty())
-	// {
-	// 	std::cout << tokens.front() << std::endl;
-	// 	tokens.pop();
-	// }
-	std::cout << "All ok :)" << std::endl;
+	try
+	{
+		std::queue<std::string> tokens;
+		tokenize_file(s, tokens);
+		s.close();
+		parse_tokens(tokens);
+	}
+	catch (std::exception &e)
+	{
+		std::cout << e.what() << std::endl;
+	}
+	std::cout << "OK" << std::endl;
 }

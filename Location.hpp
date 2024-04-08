@@ -1,7 +1,7 @@
 #ifndef LOCATION_HPP
 #define LOCATION_HPP
 
-#include "Webconf.hpp"
+#include "ConfParser.hpp"
 
 class Location
 {

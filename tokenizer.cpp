@@ -1,4 +1,4 @@
-#include "Webconf.hpp"
+#include "ConfParser.hpp"
 
 void	_skip_white_spaces(std::string &buffer, unsigned int &i)
 {
