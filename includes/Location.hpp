@@ -1,7 +1,8 @@
 #ifndef LOCATION_HPP
 #define LOCATION_HPP
 
-#include "ConfParser.hpp"
+#include <string>
+#include <vector>
 
 class Location
 {
@@ -9,15 +10,27 @@ class Location
 		std::string const &getLocationPath() const;
 		std::vector<std::string> const &getMethods() const;
 		std::string const &getRootPath() const;
+		bool const &getHasRedirect() const;
 		std::string const &getRedirectPath() const;
 		std::string const &getDefaultDirPath() const;
+		bool const &getHasAutoindex() const;
+		bool const &getCanAcceptUpload() const;
 		std::string const &getDefaultUploadPath() const;
+		bool const &getHasCgi() const;
 		std::string const &getCgiPath() const;
 
-		bool const &hasRedirect() const;
-		bool const &hasAutoindex() const;
-		bool const &canAcceptUpload() const;
-		bool const &hasCgi() const;
+		void	setLocationPath(std::string location_path);
+		void	setMethods(std::vector<std::string> methods);
+		void	setMethods(std::string method);
+		void	setRootPath(std::string root_path);
+		void	setHasRedirect(bool has_redirect);
+		void	setRedirectPath(std::string redirect_path);
+		void	setDefaultDirPath(std::string default_path);
+		void	setHasAutoindex(bool has_auto_index);
+		void	setCanAcceptUpload(bool can_accept_upload);
+		void	setDefaultUploadPath(std::string upload_path);
+		void	setHasCgi(bool has_cgi);
+		void	setCgiPath(std::string cgi_path);
 
 
 
