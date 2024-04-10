@@ -3,6 +3,7 @@
 
 # include "shared.hpp"
 # include "Socket.class.hpp"
+# include "HttpExchange.class.hpp"
 
 # include <sys/time.h>
 # include <vector>
@@ -12,16 +13,16 @@ typedef std::vector<Socket>::const_iterator	t_const_iter_servers;
 typedef std::vector<Socket>::iterator		t_iter_servers;
 typedef std::vector<Socket>					t_servers;
 
-typedef std::map<int, Socket const *>::const_iterator	t_const_iter_map_socket;
-typedef std::map<int, Socket const *>::iterator		t_iter_map_socket;
-typedef std::map<int, Socket const *>					t_map_socket;
+typedef std::map<int, HttpExchange>::const_iterator	t_const_iter_map_read;
+typedef std::map<int, HttpExchange>::iterator		t_iter_map_read;
+typedef std::map<int, HttpExchange>					t_map_read;
 
 class Cluster
 {
 	private:
 		// std::vector<Server>	_all_server;
 		std::vector<Socket>				_servers; //fd that are listening
-		std::map<int, Socket const *>	_map_socket; //fd create with accept => read + write
+		std::map<int, HttpExchange>		_map_read; //fd create with accept => read + write
 		int								_max_fd;
 	public:
 		// Cluster();
