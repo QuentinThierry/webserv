@@ -1,7 +1,5 @@
 #include "Cluster.class.hpp"
 
-// #define MAX_NB_SOCKET 1024
-
 Cluster::Cluster(std::vector<Server> servers)
 {
 	_max_fd = 0;
@@ -23,11 +21,6 @@ Socket const * Cluster::find_same_config_server(Server const &server)
 
 void Cluster::addServer(Server const &server)
 {
-	// if (_servers.size() + 1 > MAX_NB_SOCKET)
-	// {
-	// 	std::cout << "Error : Too many socket" << std::endl;
-	// 	return ;
-	// }
 	Socket const * same_config = find_same_config_server(server);
 	if (same_config == NULL)
 	{
@@ -37,6 +30,11 @@ void Cluster::addServer(Server const &server)
 		_servers.push_back(new_socket);
 		if (new_socket.getFd() > _max_fd)
 			_max_fd = new_socket.getFd();
+		if (_max_fd >= FD_SETSIZE)
+		{
+			std::cout << "Error : Too many socket" << std::endl;
+			return ;
+		}
 	}
 	else
 	{
@@ -55,7 +53,7 @@ void Cluster::init_set_fds(fd_set *readfds, fd_set *writefds, fd_set *exceptfds)
 		FD_SET(it->getFd(), exceptfds);
 		FD_SET(it->getFd(), readfds);
 	}
-	for (t_const_iter_map_socket it = _map_socket.begin(); it != _map_socket.end(); it++)
+	for (t_const_iter_map_read it = _map_read.begin(); it != _map_read.end(); it++)
 	{
 		FD_SET(it->first, exceptfds);
 		FD_SET(it->first, readfds);
@@ -70,10 +68,10 @@ void Cluster::print_set(fd_set *fds, std::string str)
 		if (FD_ISSET(it->getFd(), fds))
 			std::cout << it->getFd() << std::endl;
 	}
-	for (t_const_iter_map_socket it = _map_socket.begin(); it != _map_socket.end(); it++)
+	for (t_const_iter_map_read it = _map_read.begin(); it != _map_read.end(); it++)
 	{
 		if (FD_ISSET(it->first, fds))
-			std::cout << it->first << std::endl;
+			std::cout << it->first << " read" << std::endl;
 	}
 	std::cout << "END" << std::endl;
 }
@@ -109,13 +107,13 @@ void Cluster::runServer()
 			else if (FD_ISSET(it->getFd(), &readfds))
 				acceptNewConnection(*it);
 		}
-		for (t_iter_map_socket it = _map_socket.begin(); it != _map_socket.end(); it++)
+		for (t_iter_map_read it = _map_read.begin(); it != _map_read.end(); it++)
 		{
 			if (FD_ISSET(it->first, &exceptfds))
 				std::cout << "ERROR" << std::endl;
 				// error(it);
 			// else if (FD_ISSET(it->first, &readfds))
-			// 	readrequest(it);
+			// 	it->second.read_header(it->first);
 			// else if (FD_ISSET(it->first, writefds))
 			// 	writerequest(it);
 		}
@@ -133,9 +131,14 @@ void Cluster::acceptNewConnection(Socket const & socket)
 		std::perror("Error");
 		return;
 	}
+	_map_read.insert(std::make_pair(new_fd, HttpExchange(socket)));
 	if (new_fd > _max_fd)
 		_max_fd = new_fd;
-	_map_socket.insert(std::make_pair(new_fd, &socket));
+	if (_max_fd >= FD_SETSIZE)
+	{
+		std::cout << "Error : Too many socket" << std::endl;
+		return ;
+	}
 }
 
 
