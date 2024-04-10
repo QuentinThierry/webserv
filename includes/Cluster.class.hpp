@@ -7,6 +7,7 @@
 
 # include <sys/time.h>
 # include <vector>
+# include <algorithm>
 
 
 typedef std::vector<Socket>::const_iterator	t_const_iter_servers;
@@ -21,7 +22,7 @@ class Cluster
 {
 	private:
 		// std::vector<Server>	_all_server;
-		std::vector<Socket>				_servers; //fd that are listening
+		static std::vector<Socket>		_servers; //fd that are listening
 		std::map<int, HttpExchange>		_map_read; //fd create with accept => read + write
 		int								_max_fd;
 	public:
@@ -35,6 +36,7 @@ class Cluster
 		void runServer();
 		void print_set(fd_set *fds, std::string str);
 		void acceptNewConnection(Socket const & socket);
+		static Server const *get_matching_server(int fd, std::string server_name);
 };
 
 #endif

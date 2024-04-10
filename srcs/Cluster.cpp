@@ -1,5 +1,7 @@
 #include "Cluster.class.hpp"
 
+std::vector<Socket> Cluster::_servers;
+
 Cluster::Cluster(std::vector<Server> servers)
 {
 	_max_fd = 0;
@@ -112,8 +114,8 @@ void Cluster::runServer()
 			if (FD_ISSET(it->first, &exceptfds))
 				std::cout << "ERROR" << std::endl;
 				// error(it);
-			// else if (FD_ISSET(it->first, &readfds))
-			// 	it->second.read_header(it->first);
+			else if (FD_ISSET(it->first, &readfds))
+				it->second.read_header(it->first);
 			// else if (FD_ISSET(it->first, writefds))
 			// 	writerequest(it);
 		}
@@ -141,4 +143,14 @@ void Cluster::acceptNewConnection(Socket const & socket)
 	}
 }
 
+Server const *Cluster::get_matching_server(int fd, std::string server_name)
+{
+	for (t_const_iter_servers it = _servers.begin(); it != _servers.end(); it++)
+	{
+		Server const &server = it->getServer();
+		if (it->getFd() == fd && std::find(server.getServerName().begin(), server.getServerName().end(), server_name) != server.getServerName().end())
+			return &server;
+	}
+	return NULL;
+}
 
