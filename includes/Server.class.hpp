@@ -3,6 +3,7 @@
 
 # include "shared.hpp"
 # include <stdint.h>
+# include <vector>
 // #include "Location.hpp"
 
 class Server
@@ -13,7 +14,7 @@ class Server
 				_client_max_body_size(copy._client_max_body_size){};
 		Server(int port, int host): _port(port), _host(host){};
         uint32_t const &getHost() const {return _host;};
-        std::string const &serverName() const {return _server_name;};
+        std::vector<std::string> const &getServerName() const {return _server_name;};
         uint16_t const &getPort() const {return _port;};
         std::string const &getErrorPagePath() const {return _error_page_path;};
         uint64_t const &getClientmaxBodySize() const {return _client_max_body_size;};
@@ -22,8 +23,8 @@ class Server
     private:
         uint32_t                _host;
         uint16_t                _port;
-        std::string                _server_name; // multiple server names ?
-        std::string                _error_page_path;
+        std::vector<std::string> _server_name; // multiple server names ?
+        std::string              _error_page_path;
         uint64_t                _client_max_body_size;
         // std::vector<Location>    _locations;
 };

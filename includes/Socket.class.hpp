@@ -18,7 +18,7 @@ class Socket{
 		int						_fd;
 		struct sockaddr_in		_addr;
 		socklen_t				_sizeaddr;
-		Server 					_server;
+		Server const			_server;
 	public:
 		Socket(Server const &server);
 		Socket(Server const &server, Socket const & socket);
