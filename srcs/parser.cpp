@@ -1,17 +1,10 @@
 #include "ConfParser.hpp"
 
-static std::string _extract_token(std::queue<std::string> &tokens)
-{
-	std::string token = tokens.front();
-	tokens.pop();
-	return token;
-}
-
 static void	_enter_field_loop(std::queue<std::string> &tokens)
 {
 	while (!tokens.empty())
 	{
-		std::string token = _extract_token(tokens);
+		std::string token = extract_token(tokens);
 		if (token[0] == '{' || token[0] == '}')
 			throw std::exception(); //bad
 		else if (token[0] == ';')
@@ -24,7 +17,7 @@ static void	_parse_location_first_part(std::queue<std::string> &tokens)
 	bool	has_first_field = false;
 	while (!tokens.empty())
 	{
-		std::string token = _extract_token(tokens);
+		std::string token = extract_token(tokens);
 		if (token[0] == '}' || token[0] == ';')
 			throw std::exception(); //bad
 		// good
@@ -47,7 +40,7 @@ static void	_enter_location_loop(std::queue<std::string> &tokens)
 
 	while (!tokens.empty())
 	{
-		std::string token = _extract_token(tokens);
+		std::string token = extract_token(tokens);
 		if (token[0] == '{')
 		{
 			if (nb_open_bracket != 0)
@@ -83,7 +76,7 @@ static void	_enter_server_loop(std::queue<std::string> &tokens)
 		throw std::exception(); //bad
 	while (!tokens.empty())
 	{
-		std::string token = _extract_token(tokens);
+		std::string token = extract_token(tokens);
 		if (token[0] == '{')
 		{
 			if (nb_open_bracket != 0)
@@ -119,16 +112,24 @@ static void	_enter_server_loop(std::queue<std::string> &tokens)
 	}
 }
 
-void	parse_tokens(std::queue<std::string> &tokens)
+std::string	extract_token(std::queue<std::string> &tokens)
+{
+	std::string token = tokens.front();
+	tokens.pop();
+	return token;
+}
+
+void	parse_tokens(std::queue<std::string> tokens)
 {
 	if (tokens.empty())
 		throw std::exception(); //bad
 	while (!tokens.empty())
 	{
-		std::string token = _extract_token(tokens);
+		std::string token = extract_token(tokens);
 		if (token == "server")
 			_enter_server_loop(tokens);
 		else
 			throw std::exception(); //bad // error syntax
 	}
 }
+

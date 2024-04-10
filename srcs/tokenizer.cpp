@@ -24,7 +24,8 @@ std::string	_get_token(std::string &buffer, unsigned int &i)
 		return ";";
 	}
 	int start_pos = i;
-	while (i < buffer.size() && buffer[i] != '{' && buffer[i] != '}' && buffer[i] != ';' && buffer[i] != ' ' && buffer[i] != '\t')
+	while (i < buffer.size() && buffer[i] != '{' && buffer[i] != '}'
+			&& buffer[i] != ';' && buffer[i] != ' ' && buffer[i] != '\t')
 		i++;
 	return buffer.substr(start_pos, i - start_pos);
 }
