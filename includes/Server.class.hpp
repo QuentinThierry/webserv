@@ -1,5 +1,5 @@
-#ifndef SERVER_HPP
-# define SERVER_HPP
+#ifndef SERVER_CLASS_HPP
+# define SERVER_CLASS_HPP
 
 # include "shared.hpp"
 # include <stdint.h>
