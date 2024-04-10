@@ -2,16 +2,17 @@
 # define HTTPEXCHANGE_CLASS_HPP
 
 # include "Socket.class.hpp"
+# include "HttpRequestLine.class.hpp"
 
 class HttpExchange{
 	private:
-		Socket const	*_socket;
-		std::string		_buffer_read;
-		//HttpRequest	_request;
+		Socket const		*_socket;
+		std::string			_buffer_read;
+		HttpRequestLine		_request;
 		HttpExchange();
 	public:
 		HttpExchange(Socket const &);
-		// void read_header(int fd);
+		void read_header(int fd);
 };
 
 #endif

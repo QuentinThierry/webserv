@@ -1,4 +1,5 @@
 #include "HttpExchange.class.hpp"
+#include "Cluster.class.hpp"
 
 #define READ_SIZE 100
 #include <cstdlib>
@@ -6,30 +7,37 @@
 
 HttpExchange::HttpExchange(Socket const &socket): _socket(&socket){};
 
-// void HttpExchange::read_header(int fd)
-// {
-// 	char buffer[READ_SIZE + 1] = {0};
+void HttpExchange::read_header(int fd)
+{
+	char buffer[READ_SIZE + 1] = {0};
 
-// 	int ret = read(fd, buffer, READ_SIZE);
-// 	if (ret == -1)
-// 	{
-// 		return; //error
-// 	}
-// 	//if (ret == 0) =>eof
-// 	std::string str_buffer(buffer);
-// 	_buffer_read = _buffer_read + str_buffer;
-// 	if (str_buffer.find("\r\n\r\n") != std::string::npos)
-// 	{
-// 		std::cout << _buffer_read;
-// 		std::exit(1);
-// 		//fin du header
-// 		//_request = _requset(_buffer_read);
-// 		//check the right server
-// 		//check the right header size/encoding
-// 		//check location for cgi
-// 		//read body with client_max_body => write in file OR pass to CGI
-// 	}
-// }
+	int ret = read(fd, buffer, READ_SIZE);
+	if (ret == -1)
+	{
+		return; //error
+	}
+	//if (ret == 0) =>eof
+	std::string str_buffer(buffer);
+	_buffer_read = _buffer_read + str_buffer;
+	if (str_buffer.find("\r\n\r\n") != std::string::npos)
+	{
+		std::cout << _buffer_read;
+		std::exit(1);
+		//fin du header
+		//_request = _request(_buffer_read);
+		//check the right server
+		e_status error;
+		std::vector<std::string> const &host_name = _request.getFieldValue("Host", error);
+		if (error == FAILURE || host_name.size() != 1)
+			//error
+			std::exit(0);
+		Cluster::get_matching_server(_socket->getFd(), host_name.at(0));
+
+		//check the right header size/encoding
+		//check location for cgi
+		//read body with client_max_body => write in file OR pass to CGI
+	}
+}
 
 /*
 READ BODY
@@ -75,13 +83,6 @@ read chunk-data and CRLF
 append chunk-data to decoded-body
 length := length + chunk-size
 read chunk-size, chunk-ext (if any), and CRLF
-}
-read trailer field
-while (trailer field is not empty) {
-if (trailer field is allowed to be sent in a trailer) {
-	append trailer field to existing header fields
-}
-read trailer-field
 }
 Content-Length := length
 Remove "chunked" from Transfer-Encoding
