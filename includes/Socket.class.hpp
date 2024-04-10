@@ -11,8 +11,6 @@
 # include <string.h>
 # include <cstdio>
 
-# define READ 0
-# define WRITE 1
 # define NB_QUEUE_PORT 5
 
 class Socket{
