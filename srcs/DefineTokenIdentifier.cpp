@@ -133,5 +133,5 @@ t_token_append_function define_token_var_function(std::string &token)
 	else if (token == "index")
 		return _fill_default_dir_file;
 	else
-		return NULL;
+		throw std::exception();
 }
