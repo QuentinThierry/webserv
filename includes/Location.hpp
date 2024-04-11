@@ -7,6 +7,8 @@
 class Location
 {
 	public:
+		Location();
+
 		std::string const &getLocationPath() const;
 		std::vector<std::string> const &getMethods() const;
 		std::string const &getRootPath() const;

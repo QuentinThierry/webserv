@@ -7,9 +7,10 @@
 class Server
 {
 	public:
+		Server();
 		std::string const &getHost() const;
-		std::vector<std::string> const &getServerName() const;
 		uint16_t const &getPort() const;
+		std::vector<std::string> const &getServerName() const;
 		std::string const &getErrorPagePath() const;
 		uint64_t const &getClientmaxBodySize() const;
 		std::vector<Location> const &getLocations() const;

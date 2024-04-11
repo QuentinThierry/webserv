@@ -1,5 +1,13 @@
 #include "Server.hpp"
 
+Server::Server()
+{
+	_host = "";
+	_port = 0;
+	_server_name.push_back("");
+	_error_page_path = "";
+	_client_max_body_size = 0;
+}
 
 std::string const &Server::getHost() const {return this->_host;}
 
