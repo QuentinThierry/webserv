@@ -1,4 +1,5 @@
 #include "ConfParser.hpp"
+#include <cstdlib>
 
 // server only
 
@@ -6,10 +7,10 @@ u_int16_t	str_to_short(std::string str)
 {
 	for (unsigned int i = 0; i < str.size(); i++) {
 		if (!std::isdigit(str[i]))
-			throw std::exception();
+			throw std::out_of_range("non digit");
 	}
 	if (str.size() > 5)
-		throw std::exception();
+		throw std::out_of_range("too long port");
 	return std::atoi(str.c_str());
 }
 
@@ -26,9 +27,9 @@ void	_parse_listen_argument(std::string &token, Server &server)
 		server.setPort(str_to_short(token));
 		return ;
 	}
-	colon_pos = token.find_first_of(':', colon_pos);
+	colon_pos = token.find_first_of(':', colon_pos + 1);
 	if (colon_pos != std::string::npos)
-		throw std::exception();
+		throw std::out_of_range("parse");
 	// host + port
 	if (token[0] == ':')
 	{
@@ -37,15 +38,14 @@ void	_parse_listen_argument(std::string &token, Server &server)
 		server.setPort(str_to_short(token.substr(1)));
 		return ;
 	}
-	unsigned int i = 0;
 	colon_pos = token.find_first_of(':');
 	server.setHost(token.substr(0, colon_pos));
-	server.setPort(str_to_short(token.substr(colon_pos)));
+	server.setPort(str_to_short(token.substr(colon_pos + 1)));
 }
 
 static void _fill_listen(std::string &token, Server &server, Location *location, unsigned int arg_counter)
 {
-	if (location || arg_counter != 0)
+	if (location || arg_counter != 1)
 		throw std::exception();
 	_parse_listen_argument(token, server);
 }
@@ -60,7 +60,7 @@ static void _fill_server_name(std::string &token, Server &server, Location *loca
 
 static void _fill_error_page(std::string &token, Server &server, Location *location, unsigned int arg_counter)
 {
-	if (location || arg_counter != 0)
+	if (location || arg_counter != 1)
 		throw std::exception();
 	server.setErrorPagePath(token);
 }
@@ -76,21 +76,21 @@ static void _fill_client_max_body_size(std::string &token, Server &server, Locat
 // location possible
 static void _fill_limit_except(std::string &token, Server &server, Location *location, unsigned int arg_counter)
 {
-	if (location || arg_counter != 0)
+	if (location || arg_counter != 1)
 		location = &(server.getDefaultLocation());
 	// _parse_method(token, location);
 }
 
 static void _fill_redirect_path(std::string &token, Server &server, Location *location, unsigned int arg_counter)
 {
-	if (location || arg_counter != 0)
+	if (location || arg_counter != 1)
 		location = &(server.getDefaultLocation());
 	location->setRedirectPath(token);
 }
 
 static void _fill_root_path(std::string &token, Server &server, Location *location, unsigned int arg_counter)
 {
-	if (location || arg_counter != 0)
+	if (location || arg_counter != 1)
 		location = &(server.getDefaultLocation());
 	location->setRootPath(token);
 }
@@ -98,7 +98,7 @@ static void _fill_root_path(std::string &token, Server &server, Location *locati
 
 static void _fill_autoindex(std::string &token, Server &server, Location *location, unsigned int arg_counter)
 {
-	if (location || arg_counter != 0)
+	if (location || arg_counter != 1)
 		location = &(server.getDefaultLocation());
 	// _parse_autoindex(token, location);
 }
