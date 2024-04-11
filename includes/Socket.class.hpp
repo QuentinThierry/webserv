@@ -14,11 +14,6 @@
 # define NB_QUEUE_PORT 5
 
 class Socket{
-	private:
-		int						_fd;
-		struct sockaddr_in		_addr;
-		socklen_t				_sizeaddr;
-		Server const			_server;
 	public:
 		Socket(Server const &server);
 		Socket(Server const &server, Socket const & socket);
@@ -26,6 +21,11 @@ class Socket{
 		struct sockaddr_in const & getAddresse() const;
 		socklen_t const & getSizeAddresse() const;
 		Server const & getServer() const;
+	private:
+		int						_fd;
+		struct sockaddr_in		_addr;
+		socklen_t				_sizeaddr;
+		Server const			_server;
 };
 
 #endif

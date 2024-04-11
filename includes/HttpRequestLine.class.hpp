@@ -9,8 +9,15 @@
 class HttpRequestLine
 {
     public:
-        std::vector<std::string> const &getFieldValue(std::string const & filed_name, e_status &success_status) const;
-        HttpRequestLine( void );
+        std::vector<std::string> const getFieldValue(std::string const & filed_name,
+				e_status &success_status) const
+		{
+			(void) filed_name;
+			std::vector<std::string> test(1, "test");
+			success_status = SUCCESS;
+			return test;
+		};
+        HttpRequestLine(){};
     private:
 
 };

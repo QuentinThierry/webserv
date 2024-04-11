@@ -6,15 +6,15 @@
 class Cluster;
 
 class HttpExchange{
+	public:
+		HttpExchange(Socket const &);
+		void readSocket(int fd, Cluster &cluster);
+		void setRightSocket(Cluster const &cluster);
 	private:
 		Socket const		*_socket;
 		std::string			_buffer_read;
 		HttpRequestLine		_request;
 		HttpExchange();
-	public:
-		HttpExchange(Socket const &);
-		void readSocket(int fd, Cluster &cluster);
-		void setRightSocket(Cluster const &cluster);
 };
 
 #endif

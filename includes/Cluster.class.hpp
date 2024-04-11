@@ -20,12 +20,6 @@ typedef std::map<int, HttpExchange>					t_map_read;
 
 class Cluster
 {
-	private:
-		// std::vector<Server>	_all_server;
-		std::vector<Socket>				_sockets; //fd that are listening
-		std::map<int, HttpExchange>		_map_sockets; //fd create with accept => read
-		std::vector<int>				_fd_write; //fd create with accept => write
-		int								_max_fd;
 	public:
 		// Cluster();
 		Cluster(std::vector<Server>);
@@ -39,6 +33,12 @@ class Cluster
 		void acceptNewConnection(Socket const & socket);
 		Socket const *get_matching_socket(int fd, std::string server_name) const;
 		void switchHttpExchangeToWrite(int fd);
+	private:
+		// std::vector<Server>	_all_server;
+		std::vector<Socket>				_sockets; //fd that are listening
+		std::map<int, HttpExchange>		_map_sockets; //fd create with accept => read
+		std::vector<int>				_fd_write; //fd create with accept => write
+		int								_max_fd;
 
 };
 
