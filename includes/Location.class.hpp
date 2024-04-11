@@ -11,6 +11,7 @@ class Location
 
 		std::string const &getLocationPath() const;
 		std::vector<std::string> const &getMethods() const;
+		std::vector<std::string> &getMethods();
 		std::string const &getRootPath() const;
 		bool const &getHasRedirect() const;
 		std::string const &getRedirectPath() const;

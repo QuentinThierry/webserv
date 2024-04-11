@@ -3,6 +3,9 @@
 Location::Location()
 {
 	_location_path = "";
+	_accepted_methods.push_back("GET");
+	_accepted_methods.push_back("POST");
+	_accepted_methods.push_back("DELETE");
 	_root_path = "";
 	_has_redirect = false;
 	_redirect_path = "";
@@ -15,6 +18,7 @@ Location::Location()
 
 std::string const &Location::getLocationPath() const {return this->_location_path;}
 std::vector<std::string> const &Location::getMethods() const {return this->_accepted_methods;}
+std::vector<std::string> &Location::getMethods() {return this->_accepted_methods;}
 std::string const &Location::getRootPath() const {return this->_root_path;}
 bool const &Location::getHasRedirect() const {return this->_has_redirect;}
 std::string const &Location::getRedirectPath() const {return this->_redirect_path;}

@@ -1,5 +1,6 @@
 #include "ConfParser.hpp"
 #include <cstdlib>
+#include <algorithm>
 
 // server only
 
@@ -137,9 +138,9 @@ void	_parse_client_max_body_size_argument(std::string &token, Server &server)
 	if (unit_pos != std::string::npos)
 		token.erase(unit_pos, 1);
 	if (token.find_first_not_of("0123456789") != std::string::npos)
-		throw std::out_of_range("coucou");
+		throw std::exception();
 	if (_is_overflow_on_unit(token, unit))
-		throw std::out_of_range("coucou2");
+		throw std::exception();
 	value = std::atol(token.c_str());
 	if (unit == 'b')
 		server.setClientmaxBodySize(value);
@@ -152,30 +153,44 @@ void	_parse_client_max_body_size_argument(std::string &token, Server &server)
 
 static void _fill_client_max_body_size(std::string &token, Server &server, Location *location, unsigned int arg_counter)
 {
-	(void)arg_counter;
 	if (location || arg_counter != 1)
 		throw std::exception();
 	_parse_client_max_body_size_argument(token, server);
 }
 
+
 // location possible
+
+void	_parse_method(std::string &token, Location &loc)
+{
+	std::vector<std::string>::iterator it;
+
+	std::cout << token << " TOKEN TOKEN" << std::endl;
+	if (token != "GET" && token != "DELETE" && token != "POST")
+		throw std::exception();
+	it = std::find(loc.getMethods().begin(), loc.getMethods().end(), token);
+	if (it != loc.getMethods().end())
+		loc.getMethods().erase(it);
+}
+
+// only in location
 static void _fill_limit_except(std::string &token, Server &server, Location *location, unsigned int arg_counter)
 {
-	if (location || arg_counter != 1)
-		location = &(server.getDefaultLocation());
-	// _parse_method(token, location);
+	if (!location)
+		throw std::exception();
+	_parse_method(token, *location);
 }
 
 static void _fill_redirect_path(std::string &token, Server &server, Location *location, unsigned int arg_counter)
 {
-	if (location || arg_counter != 1)
+	if (!location || arg_counter != 1)
 		location = &(server.getDefaultLocation());
 	location->setRedirectPath(token);
 }
 
 static void _fill_root_path(std::string &token, Server &server, Location *location, unsigned int arg_counter)
 {
-	if (location || arg_counter != 1)
+	if (!location || arg_counter != 1)
 		location = &(server.getDefaultLocation());
 	location->setRootPath(token);
 }
@@ -183,7 +198,7 @@ static void _fill_root_path(std::string &token, Server &server, Location *locati
 
 static void _fill_autoindex(std::string &token, Server &server, Location *location, unsigned int arg_counter)
 {
-	if (location || arg_counter != 1)
+	if (!location || arg_counter != 1)
 		location = &(server.getDefaultLocation());
 	// _parse_autoindex(token, location);
 }
@@ -191,7 +206,7 @@ static void _fill_autoindex(std::string &token, Server &server, Location *locati
 
 static void _fill_default_dir_file(std::string &token, Server &server, Location *location, unsigned int arg_counter)
 {
-	if (location)
+	if (!location)
 		location = &(server.getDefaultLocation());
 	location->addDefaultDirPath(token);
 }
@@ -207,7 +222,7 @@ t_token_append_function define_token_var_function(std::string &token)
 		return _fill_error_page;
 	else if (token == "client_max_body_size")
 		return _fill_client_max_body_size;
-	else if (token == "imit_except")
+	else if (token == "limit_except")
 		return _fill_limit_except;
 	else if (token == "return")
 		return _fill_redirect_path;
