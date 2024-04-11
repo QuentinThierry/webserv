@@ -19,23 +19,37 @@ bool	wrap_getline_throw(std::fstream &s, std::string &buffer)
 
 void	print_server(Server &server)
 {
-	Location const &location = server.getLocations()[0];
-	
-	std::cout << "host " << server.getHost() << std::endl;
-	std::cout << "port " << server.getPort() << std::endl;
-	// std::cout << "server name " << server.getServerName()[0] << std::endl;
-	// std::cout << "host " << server.getHost() << std::endl;
-	// std::cout << "host " << server.getHost() << std::endl;
-	// std::cout << "host " << server.getHost() << std::endl;
-	// std::cout << "host " << server.getHost() << std::endl;
-	// std::cout << "host " << server.getHost() << std::endl;
-	// std::cout << "host " << server.getHost() << std::endl;
-	// std::cout << "host " << server.getHost() << std::endl;
-	// std::cout << "host " << server.getHost() << std::endl;
-	// std::cout << "host " << server.getHost() << std::endl;
-	// std::cout << "host " << server.getHost() << std::endl;
-	// std::cout << "host " << server.getHost() << std::endl;
-	// std::cout << "host " << server.getHost() << std::endl;
+	std::cout << "Host : " << server.getHost() << std::endl;
+	std::cout << "Port : " << server.getPort() << std::endl;
+	std::cout << "Server_names : " << std::endl;
+	for (unsigned int i = 0; i < server.getLocations().size(); i++) {
+		std::cout << "\t" << server.getServerName()[i] << std::endl;
+	}
+	std::cout << "Error path : " << server.getErrorPagePath() << std::endl;
+	std::cout << "Client mbs : " << server.getClientmaxBodySize() << std::endl;
+
+
+	for (unsigned int i = 0; i < server.getLocations().size(); i++) {
+		Location const &loc = server.getLocations()[i];
+
+		std::cout << "Location path : " << loc.getLocationPath() << std::endl;
+		std::cout << "\tMethods : " << std::endl;
+		for (unsigned int j = 0; j < loc.getMethods().size(); j++) {
+			std::cout << "\t\t" << loc.getMethods()[j] << std::endl;
+		}
+		std::cout << "\tRoot path : " << loc.getRootPath() << std::endl;
+		std::cout << "\tHas redirect : " << loc.getHasRedirect() << std::endl;
+		std::cout << "\tRedirect path : " << loc.getRedirectPath() << std::endl;
+		std::cout << "\tDefault dir path : " << std::endl;
+		for (unsigned int j = 0; j < loc.getDefaultDirPath().size(); j++) {
+			std::cout << "\t\t" << loc.getDefaultDirPath()[j] << std::endl;
+		}
+		std::cout << "\tHas autoindex : " << loc.getHasAutoindex() << std::endl;
+		std::cout << "\tAccept upload : " << loc.getCanAcceptUpload() << std::endl;
+		std::cout << "\tDefault upload dir : " << loc.getDefaultUploadPath() << std::endl;
+		std::cout << "\tHas CGI : " << loc.getHasCgi() << std::endl;
+		std::cout << "\tPath CGI : " << loc.getCgiPath() << std::endl;
+	}
 }
 
 
