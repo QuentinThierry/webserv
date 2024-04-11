@@ -4,7 +4,6 @@ Server::Server()
 {
 	_host = "";
 	_port = 0;
-	_server_name.push_back("");
 	_error_page_path = "";
 	_client_max_body_size = 0;
 }

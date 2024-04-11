@@ -3,11 +3,9 @@
 Location::Location()
 {
 	_location_path = "";
-	_accepted_methods.push_back("");
 	_root_path = "";
 	_has_redirect = false;
 	_redirect_path = "";
-	_default_dir_path.push_back("");
 	_has_autoindex = false;
 	_is_accept_upload = false;
 	_upload_path = "";
