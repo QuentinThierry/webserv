@@ -55,14 +55,32 @@ static void _fill_server_name(std::string &token, Server &server, Location *loca
 	(void)arg_counter;
 	if (location)
 		throw std::exception();
-	server.addServerName(token); // check name syntax ?
+	server.addServerName(token);
 }
 
 static void _fill_error_page(std::string &token, Server &server, Location *location, unsigned int arg_counter)
 {
-	if (location || arg_counter != 1)
+	static bool found_path = false;
+
+	if (location)
 		throw std::exception();
-	server.setErrorPagePath(token);
+	if (arg_counter == 1)
+		found_path = false;
+	if (found_path == true)
+		throw std::exception();
+	if (does_http_error_code_exist(token) == false)
+	{
+		found_path = true;
+		std::map<uint16_t, std::string>::iterator it = --server.getErrorPagePath().end();
+		for (unsigned int i = 0; i < arg_counter - 1; i++)
+		{
+			if (it->second == "")
+				it->second = token;
+			it--;
+		}
+	}
+	else
+		server.addErrorPagePath(http_error_code_to_uint16(token), "");
 }
 
 static void _fill_client_max_body_size(std::string &token, Server &server, Location *location, unsigned int arg_counter)
