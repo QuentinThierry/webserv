@@ -23,5 +23,7 @@ void	interpret_tokens(std::queue<std::string> &tokens, std::vector<Server> &serv
 
 t_token_append_function define_token_var_function(std::string &token);
 
+bool	does_http_error_code_exist(std::string code);
+uint16_t	http_error_code_to_uint16(std::string code);
 
 #endif
