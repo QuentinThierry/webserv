@@ -15,41 +15,13 @@ void	fill_field_value(std::string &token, Server &server, Location *location, t_
 	}
 }
 
-void	interpret_location_loop(std::queue<std::string> &tokens, Server &server)
-{
-	Location location;
-	t_token_append_function	token_identifier = NULL;
-	unsigned int arg_counter = 0;
-
-	std::string token = extract_token(tokens);
-	if (token[0] == ';')
-		return ;
-	location.setLocationPath(token);
-
-	while (!tokens.empty())
-	{
-		std::string token = extract_token(tokens);
-		if (token[0] == '{' || token[0] == '}')
-			continue;
-		else if (token[0] == ';')
-		{
-			server.addLocations(location);
-			break;
-		}
-		else
-			fill_field_value(token, server, &location, token_identifier, arg_counter);
-		arg_counter++;
-	}
-}
-
-void	interpret_field_loop(std::queue<std::string> &tokens, Server &server, Location *location)
+void	interpret_field_loop(std::string &token, std::queue<std::string> &tokens, Server &server, Location *location)
 {
 	t_token_append_function	token_identifier = NULL;
 	unsigned int arg_counter = 0;
 
 	while (!tokens.empty())
 	{
-		std::string token = extract_token(tokens);
 		if (token[0] == '{' || token[0] == '}')
 			continue;
 		else if (token[0] == ';')
@@ -57,14 +29,38 @@ void	interpret_field_loop(std::queue<std::string> &tokens, Server &server, Locat
 		else
 			fill_field_value(token, server, location, token_identifier, arg_counter);
 		arg_counter++;
+		token = extract_token(tokens);
 	}
 }
 
+void	interpret_location_loop(std::queue<std::string> &tokens, Server &server)
+{
+	Location location;
+	t_token_append_function	token_identifier = NULL;
+
+	std::string token = extract_token(tokens);
+	location.setLocationPath(token);
+
+	while (!tokens.empty())
+	{
+		std::string token = extract_token(tokens);
+		if (token[0] == '{' || token[0] == ';')
+			continue;
+		else if (token[0] == '}')
+		{
+			server.addLocations(location);
+			break;
+		}
+		else
+			interpret_field_loop(token, tokens, server, &location);
+	}
+}
 
 Server	interpret_server_loop(std::queue<std::string> &tokens)
 {
 	Server server;
 	Location default_location;
+
 
 	server.addLocations(default_location);
 	while (!tokens.empty())
@@ -75,7 +71,7 @@ Server	interpret_server_loop(std::queue<std::string> &tokens)
 		else if (token == "location")
 			interpret_location_loop(tokens, server);
 		else
-			interpret_field_loop(tokens, server, NULL);
+			interpret_field_loop(token, tokens, server, NULL);
 	}
 	return server;
 }
