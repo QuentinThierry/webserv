@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <exception>
 
-#include "Server.hpp"
+#include "Server.class.hpp"
 
 typedef void (* t_token_append_function)(std::string &, Server &, Location *, unsigned int arg_counter);
 

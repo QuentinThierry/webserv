@@ -1,7 +1,7 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-#include "Location.hpp"
+#include "Location.class.hpp"
 #include <stdint.h>
 
 class Server
