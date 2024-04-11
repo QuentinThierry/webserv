@@ -3,6 +3,7 @@
 
 # include "Socket.class.hpp"
 # include "HttpRequestLine.class.hpp"
+class Cluster;
 
 class HttpExchange{
 	private:
@@ -12,7 +13,8 @@ class HttpExchange{
 		HttpExchange();
 	public:
 		HttpExchange(Socket const &);
-		void read_header(int fd);
+		void readSocket(int fd, Cluster &cluster);
+		void setRightSocket(Cluster const &cluster);
 };
 
 #endif
