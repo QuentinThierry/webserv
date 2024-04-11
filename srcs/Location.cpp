@@ -1,5 +1,20 @@
 #include "Location.hpp"
 
+Location::Location()
+{
+	_location_path = "";
+	_accepted_methods.push_back("");
+	_root_path = "";
+	_has_redirect = false;
+	_redirect_path = "";
+	_default_dir_path.push_back("");
+	_has_autoindex = false;
+	_is_accept_upload = false;
+	_upload_path = "";
+	_has_cgi = false;
+	_cgi_path = "";
+}
+
 std::string const &Location::getLocationPath() const {return this->_location_path;}
 std::vector<std::string> const &Location::getMethods() const {return this->_accepted_methods;}
 std::string const &Location::getRootPath() const {return this->_root_path;}
