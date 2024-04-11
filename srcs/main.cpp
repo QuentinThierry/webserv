@@ -22,12 +22,11 @@ void	print_server(Server &server)
 	std::cout << "Host : " << server.getHost() << std::endl;
 	std::cout << "Port : " << server.getPort() << std::endl;
 	std::cout << "Server_names : " << std::endl;
-	for (unsigned int i = 0; i < server.getLocations().size(); i++) {
+	for (unsigned int i = 0; i < server.getServerName().size(); i++) {
 		std::cout << "\t" << server.getServerName()[i] << std::endl;
 	}
 	std::cout << "Error path : " << server.getErrorPagePath() << std::endl;
 	std::cout << "Client mbs : " << server.getClientmaxBodySize() << std::endl;
-
 
 	for (unsigned int i = 0; i < server.getLocations().size(); i++) {
 		Location const &loc = server.getLocations()[i];
