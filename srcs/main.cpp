@@ -41,7 +41,7 @@ void	print_server(Server &server)
 		}
 		std::cout << "\tRoot path : " << loc.getRootPath() << std::endl;
 		std::cout << "\tHas redirect : " << loc.getHasRedirect() << std::endl;
-		std::cout << "\tRedirect path : " << loc.getRedirectPath() << std::endl;
+		std::cout << "\tRedirect path : " << loc.getRedirect().first << " " << loc.getRedirect().second << std::endl;
 		std::cout << "\tDefault dir path : " << std::endl;
 		for (unsigned int j = 0; j < loc.getDefaultDirPath().size(); j++) {
 			std::cout << "\t\t" << loc.getDefaultDirPath()[j] << std::endl;
