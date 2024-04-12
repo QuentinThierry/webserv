@@ -14,6 +14,8 @@ void	_parse_method(std::string &token, Location &loc)
 // only in location
 void fill_limit_except(std::string &token, Server &server, Location *location, unsigned int arg_counter)
 {
+	(void)server;
+	(void)arg_counter;
 	if (!location)
 		throw std::exception();
 	_parse_method(token, *location);
@@ -77,6 +79,7 @@ void fill_default_dir_file(std::string &token, Server &server, Location *locatio
 
 void fill_upload_path(std::string &token, Server &server, Location *location, unsigned int arg_counter)
 {
+	(void)server;
 	if (arg_counter != 1 || !location)
 		throw std::exception();
 	location->setUploadPath(token);
