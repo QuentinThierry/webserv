@@ -61,17 +61,15 @@ static void _fill_server_name(std::string &token, Server &server, Location *loca
 
 static void _fill_error_page(std::string &token, Server &server, Location *location, unsigned int arg_counter)
 {
-	static bool found_path = false;
-
 	if (location)
 		throw std::exception();
 	if (arg_counter == 1)
-		found_path = false;
-	if (found_path == true)
+		server._setHasFoundErrorPagePath(false);
+	if (server._getHasFoundErrorPagePath() == true)
 		throw std::exception();
 	if (does_http_code_exist(token) == false)
 	{
-		found_path = true;
+		server._setHasFoundErrorPagePath(true);
 		std::map<t_http_code, std::string>::iterator it = --server.getErrorPagePath().end();
 		for (unsigned int i = 0; i < arg_counter - 1; i++)
 		{

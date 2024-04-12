@@ -17,6 +17,7 @@ class Server
 		uint64_t const &getClientmaxBodySize() const;
 		std::vector<Location> const &getLocations() const;
 		Location &getDefaultLocation();
+		bool	&_getHasFoundErrorPagePath();
 
 		void	setHost(std::string host);
 		void	setServerName(std::vector<std::string> server_names);
@@ -27,14 +28,16 @@ class Server
 		void	setClientmaxBodySize(uint64_t client_max_body_size);
 		void	setLocations(std::vector<Location> locations);
 		void	addLocations(Location location);
+		void	_setHasFoundErrorPagePath(bool has_found_error_page_path);
 
 	private:
-		std::string						_host;
-		t_port						_port;
-		std::vector<std::string>		_server_name;
+		std::string							_host;
+		t_port								_port;
+		std::vector<std::string>			_server_name;
 		std::map<t_http_code, std::string>	_error_page_path;
-		uint64_t						_client_max_body_size;
-		std::vector<Location>			_locations;
+		uint64_t							_client_max_body_size;
+		std::vector<Location>				_locations;
+		bool								__has_found_error_page_path;
 };
 
 #endif
