@@ -54,7 +54,7 @@ classe methode
 	generate_response() = 0;
 	request;
 
-class request
+class request: HttpMessage
 	class 1 ligne request
 		method
 		domain
@@ -64,7 +64,7 @@ class request
 		values
 	string body
 
-class response
+class response: HttpMessage
 	class 1 ligne response
 		protocol
 		status
@@ -72,6 +72,14 @@ class response
 		name
 		values
 	string body
+
+class HttpExchange
+{
+	socket
+	<!-- buffer_read -->
+	request
+	response
+}
 
 ## CODE Norme
 
