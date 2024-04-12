@@ -6,6 +6,9 @@
 #include <utility>
 #include <stdint.h>
 
+typedef uint16_t t_http_code;
+typedef uint16_t t_port;
+
 class Location
 {
 	public:
@@ -16,8 +19,8 @@ class Location
 		std::vector<std::string> &getMethods();
 		std::string const &getRootPath() const;
 		bool const &getHasRedirect() const;
-		std::pair<uint16_t, std::string> const &getRedirect() const;
-		std::pair<uint16_t, std::string> &getRedirect();
+		std::pair<t_http_code, std::string> const &getRedirect() const;
+		std::pair<t_http_code, std::string> &getRedirect();
 		std::vector<std::string> const &getDefaultDirPath() const;
 		bool const &getHasAutoindex() const;
 		bool const &getCanAcceptUpload() const;
@@ -30,7 +33,7 @@ class Location
 		void	addMethods(std::string method);
 		void	setRootPath(std::string root_path);
 		void	setHasRedirect(bool has_redirect);
-		void	setRedirect(std::pair<uint16_t, std::string> redirect);
+		void	setRedirect(std::pair<t_http_code, std::string> redirect);
 		void	setDefaultDirPath(std::vector<std::string> default_path);
 		void	addDefaultDirPath(std::string default_path);
 		void	setHasAutoindex(bool has_auto_index);
@@ -46,7 +49,7 @@ class Location
 		std::vector<std::string>			_accepted_methods;
 		std::string							_root_path;
 		bool								_has_redirect;
-		std::pair<uint16_t, std::string>	_redirect;
+		std::pair<t_http_code, std::string>	_redirect;
 		std::vector<std::string>			_default_dir_path;
 		bool								_has_autoindex;
 		bool								_is_accept_upload;

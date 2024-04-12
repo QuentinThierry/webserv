@@ -69,10 +69,10 @@ static void _fill_error_page(std::string &token, Server &server, Location *locat
 		found_path = false;
 	if (found_path == true)
 		throw std::exception();
-	if (does_http_error_code_exist(token) == false)
+	if (does_http_code_exist(token) == false)
 	{
 		found_path = true;
-		std::map<uint16_t, std::string>::iterator it = --server.getErrorPagePath().end();
+		std::map<t_http_code, std::string>::iterator it = --server.getErrorPagePath().end();
 		for (unsigned int i = 0; i < arg_counter - 1; i++)
 		{
 			if (it->second == "")
@@ -81,7 +81,7 @@ static void _fill_error_page(std::string &token, Server &server, Location *locat
 		}
 	}
 	else
-		server.addErrorPagePath(http_error_code_to_uint16(token), "");
+		server.addErrorPagePath(str_to_http_code(token), "");
 }
 
 #define MAX_BITS_CLIENT_MAX_SIZE 9223372036854775807u
@@ -183,7 +183,7 @@ static void _fill_limit_except(std::string &token, Server &server, Location *loc
 static void _parse_redirect(std::string &token, Location &loc, unsigned int arg_counter)
 {
 	if (arg_counter == 1)
-		loc.setRedirect(std::make_pair(http_error_code_to_uint16(token), ""));
+		loc.setRedirect(std::make_pair(str_to_http_code(token), ""));
 	else if (arg_counter == 2)
 		loc.getRedirect().second = token;
 	else

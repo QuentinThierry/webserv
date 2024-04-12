@@ -26,7 +26,7 @@ void	print_server(Server &server)
 		std::cout << "\t" << server.getServerName()[i] << std::endl;
 	}
 	std::cout << "Error path : " << std::endl;
-	for (std::map<uint16_t, std::string>::iterator it = server.getErrorPagePath().begin(); it != server.getErrorPagePath().end(); it++) {
+	for (std::map<t_http_code, std::string>::iterator it = server.getErrorPagePath().begin(); it != server.getErrorPagePath().end(); it++) {
 		std::cout << "\t" << it->first << " " << it->second << std::endl;
 	}
 	std::cout << "Client mbs : " << server.getClientmaxBodySize() << std::endl;
