@@ -7,7 +7,7 @@
 
 HttpExchange::HttpExchange(Socket const &socket): _socket(&socket){};
 
-void HttpExchange::setRightSocket(Cluster const &cluster)
+void HttpExchange::_setRightSocket(Cluster const &cluster)
 {
 	e_status error;
 
@@ -29,7 +29,6 @@ void HttpExchange::readSocket(int fd, Cluster &cluster)
 	{
 		return; //!error
 	}
-	//if (ret == 0) =>eof
 	std::string str_buffer(buffer);
 	std::cout << str_buffer << std::endl;
 	_buffer_read = _buffer_read + str_buffer;
@@ -40,14 +39,30 @@ void HttpExchange::readSocket(int fd, Cluster &cluster)
 		std::cout << _buffer_read;
 		// std::exit(1);
 		//_request = _request(_buffer_read);
+		_buffer_read.clear();
 		//check the right server
-		setRightSocket(cluster);
+		_setRightSocket(cluster);
 		cluster.switchHttpExchangeToWrite(fd);
 		//check the right header size/encoding
 		//check location for cgi
 		//read body with client_max_body => write in file OR pass to CGI
 	}
 }
+
+void HttpExchange::writeSocket(int fd, Cluster &cluster)
+{
+	if (_buffer_read.size() != 0)
+	{
+		int ret = write(fd, _buffer_read.c_str(), _buffer_read.size());
+		if (ret == -1 || ret == 0)
+			return; //!error
+		else
+			_buffer_read.clear();
+	}
+	(void)cluster;
+	cluster.closeConnection(fd);
+}
+
 
 /*
 READ BODY
