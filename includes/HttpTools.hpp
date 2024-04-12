@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 19:43:37 by acardona          #+#    #+#             */
-/*   Updated: 2024/04/12 22:10:06 by acardona         ###   ########.fr       */
+/*   Updated: 2024/04/12 22:10:21 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,5 +43,8 @@ void		trim_whitespace_r(std::string & str);
 void		trim_whitespace_l(std::string & str);
 
 void		format_string_to_canonical(std::string & str);
+
+e_status	find_end_word(std::string const & str, size_t start_idx,
+				std::string delimiters, size_t &end_idx);
 
 #endif

@@ -105,57 +105,6 @@ static	bool __is_one_value_syntax_ok( std::string const &str )
 	return (true);
 }
 
-static bool	_is_escaped_char(std::string const & str, size_t index)
-{
-	int backslash_cpt = 0;
-
-	while (index - backslash_cpt > 0 && str.at(index - backslash_cpt - 1) == '\\')
-		++backslash_cpt;
-	return (backslash_cpt % 2);
-}
-
-static size_t	_get_end_quote_idx(std::string const & str,
-					size_t const start_word_idx)
-{
-	size_t		end_word_idx = std::string::npos;
-
-	if (start_word_idx < str.length() - 1)
-		end_word_idx = str.find('"', start_word_idx + 1);
-	if (end_word_idx == std::string::npos)
-	{
-		protected_write(g_err_log_fd, MSG_ERR_QUOTE_NOT_CLOSED);
-		throw(ExceptionHttpStatusCode(HTTP_400));
-	}
-	else if (_is_escaped_char(str, end_word_idx))
-		return (_get_end_quote_idx(str, end_word_idx));
-	return (end_word_idx);
-}
-
-static size_t _get_current_value_end(std::string const & str,
-				size_t const start_idx)
-{
-	size_t		end_idx;
-	std::string	special_char (",\"");
-
-	if (start_idx >= str.size())
-		return (str.size());
-	end_idx = str.find_first_of(special_char, start_idx);
-	if ( end_idx == std::string::npos || end_idx >= str.size() )
-		return (str.size());
-	else if (str[end_idx] == '"')
-	{
-		if (_is_escaped_char(str, end_idx))
-			return (_get_current_value_end(str, end_idx + 1));
-		return (_get_current_value_end(str, _get_end_quote_idx(str, end_idx) + 1));
-	}
-	else // str[end_idx] == ','
-	{
-		return (end_idx);
-	}
-}
-
-
-
 void	HttpField::_add_one_value( std::string const & str, size_t start_idx,
 				size_t end_idx)
 {
@@ -228,7 +177,11 @@ void	HttpField::_add_all_values( std::string & str)
 		_skip_whitespaces(str, start_idx);
 		if (start_idx == str_size)
 			return ;
-		end_idx = _get_current_value_end(str, start_idx);
+		if (find_end_word(str, start_idx, ",", end_idx) == FAILURE)
+		{
+			protected_write(g_err_log_fd, MSG_ERR_QUOTE_NOT_CLOSED);
+			throw(ExceptionHttpStatusCode(HTTP_400));	
+		}
 		_add_one_value(str, start_idx, end_idx);
 		start_idx = end_idx;
 	}
@@ -267,9 +220,6 @@ void	HttpField::_addNewValues( std::string str )
 
 static void	_test__is_values_list_syntax_ok( void );
 static void	_test___is_one_value_syntax_ok( void );
-static void _test__is_escaped_char( void );
-static void _test__get_end_quote_idx( void );
-static void _test__get_current_value_end( void );
 static void _test__add_one_value( void );
 static void _test__add_all_values( void );
 static void _test__addNewValues( void );
@@ -282,9 +232,6 @@ int main()
 {
 	_test__is_values_list_syntax_ok();
 	_test___is_one_value_syntax_ok();
-	_test__is_escaped_char();
-	_test__get_end_quote_idx();
-	_test__get_current_value_end();
 	_test__add_one_value();
 	_test__add_all_values();
 	_test__addNewValues();
@@ -332,94 +279,6 @@ static void	_test___is_one_value_syntax_ok( void )
 	std::cout << std::endl;
 }
 
-static void _test__is_escaped_char( void )
-{
-	std::vector<std::string>  fields;
-
-	fields.push_back("\\.");
-	fields.push_back("abc\\.");
-	fields.push_back("\\\\.");
-	fields.push_back("\\\\\\\\.");
-	fields.push_back(".");
-
-	std::cout << "Test _is_escaped_char : " << std::endl;
-
-	for (std::vector<std::string>::iterator it = fields.begin(); it != fields.end(); ++it)
-		std::cout << "- \""<< *it << "\" : " << _is_escaped_char(*it, it->size() - 1) << std::endl;
-
-	std::cout << std::endl;
-}
-
-static void _test__get_end_quote_idx( void )
-{
-	std::vector<std::string>  fields;
-
-	fields.push_back("\"");
-	fields.push_back("\"abcde");
-	fields.push_back("\"abcde\"");
-	fields.push_back("\"abcde\"fgh");
-	fields.push_back("\"abcde\"\"fgh");
-	fields.push_back("\"abcde\"");
-	fields.push_back("\"abcde\\\"fgh\"");
-
-	std::cout << "Test _get_end_quote_idx : " << std::endl;
-
-	for (std::vector<std::string>::iterator it = fields.begin(); it != fields.end(); ++it)
-	{
-		std::cout << "- \""<< *it << "\" (size = " << it->size() << "):";
-		try
-		{
-			size_t	next_quote;
-
-			next_quote = _get_end_quote_idx(*it, 0);
-			std::cout << " -> success: " << next_quote << " (" << it->at(next_quote) << ")";
-		}
-		catch (std::exception &e)
-		{
-			std::cout << " => not valid";
-		}
-		std::cout << std::endl;
-	}
-
-	std::cout << std::endl;
-}
-
-static void _test__get_current_value_end( void )
-{
-	std::vector<std::string>  fields;
-
-	fields.push_back("simple_correct");
-	fields.push_back("simple_correct, with_next");
-	fields.push_back("\"quoted_correct\"abc");
-	fields.push_back("\"quoted_correct\"continued");
-	fields.push_back("\"quoted_correct\", next");
-	fields.push_back("  simple_correct_space  ");
-
-	std::cout << "Test _get_current_value_end : " << std::endl;
-
-	for (std::vector<std::string>::iterator it = fields.begin(); it != fields.end(); ++it)
-	{
-		std::cout << "- \""<< *it << "\" (size = " << it->size() << "):" << std::endl;
-		try
-		{
-			size_t	end_value;
-
-			end_value = _get_current_value_end(*it, 0);
-			std::cout << " -> success: " << end_value;
-			if (end_value < it->size())
-				std::cout << " ('" << it->at(end_value) << "')" << std::endl;
-			else
-				std::cout << " (end of string)" << std::endl;
-		}
-		catch (std::exception &e)
-		{
-			std::cout << " => not valid: " << e.what() << std::endl;
-		}
-	}
-
-	std::cout << std::endl;
-}
-
 static void _test__add_one_value( void )
 {
 	HttpField new_field;
@@ -443,9 +302,15 @@ static void _test__add_one_value( void )
 		{
 			size_t	end_value;
 
-			end_value = _get_current_value_end(*it, 0);
-			new_field._add_one_value(*it, 0, end_value);
-			std::cout << " -> success: \"" << new_field.getValues().at(new_field.getValues().size() - 1) << "\"";
+			if (find_end_word(*it, 0, ",", end_value) == SUCCESS)
+			{
+				new_field._add_one_value(*it, 0, end_value);
+				std::cout << " -> success: \"" << new_field.getValues().at(new_field.getValues().size() - 1) << "\"";
+			}
+			else
+			{
+				std::cout << " -> wrong quoting, test ignored" << std::endl; 
+			}
 		}
 		catch (std::exception &e)
 		{

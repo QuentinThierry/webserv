@@ -118,3 +118,143 @@ void	format_string_to_canonical(std::string & str)
 		}
 	}
 }
+
+bool	is_escaped(std::string const & str, size_t index)
+{
+	int backslash_cpt = 0;
+
+	while (index - backslash_cpt > 0 && str.at(index - backslash_cpt - 1) == '\\')
+		++backslash_cpt;
+	return (backslash_cpt % 2);
+}
+
+static e_status	_get_end_quote_idx(std::string const & str,
+					size_t const start_word_idx, size_t & end_word_idx)
+{
+	if (start_word_idx < str.length() - 1)
+		end_word_idx = str.find('"', start_word_idx + 1);
+	else
+		end_word_idx = std::string::npos;
+	if (end_word_idx == std::string::npos)
+		return (FAILURE);
+	else if (is_escaped(str, end_word_idx))
+		return (_get_end_quote_idx(str, end_word_idx, end_word_idx));
+	return (SUCCESS);
+}
+
+// sets end_index to point to the first char of str after the word (set of char
+// ended by delimiters) starting at start_idx. Delimiters are ignored if escaped
+// or quoted.
+e_status find_end_word(std::string const & str, size_t start_idx,
+				std::string delimiters, size_t &end_idx)
+{
+	std::string	special_char = delimiters.append("\"");
+
+	if (start_idx >= str.size())
+	{
+		end_idx = str.size();
+		return (SUCCESS);
+	}
+	end_idx = str.find_first_of(special_char, start_idx);
+	if ( end_idx == std::string::npos )
+	{
+		end_idx = str.size();
+		return (SUCCESS);
+	}
+	else if (str[end_idx] == '"')
+	{
+		if (is_escaped(str, end_idx))
+			return (find_end_word(str, end_idx + 1, delimiters, end_idx));
+		if ( _get_end_quote_idx(str, end_idx, end_idx) == FAILURE )
+			return (FAILURE);
+		return (find_end_word(str, end_idx + 1, delimiters, end_idx));
+	}
+	else // str[end_idx] == a delimiter
+	{
+		if (is_escaped(str, end_idx))
+			return (find_end_word(str, end_idx + 1, delimiters, end_idx));
+		return (SUCCESS);
+	}
+}
+
+/*
+
+// tests
+
+#include <vector>
+
+static void _test__get_end_quote_idx( void );
+static void _test_find_end_word( void );
+
+int main()
+{
+	_test__get_end_quote_idx();
+	_test_find_end_word();
+}
+
+
+static void _test__get_end_quote_idx( void )
+{
+	std::vector<std::string>  fields;
+
+	fields.push_back("\"");
+	fields.push_back("\"abcde");
+	fields.push_back("\"abcde\"");
+	fields.push_back("\"abcde\"fgh");
+	fields.push_back("\"abcde\"\"fgh");
+	fields.push_back("\"abcde\"");
+	fields.push_back("\"abcde\\\"fgh\"");
+
+	std::cout << "Test _get_end_quote_idx : " << std::endl;
+
+	for (std::vector<std::string>::iterator it = fields.begin(); it != fields.end(); ++it)
+	{
+		std::cout << "- \""<< *it << "\" (size = " << it->size() << "):";
+		size_t	next_quote;
+
+		if (_get_end_quote_idx(*it, 0, next_quote) == SUCCESS)
+			std::cout << " -> success: " << next_quote << " (" << it->at(next_quote) << ")";
+		else
+			std::cout << " => not valid";
+		std::cout << std::endl;
+	}
+
+	std::cout << std::endl;
+}
+
+static void _test_find_end_word( void )
+{
+	std::vector<std::string>	fields;
+	size_t						end_value;
+
+	fields.push_back("simple_correct");
+	fields.push_back("simple_correct, with_next");
+	fields.push_back("\"quoted_correct\"abc");
+	fields.push_back("\"quoted_correct\"continued");
+	fields.push_back("\"quoted_correct\", next");
+	fields.push_back("  simple_correct_space  ");
+	fields.push_back("  incorrect_quote\"  ");
+
+	std::cout << "Test find_end_word : " << std::endl;
+
+	for (std::vector<std::string>::iterator it = fields.begin(); it != fields.end(); ++it)
+	{
+		std::cout << "- \""<< *it << "\" (size = " << it->size() << "):" << std::endl;
+
+		if (find_end_word(*it, 0, ",", end_value) == SUCCESS)
+		{
+			std::cout << " -> success: " << end_value;
+			if (end_value < it->size())
+				std::cout << " ('" << it->at(end_value) << "')" << std::endl;
+			else
+				std::cout << " (end of string)" << std::endl;
+		}
+		else
+		{
+			std::cout << " => not valid";
+		}
+	}
+
+	std::cout << std::endl;
+}
+*/
