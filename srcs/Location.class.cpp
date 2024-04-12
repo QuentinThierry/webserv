@@ -9,11 +9,13 @@ Location::Location()
 	_root_path = "";
 	_has_redirect = false;
 	_redirect = std::pair<int, std::string>();
+	_default_dir_path = std::vector<std::string>();
 	_has_autoindex = false;
 	_is_accept_upload = false;
 	_upload_path = "";
 	_has_cgi = false;
 	_cgi_path = "";
+	__has_set_autoindex = false;
 }
 
 std::string const &Location::getLocationPath() const {return this->_location_path;}

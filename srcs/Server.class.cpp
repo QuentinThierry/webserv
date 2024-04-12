@@ -4,7 +4,10 @@ Server::Server()
 {
 	_host = "";
 	_port = 0;
+	_server_name = std::vector<std::string>();
+	_error_page_path = std::map<t_http_code, std::string>();
 	_client_max_body_size = 0;
+	_locations = std::vector<Location>();
 }
 
 std::string const &Server::getHost() const {return this->_host;}
