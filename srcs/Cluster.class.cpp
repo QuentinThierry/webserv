@@ -1,15 +1,31 @@
 #include "Cluster.class.hpp"
 
-// std::vector<Socket> Cluster::_sockets;
+Cluster::Cluster():_max_fd(0){};
+
+Cluster::Cluster(Cluster const &copy)
+{
+	*this = copy;
+}
+
+Cluster & Cluster::operator=(Cluster const &copy)
+{
+	_sockets = copy._sockets;
+	_map_sockets = copy._map_sockets;
+	_fd_write = copy._fd_write;
+	_max_fd = copy._max_fd;
+	return *this;
+}
+
+Cluster::~Cluster(){};
 
 Cluster::Cluster(std::vector<Server> servers)
 {
 	_max_fd = 0;
 	for (unsigned int i = 0; i < servers.size(); i++)
-		addServer(servers[i]);
+		_addServer(servers[i]);
 }
 
-Socket const * Cluster::find_same_config_server(Server const &server) const
+Socket const * Cluster::_find_same_config_server(Server const &server) const
 {
 	for (t_const_iter_sockets it = _sockets.begin(); it != _sockets.end(); it++)
 	{
@@ -21,12 +37,12 @@ Socket const * Cluster::find_same_config_server(Server const &server) const
 }
 
 
-void Cluster::addServer(Server const &server)
+void Cluster::_addServer(Server const &server)
 {
-	Socket const * same_config = find_same_config_server(server);
+	Socket const * same_config = _find_same_config_server(server);
 	if (same_config == NULL)
 	{
-		Socket new_socket = Socket(server);
+		Socket new_socket(server);
 		if (new_socket.getFd() == -1)
 			return ;
 		_sockets.push_back(new_socket);
@@ -40,12 +56,12 @@ void Cluster::addServer(Server const &server)
 	}
 	else
 	{
-		Socket copy_socket = Socket(server, *same_config);
+		Socket copy_socket(server, *same_config);
 		_sockets.push_back(copy_socket);
 	}
 }
 
-void Cluster::init_set_fds(fd_set *readfds, fd_set *writefds, fd_set *exceptfds) const
+void Cluster::_init_set_fds(fd_set *readfds, fd_set *writefds, fd_set *exceptfds) const
 {
 	FD_ZERO(readfds);
 	FD_ZERO(writefds);
@@ -69,7 +85,7 @@ void Cluster::init_set_fds(fd_set *readfds, fd_set *writefds, fd_set *exceptfds)
 	}
 }
 
-void Cluster::print_set(fd_set *fds, std::string str) const
+void Cluster::_print_set(fd_set *fds, std::string str) const
 {
 	std::cout << str << " SET :" << std::endl;
 	for (t_const_iter_sockets it = _sockets.begin(); it != _sockets.end(); it++)
@@ -95,15 +111,15 @@ void Cluster::runServer()
 	{
 		timeout.tv_sec = 3; // 0
 		timeout.tv_usec = 0;
-		init_set_fds(&readfds, &writefds, &exceptfds);
-		print_set(&readfds, "READ");
-		print_set(&writefds, "WRITE");
-		print_set(&exceptfds, "EXCEPT");
+		_init_set_fds(&readfds, &writefds, &exceptfds);
+		_print_set(&readfds, "READ");
+		_print_set(&writefds, "WRITE");
+		_print_set(&exceptfds, "EXCEPT");
 		std::cout << " ----- SELECT() ---- " << std::endl;
 		int nb_fds = select(_max_fd + 1, &readfds, &writefds, &exceptfds, &timeout);
-		print_set(&readfds, "READ");
-		print_set(&writefds, "WRITE");
-		print_set(&exceptfds, "EXCEPT");
+		_print_set(&readfds, "READ");
+		_print_set(&writefds, "WRITE");
+		_print_set(&exceptfds, "EXCEPT");
 		if (nb_fds == -1)
 			return ; //??
 		if (nb_fds == 0)
@@ -114,7 +130,7 @@ void Cluster::runServer()
 				std::cout << "ERROR" << std::endl;
 				// error(it);
 			else if (FD_ISSET(it->getFd(), &readfds))
-				acceptNewConnection(*it);
+				_acceptNewConnection(*it);
 		}
 		t_iter_map_sockets next;
 		for (t_iter_map_sockets it = _map_sockets.begin(); it != _map_sockets.end(); it = next)
@@ -136,7 +152,7 @@ void Cluster::runServer()
 	}
 }
 
-void Cluster::acceptNewConnection(Socket const & socket)
+void Cluster::_acceptNewConnection(Socket const & socket)
 {
 	int new_fd = accept(socket.getFd(), (sockaddr*)&socket.getAddresse(),
 			(socklen_t*)&socket.getSizeAddresse());

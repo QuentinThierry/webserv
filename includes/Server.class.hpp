@@ -9,9 +9,11 @@
 class Server
 {
     public:
+		Server(){};
 		Server(Server const &copy): _port(copy._port), _host(copy._host),
 				_server_name(copy._server_name), _error_page_path(copy._error_page_path),
 				_client_max_body_size(copy._client_max_body_size){};
+		Server & operator=(Server const &){ return *this;};
 		Server(int port, int host): _port(port), _host(host){};
         uint32_t const &getHost() const {return _host;};
         std::vector<std::string> const &getServerName() const {return _server_name;};

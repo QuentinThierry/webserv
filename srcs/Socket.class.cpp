@@ -1,5 +1,23 @@
 #include "Socket.class.hpp"
 
+Socket::Socket(): _fd(-1), _addr(), _sizeaddr(sizeof(_addr)), _server(){}
+
+
+Socket::Socket(Socket const &copy): _server(copy._server)
+{
+	*this = copy;
+}
+
+Socket::~Socket(){};
+
+Socket &Socket::operator=(Socket const &copy)
+{
+	_fd = copy._fd;
+	_addr = copy._addr;
+	_sizeaddr = copy._sizeaddr;
+	return *this;
+}
+
 Socket::Socket(Server const &server):_server(server)
 {
 	_fd = socket(AF_INET, SOCK_STREAM, 0);

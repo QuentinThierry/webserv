@@ -21,21 +21,22 @@ typedef std::map<int, HttpExchange>					t_map_sockets;
 class Cluster
 {
 	public:
-		// Cluster();
 		Cluster(std::vector<Server>);
-		// Cluster(Cluster const &copy);
-		// ~Cluster();
-		Socket const * find_same_config_server(Server const &server) const;
-		void addServer(Server const & server);
-		void init_set_fds(fd_set *readfds, fd_set *writefds, fd_set *exceptfds) const;
+		~Cluster();
 		void runServer();
-		void print_set(fd_set *fds, std::string str) const;
-		void acceptNewConnection(Socket const & socket);
 		void closeConnection(int fd);
 		Socket const *get_matching_socket(int fd, std::string server_name) const;
 		void switchHttpExchangeToWrite(int fd);
 	private:
-		// std::vector<Server>	_all_server;
+		Cluster();
+		Cluster(Cluster const &copy);
+		Cluster & operator=(Cluster const &copy);
+		void _addServer(Server const & server);
+		Socket const * _find_same_config_server(Server const &server) const;
+		void _init_set_fds(fd_set *readfds, fd_set *writefds, fd_set *exceptfds) const;
+		void _print_set(fd_set *fds, std::string str) const;
+		void _acceptNewConnection(Socket const & socket);
+
 		std::vector<Socket>				_sockets; //fd that are listening
 		std::map<int, HttpExchange>		_map_sockets; //fd create with accept => read
 		std::vector<int>				_fd_write; //fd create with accept => write
