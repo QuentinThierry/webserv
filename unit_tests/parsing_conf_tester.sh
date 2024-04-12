@@ -16,21 +16,21 @@ launch_test()
 	then
 		if [ "`cat $tmp_file_name`" != "$good_message" ]
 		then
-			echo -e "$RED""NOT OK$RESET"
+			echo -e "$RED""NOT OK $2$RESET"
 			cp $tmp_file_name unit_tests/logs/$2
 			echo -e "\n\n----\nShould be OK" >> unit_tests/logs/$2
 		else
-			echo -e "$GREEN""OK$RESET"
+			echo -e "$GREEN""OK $2$RESET"
 		fi
 	elif [ "$3" == "FALSE" ]
 	then
 		if [ "`cat $tmp_file_name`" == "$good_message" ]
 		then
-			echo -e "$RED""NOT OK$RESET"
+			echo -e "$RED""NOT OK $2$RESET"
 			cp $tmp_file_name unit_tests/logs/$2
 			echo -e "\n\n----\nShould not be OK" >> unit_tests/logs/$2
 		else
-			echo -e "$GREEN""OK$RESET"
+			echo -e "$GREEN""OK $2$RESET"
 		fi
 	else
 		echo Test argument error for \"$1$2 $3\"
@@ -47,20 +47,22 @@ launch_test conf_tester server2.conf FALSE
 launch_test conf_tester server3.conf FALSE
 launch_test conf_tester server4.conf FALSE
 launch_test conf_tester server5.conf FALSE
-launch_test conf_tester server6.conf TRUE
-launch_test conf_tester server7.conf TRUE
+launch_test conf_tester server6.conf FALSE
+launch_test conf_tester server7.conf FALSE
 launch_test conf_tester server8.conf FALSE
-launch_test conf_tester server9.conf TRUE
-launch_test conf_tester server10.conf TRUE
+launch_test conf_tester server9.conf FALSE
+launch_test conf_tester server10.conf FALSE
 launch_test conf_tester server11.conf FALSE
-launch_test conf_tester server12.conf FALSE
-launch_test conf_tester server13.conf TRUE
+launch_test conf_tester server12.conf TRUE
+launch_test conf_tester server13.conf FALSE
 launch_test conf_tester server14.conf TRUE
 launch_test conf_tester server15.conf FALSE
-launch_test conf_tester server16.conf TRUE
-launch_test conf_tester server17.conf TRUE
-launch_test conf_tester server18.conf TRUE
+launch_test conf_tester server16.conf FALSE
+launch_test conf_tester server17.conf FALSE
+launch_test conf_tester server18.conf FALSE
 launch_test conf_tester server19.conf FALSE
+launch_test conf_tester server20.conf FALSE
+launch_test conf_tester server21.conf TRUE
 
 
 
