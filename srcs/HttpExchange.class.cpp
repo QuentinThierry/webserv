@@ -6,7 +6,8 @@
 #include "error.hpp"
 
 
-HttpExchange::HttpExchange(Socket const &socket): _socket(&socket){};
+HttpExchange::HttpExchange(Socket const &socket): _socket(&socket),
+		_read_status(READ_HEADER), _size_read(0), _size_chunk(0){};
 
 void HttpExchange::_setRightSocket(Cluster const &cluster)
 {
@@ -21,7 +22,53 @@ void HttpExchange::_setRightSocket(Cluster const &cluster)
 		_socket = socket;
 }
 
+void HttpExchange::_setMethod()
+{
+	std::string method_name[3] = {"GET", "POST", "DELETE"};
+	e_http_method method_value[3] = {GET, POST, DELETE};
+
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < method_name[i].size(); i++)
+		{
+			if (method_name[i][j] != _buffer_read[j])
+				break;
+			else if (j == method_name[i].size() - 1)
+			{
+				_method = method_value[i];
+				return ;
+			}
+		}
+	}
+	_method = NONE;
+}
+
+void HttpExchange::_init_request()
+{
+	switch (_method)
+	{
+		case GET:
+			_request.method_get(_buffer_read);
+		case POST:
+			_request.method_post(_buffer_read);
+		case DELETE:
+			_request.method_delete(_buffer_read);
+		default:
+			//! throw error
+	}
+}
+
+
+
 void HttpExchange::readSocket(int fd, Cluster &cluster)
+{
+	if ((_read_status & READ_HEADER) == READ_HEADER)
+		_handle_header(fd, cluster);
+	else if ((_read_status & READ_BODY) == READ_BODY)
+		_handle_body(fd, cluster);
+}
+
+void HttpExchange::_handle_header(int fd, Cluster &cluster)
 {
 	char buffer[READ_SIZE + 1] = {0};
 
@@ -32,24 +79,49 @@ void HttpExchange::readSocket(int fd, Cluster &cluster)
 					std::string("Error: read() ") + std::strerror(errno)));
 		return; //!send error to client
 	}
+	std::cout << buffer << std::endl;
 	std::string str_buffer(buffer);
-	std::cout << str_buffer << std::endl;
-	_buffer_read = _buffer_read + str_buffer;
+	_buffer_read += str_buffer;
 	if (str_buffer.find("\r\n\r\n") != std::string::npos)
 	{
 		
 		//fin du header
 		std::cout << _buffer_read;
 		// std::exit(1);
-		//_request = _request(_buffer_read);
+		_setMethod();
+		//_request.method(_buffer_read);
 		_buffer_read.clear();
 		//check the right server
 		_setRightSocket(cluster);
+		// if (1) // need read body
+			
 		cluster.switchHttpExchangeToWrite(fd);
 		//check the right header size/encoding
+		//if client max body size < content lenght => send error
 		//check location for cgi
 		//read body with client_max_body => write in file OR pass to CGI
 	}
+}
+
+void HttpExchange::_handle_body(int fd, Cluster &cluster)
+{
+	char buffer[READ_SIZE + 1] = {0};
+	int read_size = READ_SIZE;
+
+	if (_size_read + READ_SIZE > _socket->getServer().getClientmaxBodySize())
+		read_size = _socket->getServer().getClientmaxBodySize() - _size_read;
+	else if (_size_read + READ_SIZE > ) // content-lenght
+	int ret = read(fd, buffer, read_size);
+	if (ret == -1)
+	{
+		protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
+					std::string("Error: read() ") + std::strerror(errno)));
+		return; //!send error to client
+	}
+	if (ret != read_size)
+
+	_buffer_read += buffer;
+	_size_read += read_size;
 }
 
 void HttpExchange::writeSocket(int fd, Cluster &cluster)
