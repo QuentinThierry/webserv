@@ -3,11 +3,7 @@
 void	fill_field_value(std::string &token, Server &server, Location *location, t_token_append_function &token_var_function, unsigned int arg_counter)
 {
 	if (token_var_function == NULL)
-	{
 		token_var_function = define_token_var_function(token);
-		if (token_var_function)
-			std::exception(); // unknown identifier name
-	}
 	else
 		token_var_function(token, server, location, arg_counter);
 }
