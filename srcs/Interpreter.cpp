@@ -69,6 +69,8 @@ Server	interpret_server_loop(std::queue<std::string> &tokens)
 		else
 			interpret_field_loop(token, tokens, server, NULL);
 	}
+	if (server._getHasListen() == false)
+		throw std::exception();
 	return server;
 }
 

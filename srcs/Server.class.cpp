@@ -9,6 +9,7 @@ Server::Server()
 	_client_max_body_size = 0;
 	_locations = std::vector<Location>();
 	__has_found_error_page_path = false;
+	__has_listen = false;
 }
 
 std::string const &Server::getHost() const {return this->_host;}
@@ -20,6 +21,7 @@ uint64_t const &Server::getClientmaxBodySize() const {return this->_client_max_b
 std::vector<Location> const &Server::getLocations() const {return this->_locations;}
 Location &Server::getDefaultLocation() {return this->_locations[0];}
 bool	&Server::_getHasFoundErrorPagePath() {return this->__has_found_error_page_path;}
+bool	&Server::_getHasListen() {return this->__has_listen;}
 
 void	Server::setHost(std::string host) {this->_host = host;}
 void	Server::setServerName(std::vector<std::string> server_names) {this->_server_name = server_names;}
@@ -31,3 +33,4 @@ void	Server::setClientmaxBodySize(uint64_t client_max_body_size) {this->_client_
 void	Server::setLocations(std::vector<Location> locations) {this->_locations = locations;}
 void	Server::addLocations(Location location) {this->_locations.push_back(location);}
 void	Server::_setHasFoundErrorPagePath(bool has_found_error_page_path) {this->__has_found_error_page_path = has_found_error_page_path;}
+void	Server::_setHasListen(bool has_listen) {this->__has_listen = has_listen;}

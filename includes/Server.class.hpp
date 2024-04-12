@@ -18,6 +18,7 @@ class Server
 		std::vector<Location> const &getLocations() const;
 		Location &getDefaultLocation();
 		bool	&_getHasFoundErrorPagePath();
+		bool	&_getHasListen();
 
 		void	setHost(std::string host);
 		void	setServerName(std::vector<std::string> server_names);
@@ -29,6 +30,7 @@ class Server
 		void	setLocations(std::vector<Location> locations);
 		void	addLocations(Location location);
 		void	_setHasFoundErrorPagePath(bool has_found_error_page_path);
+		void	_setHasListen(bool has_listen);
 
 	private:
 		std::string							_host;
@@ -38,6 +40,7 @@ class Server
 		uint64_t							_client_max_body_size;
 		std::vector<Location>				_locations;
 		bool								__has_found_error_page_path;
+		bool								__has_listen;
 };
 
 #endif
