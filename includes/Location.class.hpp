@@ -17,6 +17,7 @@ class Location
 		std::string const &getRootPath() const;
 		bool const &getHasRedirect() const;
 		std::pair<uint16_t, std::string> const &getRedirect() const;
+		std::pair<uint16_t, std::string> &getRedirect();
 		std::vector<std::string> const &getDefaultDirPath() const;
 		bool const &getHasAutoindex() const;
 		bool const &getCanAcceptUpload() const;
@@ -29,7 +30,7 @@ class Location
 		void	addMethods(std::string method);
 		void	setRootPath(std::string root_path);
 		void	setHasRedirect(bool has_redirect);
-		void	setRedirectPath(std::pair<uint16_t, std::string> redirect);
+		void	setRedirect(std::pair<uint16_t, std::string> redirect);
 		void	setDefaultDirPath(std::vector<std::string> default_path);
 		void	addDefaultDirPath(std::string default_path);
 		void	setHasAutoindex(bool has_auto_index);

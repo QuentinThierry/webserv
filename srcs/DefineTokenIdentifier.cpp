@@ -165,7 +165,6 @@ void	_parse_method(std::string &token, Location &loc)
 {
 	std::vector<std::string>::iterator it;
 
-	std::cout << token << " TOKEN TOKEN" << std::endl;
 	if (token != "GET" && token != "DELETE" && token != "POST")
 		throw std::exception();
 	it = std::find(loc.getMethods().begin(), loc.getMethods().end(), token);
@@ -181,16 +180,30 @@ static void _fill_limit_except(std::string &token, Server &server, Location *loc
 	_parse_method(token, *location);
 }
 
-static void _fill_redirect_path(std::string &token, Server &server, Location *location, unsigned int arg_counter)
+static void _parse_redirect(std::string &token, Location &loc, unsigned int arg_counter)
 {
-	if (!location || arg_counter != 1)
+	if (arg_counter == 1)
+		loc.setRedirect(std::make_pair(http_error_code_to_uint16(token), ""));
+	else if (arg_counter == 2)
+		loc.getRedirect().second = token;
+	else
+		throw std::exception();
+}
+
+
+static void _fill_redirect(std::string &token, Server &server, Location *location, unsigned int arg_counter)
+{
+	if (!location)
 		location = &(server.getDefaultLocation());
-	location->setRedirectPath(token);
+	location->setHasRedirect(true);
+	_parse_redirect(token, *location, arg_counter);
 }
 
 static void _fill_root_path(std::string &token, Server &server, Location *location, unsigned int arg_counter)
 {
-	if (!location || arg_counter != 1)
+	if (arg_counter != 1)
+		throw std::exception();
+	if (!location)
 		location = &(server.getDefaultLocation());
 	location->setRootPath(token);
 }
@@ -198,7 +211,9 @@ static void _fill_root_path(std::string &token, Server &server, Location *locati
 
 static void _fill_autoindex(std::string &token, Server &server, Location *location, unsigned int arg_counter)
 {
-	if (!location || arg_counter != 1)
+	if (arg_counter != 1)
+		throw std::exception();
+	if (!location)
 		location = &(server.getDefaultLocation());
 	// _parse_autoindex(token, location);
 }
@@ -206,6 +221,7 @@ static void _fill_autoindex(std::string &token, Server &server, Location *locati
 
 static void _fill_default_dir_file(std::string &token, Server &server, Location *location, unsigned int arg_counter)
 {
+	(void)arg_counter;
 	if (!location)
 		location = &(server.getDefaultLocation());
 	location->addDefaultDirPath(token);
@@ -225,7 +241,7 @@ t_token_append_function define_token_var_function(std::string &token)
 	else if (token == "limit_except")
 		return _fill_limit_except;
 	else if (token == "return")
-		return _fill_redirect_path;
+		return _fill_redirect;
 	else if (token == "root")
 		return _fill_root_path;
 	else if (token == "autoindex")
