@@ -56,6 +56,7 @@ class Location
 		std::string							_upload_path;
 		bool								_has_cgi;
 		std::string							_cgi_path;
+		bool								__has_set_autoindex;
 };
 
 #endif

@@ -208,6 +208,15 @@ static void _fill_root_path(std::string &token, Server &server, Location *locati
 	location->setRootPath(token);
 }
 
+void	_parse_autoindex(std::string &token, Location &loc)
+{
+	if (token == "on")
+		loc.setHasAutoindex(true);
+	else if (token == "off")
+		loc.setHasAutoindex(false);
+	else
+		throw std::exception();
+}
 
 static void _fill_autoindex(std::string &token, Server &server, Location *location, unsigned int arg_counter)
 {
@@ -215,7 +224,7 @@ static void _fill_autoindex(std::string &token, Server &server, Location *locati
 		throw std::exception();
 	if (!location)
 		location = &(server.getDefaultLocation());
-	// _parse_autoindex(token, location);
+	_parse_autoindex(token, *location);
 }
 
 
