@@ -9,10 +9,7 @@ void	fill_field_value(std::string &token, Server &server, Location *location, t_
 			std::exception(); // unknown identifier name
 	}
 	else
-	{
-		// append to field
 		token_var_function(token, server, location, arg_counter);
-	}
 }
 
 void	interpret_field_loop(std::string &token, std::queue<std::string> &tokens, Server &server, Location *location)
@@ -25,7 +22,11 @@ void	interpret_field_loop(std::string &token, std::queue<std::string> &tokens, S
 		if (token[0] == '{' || token[0] == '}')
 			continue;
 		else if (token[0] == ';')
+		{
+			if (arg_counter == 1)
+				throw std::exception();
 			break;
+		}
 		else
 			fill_field_value(token, server, location, token_identifier, arg_counter);
 		arg_counter++;
