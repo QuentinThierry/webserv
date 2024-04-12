@@ -3,6 +3,7 @@
 
 #define READ_SIZE 20
 #include <cstdlib>
+#include "error.hpp"
 
 
 HttpExchange::HttpExchange(Socket const &socket): _socket(&socket){};
@@ -27,7 +28,9 @@ void HttpExchange::readSocket(int fd, Cluster &cluster)
 	int ret = read(fd, buffer, READ_SIZE);
 	if (ret == -1)
 	{
-		return; //!error
+		protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
+					std::string("Error: read() ") + std::strerror(errno)));
+		return; //!send error to client
 	}
 	std::string str_buffer(buffer);
 	std::cout << str_buffer << std::endl;
@@ -55,7 +58,11 @@ void HttpExchange::writeSocket(int fd, Cluster &cluster)
 	{
 		int ret = write(fd, _buffer_read.c_str(), _buffer_read.size());
 		if (ret == -1 || ret == 0)
+		{
+			protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
+					std::string("Error: write() ") + std::strerror(errno)));
 			return; //!error
+		}
 		else
 			_buffer_read.clear();
 	}

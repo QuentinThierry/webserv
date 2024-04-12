@@ -1,4 +1,5 @@
 #include "Cluster.class.hpp"
+#include "error.hpp"
 
 Cluster::Cluster():_max_fd(0){};
 
@@ -36,7 +37,6 @@ Socket const * Cluster::_find_same_config_server(Server const &server) const
 	return NULL;
 }
 
-
 void Cluster::_addServer(Server const &server)
 {
 	Socket const * same_config = _find_same_config_server(server);
@@ -45,14 +45,16 @@ void Cluster::_addServer(Server const &server)
 		Socket new_socket(server);
 		if (new_socket.getFd() == -1)
 			return ;
-		_sockets.push_back(new_socket);
 		if (new_socket.getFd() > _max_fd)
 			_max_fd = new_socket.getFd();
 		if (_max_fd >= FD_SETSIZE)
 		{
-			std::cout << "Error : Too many socket" << std::endl;
+			close(new_socket.getFd());
+			protected_write(g_err_log_fd, error_message_server(new_socket.getServer(),
+					"Error: Too many servers, igonre"));
 			return ;
 		}
+		_sockets.push_back(new_socket);
 	}
 	else
 	{
@@ -158,18 +160,20 @@ void Cluster::_acceptNewConnection(Socket const & socket)
 			(socklen_t*)&socket.getSizeAddresse());
 	if (new_fd == -1)
 	{
-		std::cout << "Error: accept failed" << std::endl;
-		std::perror("Error");
+		protected_write(g_err_log_fd, error_message_server(socket.getServer(),
+					std::string("Error: accept() new connection ") + std::strerror(errno)));
 		return;
 	}
-	_map_sockets.insert(std::make_pair(new_fd, HttpExchange(socket)));
 	if (new_fd > _max_fd)
 		_max_fd = new_fd;
 	if (_max_fd >= FD_SETSIZE)
 	{
-		std::cout << "Error : Too many socket" << std::endl;
+		close(new_fd);
+		protected_write(g_err_log_fd, error_message_server(socket.getServer(),
+					"Error: Too many servers, igonre new connection to"));
 		return ;
 	}
+	_map_sockets.insert(std::make_pair(new_fd, HttpExchange(socket)));
 }
 
 Socket const *Cluster::get_matching_socket(int fd, std::string server_name) const

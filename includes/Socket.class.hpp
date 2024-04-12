@@ -10,6 +10,9 @@
 # include <unistd.h>
 # include <string.h>
 # include <cstdio>
+# include <cstring>
+# include <cerrno>
+
 
 # define NB_QUEUE_PORT 5
 

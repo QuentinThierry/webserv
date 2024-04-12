@@ -6,7 +6,7 @@
 /*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 15:07:56 by jvigny            #+#    #+#             */
-/*   Updated: 2024/04/10 21:47:50 by jvigny           ###   ########.fr       */
+/*   Updated: 2024/04/12 15:24:17 by jvigny           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,14 @@ typedef enum e_status
 	FAILURE
 } e_status;
 
+
 # include <string>
 # include <iostream>
 # include <exception>
+# include <unistd.h>
+
+int const g_err_log_fd = STDERR_FILENO;
+
+int protected_write(int const fd, std::string const str);
 
 #endif

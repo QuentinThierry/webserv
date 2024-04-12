@@ -1,4 +1,5 @@
 #include "Socket.class.hpp"
+#include "error.hpp"
 
 Socket::Socket(): _fd(-1), _addr(), _sizeaddr(sizeof(_addr)), _server(){}
 
@@ -23,7 +24,8 @@ Socket::Socket(Server const &server):_server(server)
 	_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (_fd == -1)
 	{
-		std::perror("Error socket()");
+		protected_write(g_err_log_fd, error_message_server(server,
+					std::string("Error: socket() ") + std::strerror(errno)));
 		return;
 	}
 	_sizeaddr = sizeof(_addr);
@@ -34,19 +36,20 @@ Socket::Socket(Server const &server):_server(server)
 	_addr.sin_port = htons(server.getPort()); //uint16_t
 	if (bind(_fd, (const sockaddr*)&_addr, _sizeaddr) == -1)
 	{
-		std::perror("Error bind()");
+		protected_write(g_err_log_fd, error_message_server(server,
+					std::string("Error: bind() ") + std::strerror(errno)));
 		close(_fd);
 		_fd = -1;
 		return;
 	}
 	if (listen(_fd, NB_QUEUE_PORT) == -1)
 	{
-		std::perror("Error listen()");
+		protected_write(g_err_log_fd, error_message_server(server,
+					std::string("Error: listen() ") + std::strerror(errno)));
 		close(_fd);
 		_fd = -1;
 		return;
 	}
-	std::cout << "create socket : " << server.getPort() << " " << server.getHost() << std::endl;
 }
 
 Socket::Socket(Server const &server, Socket const & socket): _fd(socket._fd),
