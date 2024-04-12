@@ -39,8 +39,7 @@ launch_test()
 
 
 
-
-
+mkdir -p unit_tests/logs
 
 launch_test conf_tester server1.conf FALSE
 launch_test conf_tester server2.conf FALSE
