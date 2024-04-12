@@ -8,6 +8,8 @@
 #define MAX_KBITS_CLIENT_MAX_SIZE_LEN 16
 #define MAX_MBITS_CLIENT_MAX_SIZE 8796093022207u
 #define MAX_MBITS_CLIENT_MAX_SIZE_LEN 13
+#define LOCALHOST "localhost"
+#define LOCALHOST_RESOLVE "127.0.0.1"
 
 void	fill_listen(std::string &token, Server &server, Location *location, unsigned int arg_counter);
 void	fill_server_name(std::string &token, Server &server, Location *location, unsigned int arg_counter);

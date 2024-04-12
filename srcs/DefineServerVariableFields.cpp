@@ -37,6 +37,8 @@ void	_parse_listen_argument(std::string &token, Server &server)
 	}
 	colon_pos = token.find_first_of(':');
 	server.setHost(token.substr(0, colon_pos));
+	if (server.getHost() == LOCALHOST)
+		server.setHost(LOCALHOST_RESOLVE);
 	server.setPort(str_to_short(token.substr(colon_pos + 1)));
 }
 
