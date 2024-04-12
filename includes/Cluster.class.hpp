@@ -14,9 +14,9 @@ typedef std::vector<Socket>::const_iterator	t_const_iter_sockets;
 typedef std::vector<Socket>::iterator		t_iter_sockets;
 typedef std::vector<Socket>					t_sockets;
 
-typedef std::map<int, HttpExchange>::const_iterator	t_const_iter_map_read;
-typedef std::map<int, HttpExchange>::iterator		t_iter_map_read;
-typedef std::map<int, HttpExchange>					t_map_read;
+typedef std::map<int, HttpExchange>::const_iterator	t_const_iter_map_sockets;
+typedef std::map<int, HttpExchange>::iterator		t_iter_map_sockets;
+typedef std::map<int, HttpExchange>					t_map_sockets;
 
 class Cluster
 {
@@ -31,6 +31,7 @@ class Cluster
 		void runServer();
 		void print_set(fd_set *fds, std::string str) const;
 		void acceptNewConnection(Socket const & socket);
+		void closeConnection(int fd);
 		Socket const *get_matching_socket(int fd, std::string server_name) const;
 		void switchHttpExchangeToWrite(int fd);
 	private:

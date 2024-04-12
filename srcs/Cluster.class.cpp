@@ -56,7 +56,7 @@ void Cluster::init_set_fds(fd_set *readfds, fd_set *writefds, fd_set *exceptfds)
 		FD_SET(it->getFd(), readfds);
 	}
 	unsigned int index = 0;
-	for (t_const_iter_map_read it = _map_sockets.begin(); it != _map_sockets.end(); it++)
+	for (t_const_iter_map_sockets it = _map_sockets.begin(); it != _map_sockets.end(); it++)
 	{
 		FD_SET(it->first, exceptfds);
 		if (_fd_write.size() > index && it->first == _fd_write[index])
@@ -77,10 +77,10 @@ void Cluster::print_set(fd_set *fds, std::string str) const
 		if (FD_ISSET(it->getFd(), fds))
 			std::cout << it->getFd() << std::endl;
 	}
-	for (t_const_iter_map_read it = _map_sockets.begin(); it != _map_sockets.end(); it++)
+	for (t_const_iter_map_sockets it = _map_sockets.begin(); it != _map_sockets.end(); it++)
 	{
 		if (FD_ISSET(it->first, fds))
-			std::cout << it->first << " read" << std::endl;
+			std::cout << it->first << " accept" << std::endl;
 	}
 	std::cout << "END" << std::endl;
 }
@@ -116,15 +116,21 @@ void Cluster::runServer()
 			else if (FD_ISSET(it->getFd(), &readfds))
 				acceptNewConnection(*it);
 		}
-		for (t_iter_map_read it = _map_sockets.begin(); it != _map_sockets.end(); it++)
+		t_iter_map_sockets next;
+		for (t_iter_map_sockets it = _map_sockets.begin(); it != _map_sockets.end(); it = next)
 		{
+			next = ++it;
+			it--;
 			if (FD_ISSET(it->first, &exceptfds))
+			{
 				std::cout << "ERROR" << std::endl;
 				// error(it);
+				closeConnection(it->first);
+			}
 			else if (FD_ISSET(it->first, &readfds))
 				it->second.readSocket(it->first, *this);
-			// else if (FD_ISSET(it->first, writefds))
-			// 	writerequest(it);
+			else if (FD_ISSET(it->first, &writefds))
+				it->second.writeSocket(it->first, *this);
 		}
 		std::cout << " ----- fin ---- " << std::endl;
 	}
@@ -165,4 +171,20 @@ void Cluster::switchHttpExchangeToWrite(int fd)
 {
 	_fd_write.push_back(fd);
 }
+
+void Cluster::closeConnection(int fd)
+{
+	std::vector<int>::iterator pos = std::find(_fd_write.begin(), _fd_write.end(), fd);
+	if (pos != _fd_write.end())
+	{
+		_fd_write.erase(pos);
+	}
+	t_iter_map_sockets elem = _map_sockets.find(fd);
+	if (elem != _map_sockets.end())
+	{
+		close(elem->first);
+		_map_sockets.erase(elem);
+	}
+}
+
 
