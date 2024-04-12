@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 19:47:57 by acardona          #+#    #+#             */
-/*   Updated: 2024/04/12 14:36:40 by acardona         ###   ########.fr       */
+/*   Updated: 2024/04/12 21:30:16 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,37 +67,27 @@ void	trim_whitespace_r(std::string & str)
 /* ==== ABNF ====*/
 // https://datatracker.ietf.org/doc/html/rfc5234#appendix-B.1
 
-bool	char_is_ascii(unsigned char const &c)
+bool	is_ascii(unsigned char const &c)
 {
 	return (c >= 0 && c <= 128);
 }
 
-bool	char_is_ALPHA(unsigned char const c)
-{
-	return (std::isalpha(c));
-}
-
-bool	char_is_DIGIT(unsigned char const c)
-{
-	return (std::isdigit(c));
-}
-
-bool	char_is_VCHAR(unsigned char const c)
+bool	is_VCHAR(unsigned char const &c)
 {
 	return (c >= 0x21 && c <= 0x7E);
 }
 
-bool	char_is_tchar(unsigned char const c)
+bool	is_tchar(unsigned char const &c)
 {
-	return (char_is_VCHAR(c) && !char_is_separator(c));
+	return (is_VCHAR(c) && !is_separator(c));
 }
 
-bool	char_is_control(unsigned char const c)
+bool	is_control(unsigned char const &c)
 {
 	return (c <= 31 || c == 127);
 }
 
-bool	char_is_separator(char const c)
+bool	is_separator(unsigned char const &c)
 {
 	return (static_cast<std::string>(HTTP_SEPARATORS).find(c) != std::string::npos);
 }

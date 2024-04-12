@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 15:52:09 by acardona          #+#    #+#             */
-/*   Updated: 2024/04/12 15:44:01 by acardona         ###   ########.fr       */
+/*   Updated: 2024/04/12 21:24:16 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ static bool	_is_field_authorized_whitespace( unsigned char const c )
 
 static bool _is_valid_values_char( unsigned char const c )
 {
-	return (char_is_VCHAR(c) || _is_field_authorized_whitespace(c));
+	return (is_VCHAR(c) || _is_field_authorized_whitespace(c));
 }
 
 //https://datatracker.ietf.org/doc/html/rfc7230#section-3.2
@@ -99,7 +99,7 @@ static	bool __is_one_value_syntax_ok( std::string const &str )
 {
 	for (unsigned int i = 0; i < str.size(); ++i)
 	{
-		if (!char_is_VCHAR(str.at(i)))
+		if (!is_VCHAR(str.at(i)))
 			return (false);
 	}
 	return (true);
