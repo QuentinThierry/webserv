@@ -17,6 +17,27 @@ Location::Location()
 	__has_set_autoindex = false;
 }
 
+Location::Location(Location const &ref)
+{
+	*this = ref;
+}
+
+Location &Location::operator=(Location const &ref)
+{
+	_location_path = ref._location_path;
+	_accepted_methods = ref._accepted_methods;
+	_root_path = ref._root_path;
+	_has_redirect = ref._has_redirect;
+	_redirect = ref._redirect;
+	_default_dir_path = ref._default_dir_path;
+	_has_autoindex = ref._has_autoindex;
+	_upload_path = ref._upload_path;
+	_has_cgi = ref._has_cgi;
+	_cgi_path = ref._cgi_path;
+	__has_set_autoindex = false;
+	return *this;
+}
+
 std::string const &Location::getLocationPath() const {return this->_location_path;}
 std::vector<std::string> const &Location::getMethods() const {return this->_accepted_methods;}
 std::vector<std::string> &Location::getMethods() {return this->_accepted_methods;}

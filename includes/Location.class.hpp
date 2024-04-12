@@ -13,6 +13,9 @@ class Location
 {
 	public:
 		Location();
+		Location(Location const &ref);
+
+		Location &operator=(Location const &ref);
 
 		std::string const &getLocationPath() const;
 		std::vector<std::string> const &getMethods() const;

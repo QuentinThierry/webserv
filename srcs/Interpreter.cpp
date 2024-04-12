@@ -35,7 +35,7 @@ void	interpret_field_loop(std::string &token, std::queue<std::string> &tokens, S
 
 void	interpret_location_loop(std::queue<std::string> &tokens, Server &server)
 {
-	Location location;
+	Location location(server.getDefaultLocation());
 	t_token_append_function	token_identifier = NULL;
 
 	std::string token = extract_token(tokens);
