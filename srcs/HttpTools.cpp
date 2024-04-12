@@ -6,23 +6,125 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 19:47:57 by acardona          #+#    #+#             */
-/*   Updated: 2024/04/04 19:58:16 by acardona         ###   ########.fr       */
+/*   Updated: 2024/04/12 14:36:40 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/HttpTools.hpp"
 
-static bool _str_contain_a_colon(std::string const & str)
+static bool	_str_contain_a_colon(std::string const & str,
+				size_t first_colon_pos = std::string::npos)
 {
-	return (str.find(':') != std::string::npos);
+	if (first_colon_pos == std::string::npos)
+		first_colon_pos = str.find(':');
+	return (first_colon_pos != std::string::npos);
 }
 
-static bool _str_contains_multiple_colon(std::string const & str)
+static bool	_str_contains_multiple_colon(std::string const & str,
+				size_t first_colon_pos = std::string::npos)
 {
-	return (_str_contain_a_colon(str) && str.find(':') != str.find_last_of(":") );
+	if (first_colon_pos == std::string::npos)
+		first_colon_pos = str.find(':');
+	return (_str_contain_a_colon(str, first_colon_pos) && first_colon_pos != str.find_last_of(":") );
 }
 
-bool str_contain_one_single_colon(std::string const & str)
+bool	str_contains_one_single_colon(std::string const & str,
+			size_t first_colon_pos)
 {
-	return (_str_contain_a_colon(str) && ! _str_contains_multiple_colon(str));
+	if (first_colon_pos == std::string::npos)
+		first_colon_pos = str.find(':');
+	return (_str_contain_a_colon(str, first_colon_pos) && ! _str_contains_multiple_colon(str, first_colon_pos));
+}
+
+
+/* === trim whitespaces (space and htab) === */
+
+void	trim_whitespace(std::string & str)
+{
+    trim_whitespace_r(str);
+    trim_whitespace_l(str);
+}
+
+void	trim_whitespace_l(std::string & str)
+{
+	size_t	whitespace_pos = str.find_first_not_of(HTTP_WHITESPACES);
+	if (whitespace_pos == std::string::npos)
+		str.clear();
+	else if (whitespace_pos != 0)
+    	str.erase(0, whitespace_pos);
+}
+
+void	trim_whitespace_r(std::string & str)
+{
+	size_t	whitespace_pos = str.find_last_not_of(HTTP_WHITESPACES);
+	if (whitespace_pos == std::string::npos)
+		str.clear();
+	else if (whitespace_pos != str.size() - 1)
+    	str.erase(whitespace_pos + 1);
+}
+
+
+/* ==== ABNF ====*/
+// https://datatracker.ietf.org/doc/html/rfc5234#appendix-B.1
+
+bool	char_is_ascii(unsigned char const &c)
+{
+	return (c >= 0 && c <= 128);
+}
+
+bool	char_is_ALPHA(unsigned char const c)
+{
+	return (std::isalpha(c));
+}
+
+bool	char_is_DIGIT(unsigned char const c)
+{
+	return (std::isdigit(c));
+}
+
+bool	char_is_VCHAR(unsigned char const c)
+{
+	return (c >= 0x21 && c <= 0x7E);
+}
+
+bool	char_is_tchar(unsigned char const c)
+{
+	return (char_is_VCHAR(c) && !char_is_separator(c));
+}
+
+bool	char_is_control(unsigned char const c)
+{
+	return (c <= 31 || c == 127);
+}
+
+bool	char_is_separator(char const c)
+{
+	return (static_cast<std::string>(HTTP_SEPARATORS).find(c) != std::string::npos);
+}
+
+
+//set the first letter of the words (consecutive letters) in upper case and its other letters in lower case 
+void	format_string_to_canonical(std::string & str)
+{
+	bool	to_capitalize = true;
+
+	for (std::string::iterator it = str.begin(); it != str.end(); ++it)
+	{
+		if (std::isalpha(*it))
+		{
+			if (to_capitalize)
+			{
+				*it = std::toupper(*it);
+				to_capitalize = false;
+			}
+			else
+			{
+				*it = std::tolower(*it);
+			}
+		}
+		else
+		{
+			to_capitalize = true;
+		}
+	}
 }

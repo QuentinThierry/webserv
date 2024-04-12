@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   httpResponseStatus.hpp                             :+:      :+:    :+:   */
+/*   HttpResponseStatus.hpp                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 17:47:33 by acardona          #+#    #+#             */
-/*   Updated: 2024/04/04 19:35:13 by acardona         ###   ########.fr       */
+/*   Updated: 2024/04/11 20:08:53 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 # include <sstream>
 
-# include "shared.hpp"
+# include "Shared.hpp"
 
 enum e_status_code
 {
@@ -97,6 +97,7 @@ class ExceptionHttpStatusCode : public std::exception
 {
 	public:
 		ExceptionHttpStatusCode( e_status_code status_code ) throw (ExceptionUnknownStatusCode) : _status_code (status_code) {}
+		e_status_code const & get_status_code( void ) const { return (_status_code);}
 	private:
 		ExceptionHttpStatusCode( void ) {}
 		e_status_code	_status_code;

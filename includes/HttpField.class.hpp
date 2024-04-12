@@ -6,33 +6,50 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 15:52:09 by acardona          #+#    #+#             */
-/*   Updated: 2024/04/04 19:58:26 by acardona         ###   ########.fr       */
+/*   Updated: 2024/04/12 15:43:52 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef HTTPFIELD_CLASS_HPP
 # define HTTPFIELD_CLASS_HPP
 
-# include "shared.hpp"
+# include "Shared.hpp"
 # include "HttpResponseStatus.hpp"
+# include "HttpTools.hpp"
+
+# include <vector>
+
+# define MSG_ERR_NO_UNIQUE_SEPARATOR "Error: HTTP request: a field does not contain a unique ':' separator"
+# define MSG_ERR_NO_FIELD_VALUE "Error: HTTP request: a field does not contain any value"
+# define MSG_ERR_NO_FIELD_NAME "Error: HTTP request: a field does not contain any name"
+# define MSG_ERR_QUOTE_NOT_CLOSED "Error: HTTP request: quote note closed in a field"
+# define MSG_ERR_INVALID_FIELD_CHARACTER "Error: HTTP request: invalid character in a field"
+# define MSG_ERR_EMPTY_ADDED_VALUE "Error: HTTP request: attempted to add an empty value to a field"
 
 
 class HttpField
 {
 	public:
 		HttpField( std::string const & whole_line ) throw (ExceptionHttpStatusCode);
-		HttpField( std::string const & name, std::string const & values );
+		HttpField( std::string const & name, std::string const & values ) throw (ExceptionHttpStatusCode);
 		HttpField( HttpField const & model );
-		virtual ~HttpField( void );
 		HttpField & operator=( HttpField const & model );
+		virtual ~HttpField( void );
 
-		std::string const & getName( void ) const;
-		std::string const & getValues( void ) const;
-		
+		std::string const &					getName( void ) const;
+		std::vector<std::string> const &	getValues( void ) const;
+
 	private:
+		std::string					_name;
+		std::vector<std::string>	_values;
+		
 		HttpField( void );
-		std::string	_name;
-		std::string	_values;
+		void	_addNewValues( std::string str );
+		void	_add_one_value( std::string const & str, size_t start_idx,
+					size_t end_idx);
+		void	_add_all_values( std::string & str);
+		void	_setName( std::string const &str );
+
 };
 
 #endif
