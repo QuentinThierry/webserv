@@ -12,6 +12,7 @@ class Server
 		std::string const &getHost() const;
 		t_port const &getPort() const;
 		std::vector<std::string> const &getServerName() const;
+		std::vector<std::string> &getServerName();
 		std::map<t_http_code, std::string> const &getErrorPagePath() const;
 		std::map<t_http_code, std::string> &getErrorPagePath();
 		uint64_t const &getClientmaxBodySize() const;
@@ -31,6 +32,8 @@ class Server
 		void	addLocations(Location location);
 		void	_setHasFoundErrorPagePath(bool has_found_error_page_path);
 		void	_setHasListen(bool has_listen);
+
+		bool	is_equal(Server const &ref);
 
 	private:
 		std::string							_host;

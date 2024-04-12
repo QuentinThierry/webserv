@@ -15,6 +15,7 @@ Server::Server()
 std::string const &Server::getHost() const {return this->_host;}
 t_port const &Server::getPort() const {return this->_port;}
 std::vector<std::string> const &Server::getServerName() const {return this->_server_name;}
+std::vector<std::string> &Server::getServerName() {return this->_server_name;}
 std::map<t_http_code, std::string> const &Server::getErrorPagePath() const {return this->_error_page_path;}
 std::map<t_http_code, std::string> &Server::getErrorPagePath() {return this->_error_page_path;}
 uint64_t const &Server::getClientmaxBodySize() const {return this->_client_max_body_size;}
@@ -34,3 +35,13 @@ void	Server::setLocations(std::vector<Location> locations) {this->_locations = l
 void	Server::addLocations(Location location) {this->_locations.push_back(location);}
 void	Server::_setHasFoundErrorPagePath(bool has_found_error_page_path) {this->__has_found_error_page_path = has_found_error_page_path;}
 void	Server::_setHasListen(bool has_listen) {this->__has_listen = has_listen;}
+
+// return if the server has the same host and port
+bool	Server::is_equal(Server const &ref)
+{
+	if (this->getHost() != ref.getHost())
+		return false;
+	if (this->getPort() != ref.getPort())
+		return false;
+	return true;
+}

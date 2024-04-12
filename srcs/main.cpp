@@ -51,6 +51,7 @@ void	print_server(Server &server)
 		std::cout << "\tHas CGI : " << loc.getHasCgi() << std::endl;
 		std::cout << "\tPath CGI : " << loc.getCgiPath() << std::endl;
 	}
+	std::cout << std::endl;
 }
 
 
@@ -75,7 +76,9 @@ int	main(int argc, char **argv)
 		parse_tokens(tokens);
 		std::vector<Server> servers;
 		interpret_tokens(tokens, servers);
-		print_server(servers[0]);
+		for (unsigned int i = 0; i < servers.size(); i++) {
+			print_server(servers[i]);
+		}
 	}
 	catch (std::exception &e)
 	{

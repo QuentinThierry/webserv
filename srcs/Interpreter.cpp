@@ -59,11 +59,14 @@ Server	interpret_server_loop(std::queue<std::string> &tokens)
 
 
 	server.addLocations(default_location);
+
 	while (!tokens.empty())
 	{
 		std::string token = extract_token(tokens);
-		if (token[0] == '{' || token[0] == '}' || token[0] == ';')
+		if (token[0] == '{' || token[0] == ';')
 			continue;
+		else if (token[0] == '}')
+			break ;
 		else if (token == "location")
 			interpret_location_loop(tokens, server);
 		else
@@ -74,6 +77,36 @@ Server	interpret_server_loop(std::queue<std::string> &tokens)
 	return server;
 }
 
+void	_check_server_is_unique(std::vector<Server> &servers)
+{
+	std::vector<std::string> &to_test = servers.back().getServerName();
+	std::vector<std::string>::iterator it;
+	std::vector<std::string>::iterator it_to_test;
+
+	for (unsigned int i = 0; i < servers.size() - 1; i++)
+	{
+		if (!servers[i].is_equal(servers.back()))
+			continue;
+		it = servers[i].getServerName().begin();
+		while (it != servers[i].getServerName().end())
+		{
+			for (it_to_test = to_test.begin(); it_to_test != to_test.end();)
+			{
+				if (*it == *it_to_test)
+				{
+					it_to_test = to_test.erase(it_to_test);
+					if (to_test.empty())
+						return ;
+				}
+				else
+					it_to_test++;
+			}
+			it++;
+		}
+		if (to_test.empty())
+			return ;
+	}
+}
 
 
 void	interpret_tokens(std::queue<std::string> &tokens, std::vector<Server> &servers)
@@ -82,5 +115,6 @@ void	interpret_tokens(std::queue<std::string> &tokens, std::vector<Server> &serv
 	{
 		std::string token = extract_token(tokens);
 		servers.push_back(interpret_server_loop(tokens));
+		_check_server_is_unique(servers);
 	}
 }
