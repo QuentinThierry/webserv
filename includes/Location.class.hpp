@@ -23,8 +23,7 @@ class Location
 		std::pair<t_http_code, std::string> &getRedirect();
 		std::vector<std::string> const &getDefaultDirPath() const;
 		bool const &getHasAutoindex() const;
-		bool const &getCanAcceptUpload() const;
-		std::string const &getDefaultUploadPath() const;
+		std::string const &getUploadPath() const;
 		bool const &getHasCgi() const;
 		std::string const &getCgiPath() const;
 
@@ -37,8 +36,7 @@ class Location
 		void	setDefaultDirPath(std::vector<std::string> default_path);
 		void	addDefaultDirPath(std::string default_path);
 		void	setHasAutoindex(bool has_auto_index);
-		void	setCanAcceptUpload(bool can_accept_upload);
-		void	setDefaultUploadPath(std::string upload_path);
+		void	setUploadPath(std::string upload_path);
 		void	setHasCgi(bool has_cgi);
 		void	setCgiPath(std::string cgi_path);
 
@@ -52,7 +50,6 @@ class Location
 		std::pair<t_http_code, std::string>	_redirect;
 		std::vector<std::string>			_default_dir_path;
 		bool								_has_autoindex;
-		bool								_is_accept_upload;
 		std::string							_upload_path;
 		bool								_has_cgi;
 		std::string							_cgi_path;

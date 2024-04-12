@@ -236,6 +236,13 @@ static void _fill_default_dir_file(std::string &token, Server &server, Location 
 	location->addDefaultDirPath(token);
 }
 
+static void _fill_upload_path(std::string &token, Server &server, Location *location, unsigned int arg_counter)
+{
+	if (arg_counter != 1 || !location)
+		throw std::exception();
+	location->setUploadPath(token);
+}
+
 t_token_append_function define_token_var_function(std::string &token)
 {
 	// find function that matches token
@@ -257,6 +264,8 @@ t_token_append_function define_token_var_function(std::string &token)
 		return _fill_autoindex;
 	else if (token == "index")
 		return _fill_default_dir_file;
+	else if (token == "upload_path")
+		return _fill_upload_path;
 	else
 		throw std::exception();
 }

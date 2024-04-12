@@ -47,8 +47,7 @@ void	print_server(Server &server)
 			std::cout << "\t\t" << loc.getDefaultDirPath()[j] << std::endl;
 		}
 		std::cout << "\tHas autoindex : " << loc.getHasAutoindex() << std::endl;
-		std::cout << "\tAccept upload : " << loc.getCanAcceptUpload() << std::endl;
-		std::cout << "\tDefault upload dir : " << loc.getDefaultUploadPath() << std::endl;
+		std::cout << "\tUpload dir : " << loc.getUploadPath() << std::endl;
 		std::cout << "\tHas CGI : " << loc.getHasCgi() << std::endl;
 		std::cout << "\tPath CGI : " << loc.getCgiPath() << std::endl;
 	}
