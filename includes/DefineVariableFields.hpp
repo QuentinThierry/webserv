@@ -1,0 +1,21 @@
+#include "ConfParser.hpp"
+#include <algorithm>
+#include <cstdlib>
+
+#define MAX_BITS_CLIENT_MAX_SIZE 9223372036854775807u
+#define MAX_BITS_CLIENT_MAX_SIZE_LEN 20
+#define MAX_KBITS_CLIENT_MAX_SIZE 9007199254740991u
+#define MAX_KBITS_CLIENT_MAX_SIZE_LEN 16
+#define MAX_MBITS_CLIENT_MAX_SIZE 8796093022207u
+#define MAX_MBITS_CLIENT_MAX_SIZE_LEN 13
+
+void	fill_listen(std::string &token, Server &server, Location *location, unsigned int arg_counter);
+void	fill_server_name(std::string &token, Server &server, Location *location, unsigned int arg_counter);
+void	fill_error_page(std::string &token, Server &server, Location *location, unsigned int arg_counter);
+void	fill_client_max_body_size(std::string &token, Server &server, Location *location, unsigned int arg_counter);
+void	fill_limit_except(std::string &token, Server &server, Location *location, unsigned int arg_counter);
+void	fill_redirect(std::string &token, Server &server, Location *location, unsigned int arg_counter);
+void	fill_root_path(std::string &token, Server &server, Location *location, unsigned int arg_counter);
+void	fill_autoindex(std::string &token, Server &server, Location *location, unsigned int arg_counter);
+void	fill_default_dir_file(std::string &token, Server &server, Location *location, unsigned int arg_counter);
+void	fill_upload_path(std::string &token, Server &server, Location *location, unsigned int arg_counter);
