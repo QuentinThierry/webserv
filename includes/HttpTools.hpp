@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 19:43:37 by acardona          #+#    #+#             */
-/*   Updated: 2024/04/12 14:37:14 by acardona         ###   ########.fr       */
+/*   Updated: 2024/04/12 19:17:59 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,17 @@
 # define HTTPTOOLS_HPP
 
 # include "Shared.hpp"
+# include "HttpResponseStatus.hpp"
 
 # define HTTP_SEPARATORS "()<>@,;:\\/[]?={} \""
 # define HTTP_WHITESPACES " \t"
+
+typedef enum e_http_method
+{
+	GET,
+	POST,
+	DELETE
+}	e_http_method;
 
 
 bool	str_contains_one_single_colon(std::string const & str,
@@ -36,7 +44,5 @@ void	trim_whitespace_r(std::string & str);
 void	trim_whitespace_l(std::string & str);
 
 void	format_string_to_canonical(std::string & str);
-
-
 
 #endif

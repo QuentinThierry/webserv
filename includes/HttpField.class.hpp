@@ -6,15 +6,13 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 15:52:09 by acardona          #+#    #+#             */
-/*   Updated: 2024/04/12 15:43:52 by acardona         ###   ########.fr       */
+/*   Updated: 2024/04/12 18:50:11 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef HTTPFIELD_CLASS_HPP
 # define HTTPFIELD_CLASS_HPP
 
-# include "Shared.hpp"
-# include "HttpResponseStatus.hpp"
 # include "HttpTools.hpp"
 
 # include <vector>
