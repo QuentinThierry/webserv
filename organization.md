@@ -16,11 +16,11 @@ int main()
 	select
 	{
 		get conf for fd
-		event recieve header
+		event receive header
 		{
-			while read request + concatène + 
+			while read request + concatène + need to check client size boby
 			parse format(guillemet)
-			check method protocol and host 
+			check method protocol and host
 			find locations of the server
 			{ for each valid location:
 
@@ -46,7 +46,12 @@ int main()
 	}
 }
 
-class GET/POST/DELETE : inherites methode
+class
+	read
+	request
+	socket
+
+class GET/POST/DELETE : inherites request
 
 classe methode
 	GET/POST/DELETE():check method of location + dechunk body

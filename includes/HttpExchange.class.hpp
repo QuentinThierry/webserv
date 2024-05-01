@@ -22,12 +22,6 @@ typedef enum e_http_method{
 	NONE
 } e_http_method;
 
-#define	NO_BODY			0b00000000
-#define READ_HEADER		0b00000001
-#define READ_BODY		0b00000010
-#define CHUNK_BODY		0b00000100
-#define CONTENT_LENGHT	0b00001000
-
 class HttpExchange{
 	public:
 		HttpExchange(Socket const &);
@@ -36,7 +30,6 @@ class HttpExchange{
 	private:
 		Socket const		*_socket;
 		std::string			_buffer_read;
-		int					_read_status;
 		int64_t				_size_read;
 		int64_t				_size_chunk;
 		e_http_method		_method;

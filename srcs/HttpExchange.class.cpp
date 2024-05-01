@@ -1,4 +1,5 @@
 #include "HttpExchange.class.hpp"
+#include "HttpResponseStatus.hpp"
 #include "Cluster.class.hpp"
 
 #define READ_SIZE 20
@@ -7,7 +8,7 @@
 
 
 HttpExchange::HttpExchange(Socket const &socket): _socket(&socket),
-		_read_status(READ_HEADER), _size_read(0), _size_chunk(0){};
+		_size_read(0), _size_chunk(0) ,_method(NONE){};
 
 void HttpExchange::_setRightSocket(Cluster const &cluster)
 {
@@ -15,8 +16,10 @@ void HttpExchange::_setRightSocket(Cluster const &cluster)
 
 	std::vector<std::string> const &host_name = _request.getFieldValue("Host", error);
 	if (error == FAILURE || host_name.size() != 1)
-		//error 400
+	{
+		throw ExceptionHttpStatusCode(HTTP_400);
 		std::exit(0);
+	}
 	Socket const *socket = cluster.get_matching_socket(_socket->getFd(), host_name.at(0));
 	if (socket != NULL)
 		_socket = socket;
@@ -54,7 +57,7 @@ void HttpExchange::_init_request()
 		case DELETE:
 			_request.method_delete(_buffer_read);
 		default:
-			//! throw error
+			throw ExceptionHttpStatusCode(HTTP_501);
 	}
 }
 
@@ -62,10 +65,10 @@ void HttpExchange::_init_request()
 
 void HttpExchange::readSocket(int fd, Cluster &cluster)
 {
-	if ((_read_status & READ_HEADER) == READ_HEADER)
-		_handle_header(fd, cluster);
-	else if ((_read_status & READ_BODY) == READ_BODY)
+	if (_method == POST)
 		_handle_body(fd, cluster);
+	else
+		_handle_header(fd, cluster);
 }
 
 void HttpExchange::_handle_header(int fd, Cluster &cluster)
@@ -89,12 +92,18 @@ void HttpExchange::_handle_header(int fd, Cluster &cluster)
 		std::cout << _buffer_read;
 		// std::exit(1);
 		_setMethod();
-		//_request.method(_buffer_read);
-		_buffer_read.clear();
-		//check the right server
-		_setRightSocket(cluster);
-		// if (1) // need read body
-			
+		try{
+			_init_request();
+			_buffer_read.clear();
+			//check the right server
+			_setRightSocket(cluster);
+		}
+		catch(std::exception &e)
+		{
+			std::cout << "Error \n";
+			//send response();
+			return ;
+		}
 		cluster.switchHttpExchangeToWrite(fd);
 		//check the right header size/encoding
 		//if client max body size < content lenght => send error
@@ -110,7 +119,8 @@ void HttpExchange::_handle_body(int fd, Cluster &cluster)
 
 	if (_size_read + READ_SIZE > _socket->getServer().getClientmaxBodySize())
 		read_size = _socket->getServer().getClientmaxBodySize() - _size_read;
-	else if (_size_read + READ_SIZE > ) // content-lenght
+	else if (_size_read + READ_SIZE > _request.method_post.getContentLenght()) // content-lenght
+		read_size = _request.method_post.getContentLenght() - _size_read;
 	int ret = read(fd, buffer, read_size);
 	if (ret == -1)
 	{
@@ -118,7 +128,7 @@ void HttpExchange::_handle_body(int fd, Cluster &cluster)
 					std::string("Error: read() ") + std::strerror(errno)));
 		return; //!send error to client
 	}
-	if (ret != read_size)
+	// if (ret != read_size)
 
 	_buffer_read += buffer;
 	_size_read += read_size;
