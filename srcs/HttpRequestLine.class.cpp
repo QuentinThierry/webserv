@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 20:02:08 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/02 18:59:00 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/02 20:15:47 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,54 @@
 
 HttpRequestLine::HttpRequestLine( void )
 {
+	//always call HttpRequestLine::_fill_request_line after calling this constructor
 }
+
+HttpRequestLine::HttpRequestLine( std::stringstream & request_stream) throw (ExceptionHttpStatusCode)
+{
+	std::string	first_line;
+
+	getline(request_stream, first_line);
+	_fill_request_line(first_line);
+}
+
+HttpRequestLine::HttpRequestLine( std::string const & request_first_line ) throw (ExceptionHttpStatusCode)
+{
+	_fill_request_line(request_first_line);
+}
+
+HttpRequestLine::HttpRequestLine( HttpRequestLine const & model) :
+	_method(model._method), _target(model._target), _version(model._version)
+{
+}
+
+HttpRequestLine & HttpRequestLine::operator=(HttpRequestLine const & model )
+{
+	if (&model != this)
+	{
+		_method = model._method;
+		_target = model._target;
+		_version = model._version;
+	}
+	return (*this);
+}
+
+
+it_method const & HttpRequestLine::getMethod( void ) const
+{
+	return (_method);
+}
+
+std::string const & HttpRequestLine::getTarget( void ) const
+{
+	return (_target);
+}
+
+it_version const & HttpRequestLine::getVersion( void ) const
+{
+	return (_version);
+}
+
 
 static std::string _extract_first_word( std::stringstream &words )
 {
@@ -26,6 +73,7 @@ static std::string _extract_first_word( std::stringstream &words )
 }
 
 //Method :
+
 static it_method	_match_token_to_method( std::string const & method_token )
 {
 	it_method	method;
@@ -33,8 +81,6 @@ static it_method	_match_token_to_method( std::string const & method_token )
 	method = std::find(g_http_methods.begin(), g_http_methods.end(), method_token);
 	if (method == g_http_methods.end())
 	{
-
-	std::cout << "TOTO" << std::endl;
 		throw (ExceptionHttpStatusCode(HTTP_501));
 	}
 	return (method);
@@ -81,7 +127,8 @@ static void	_check_end_of_line( std::stringstream & line )
 		throw(ExceptionHttpStatusCode(HTTP_400));
 }
 
-HttpRequestLine::HttpRequestLine( std::string const & request_first_line ) throw (ExceptionHttpStatusCode)
+void	HttpRequestLine::_fill_request_line( std::string const & request_first_line )
+	throw (ExceptionHttpStatusCode)
 {
 	std::stringstream	line(request_first_line);
 
@@ -92,34 +139,24 @@ HttpRequestLine::HttpRequestLine( std::string const & request_first_line ) throw
 }
 
 
-HttpRequestLine::HttpRequestLine( HttpRequestLine const & model) :
-	_method(model._method), _target(model._target), _version(model._version)
+/*
+int main()
 {
-}
-
-HttpRequestLine & HttpRequestLine::operator=(HttpRequestLine const & model )
-{
-	if (&model != this)
+	try
 	{
-		_method = model._method;
-		_target = model._target;
-		_version = model._version;
+		HttpRequestLine line("POST /toto HTTP/0.9");
+		std::cout << "Method: " << *line.getMethod() << std::endl;
+		std::cout << "Target: " << line.getTarget() << std::endl;
+		std::cout << "Version: " << *line.getVersion() << std::endl;
+	} catch (ExceptionHttpStatusCode & e)
+	{
+		std::cout << "Error " << e.get_status_code() << " "
+			<< get_error_reason_phrase(e.get_status_code()) << std::endl;
 	}
-	return (*this);
+	catch (std::exception & e)
+	{
+		std::cout << "Non http error: " << e.what() << std::endl;
+	}
+	return 0;
 }
-
-
-it_method const & HttpRequestLine::getMethod( void ) const
-{
-	return (_method);
-}
-
-std::string const & HttpRequestLine::getTarget( void ) const
-{
-	return (_target);
-}
-
-it_version const & HttpRequestLine::getVersion( void ) const
-{
-	return (_version);
-}
+*/
