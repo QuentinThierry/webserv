@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 17:32:04 by acardona          #+#    #+#             */
-/*   Updated: 2024/04/12 19:17:16 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/02 18:35:03 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,16 +19,21 @@
 
 class HttpRequestLine
 {
+	public:
 		HttpRequestLine( std::string const & request_header ) throw (ExceptionHttpStatusCode);
-		e_http_method const & getMethod( void ) const;
-		std::string const & getTarget( void ) const;
-		std::string const & getVersion( void ) const; 
+		HttpRequestLine( HttpRequestLine const & model);
+		HttpRequestLine & operator=(HttpRequestLine const & model );
+
+		it_method	const & getMethod( void ) const;
+		std::string	const & getTarget( void ) const;
+		it_version	const & getVersion( void ) const;
+
+
 	private:
 		HttpRequestLine( void );
-		e_http_method	_method;
+		it_method		_method;
 		std::string		_target;
-		std::string		_version;
-
+		it_version		_version;
 };
 
 #endif

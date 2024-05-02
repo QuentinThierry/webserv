@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 19:43:37 by acardona          #+#    #+#             */
-/*   Updated: 2024/04/12 22:10:21 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/02 19:00:11 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,16 +16,23 @@
 # include "Shared.hpp"
 # include "HttpResponseStatus.hpp"
 
+# include <vector>
+# include <algorithm>
+
 # define HTTP_SEPARATORS "()<>@,;:\\/[]?={} \""
 # define HTTP_WHITESPACES " \t"
 
-typedef enum e_http_method
-{
-	GET,
-	POST,
-	DELETE
-}	e_http_method;
+static const std::vector<std::string> g_http_methods = {"GET", "POST", "DELETE"};
+typedef std::vector<std::string>::const_iterator it_method;
+static const std::vector<std::string> g_http_versions = {"HTTP", "HTTP/0.9", "HTTP/1.0", "HTTP/1.1"};
+typedef std::vector<std::string>::const_iterator it_version;
 
+// typedef enum
+// {
+// 	HTTP_GET,
+// 	HTTP_POST,
+// 	HTTP_DELETE
+// }	e_http_method;
 
 bool		str_contains_one_single_colon(std::string const & str,
 				size_t first_colon_pos = std::string::npos);
