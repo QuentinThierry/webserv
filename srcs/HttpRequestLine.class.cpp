@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 20:02:08 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/02 20:15:47 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/03 21:57:24 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,15 +17,14 @@ HttpRequestLine::HttpRequestLine( void )
 	//always call HttpRequestLine::_fill_request_line after calling this constructor
 }
 
-HttpRequestLine::HttpRequestLine( std::stringstream & request_stream) throw (ExceptionHttpStatusCode)
+HttpRequestLine::HttpRequestLine( std::stringstream & request_stream)
+	throw (ExceptionHttpStatusCode)
 {
-	std::string	first_line;
-
-	getline(request_stream, first_line);
-	_fill_request_line(first_line);
+	_fill_request_line_with_stream(request_stream);
 }
 
-HttpRequestLine::HttpRequestLine( std::string const & request_first_line ) throw (ExceptionHttpStatusCode)
+HttpRequestLine::HttpRequestLine( std::string const & request_first_line )
+	throw (ExceptionHttpStatusCode)
 {
 	_fill_request_line(request_first_line);
 }
@@ -68,24 +67,20 @@ static std::string _extract_first_word( std::stringstream &words )
 	std::string	first_word;
 
 	if (! (words >> first_word))
-		throw (ExceptionHttpStatusCode(HTTP_400));
+		throw_http_err_with_log(HTTP_400, MSG_ERR_LINE_MISSING_WORD);
 	return (first_word);
 }
 
 //Method :
-
 static it_method	_match_token_to_method( std::string const & method_token )
 {
 	it_method	method;
 
 	method = std::find(g_http_methods.begin(), g_http_methods.end(), method_token);
 	if (method == g_http_methods.end())
-	{
-		throw (ExceptionHttpStatusCode(HTTP_501));
-	}
+		throw_http_err_with_log(HTTP_501, MSG_ERR_LINE_WRONG_METHOD);
 	return (method);
 }
-
 static it_method	_check_and_get_method( std::stringstream & line )
 {
 	std::string	method_token;
@@ -107,7 +102,7 @@ static	it_version	_match_token_to_version( std::string const & version_token )
 
 	version = std::find(g_http_versions.begin(), g_http_versions.end(), version_token);
 	if (version == g_http_versions.end())
-		throw (ExceptionHttpStatusCode(HTTP_505));
+		throw_http_err_with_log(HTTP_505, MSG_ERR_LINE_WRONG_VERSION);
 	return (version);
 }
 
@@ -124,22 +119,36 @@ static void	_check_end_of_line( std::stringstream & line )
 	std::string	word;
 
 	if (line >> word)
-		throw(ExceptionHttpStatusCode(HTTP_400));
+		throw_http_err_with_log(HTTP_400, MSG_ERR_LINE_TOO_MANY_WORDS);
 }
 
 void	HttpRequestLine::_fill_request_line( std::string const & request_first_line )
 	throw (ExceptionHttpStatusCode)
 {
 	std::stringstream	line(request_first_line);
-
+	if (line.bad())
+		throw_http_err_with_log(HTTP_500, MSG_ERR_LINE_SSTREAM_FAIL);
 	_method = _check_and_get_method(line);
 	_target = _check_and_get_target(line);
 	_version = _check_and_get_version(line);
 	_check_end_of_line(line);
 }
 
+void	HttpRequestLine::_fill_request_line_with_stream( std::stringstream & request_header_stream )
+	throw (ExceptionHttpStatusCode)
+{
+	std::string	first_line;
+
+	if (request_header_stream.eof()
+		|| ! getline(request_header_stream, first_line))
+		throw_http_err_with_log(HTTP_500, MSG_ERR_LINE_BAD_SSTREAM_INPUT);
+	_fill_request_line(first_line);
+}
 
 /*
+
+int g_err_log_fd = STDERR_FILENO;
+
 int main()
 {
 	try
