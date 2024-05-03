@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 18:27:23 by acardona          #+#    #+#             */
-/*   Updated: 2024/04/12 19:23:04 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/03 22:19:04 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,20 +17,32 @@
 # include "HttpField.class.hpp"
 # include "HttpRequestLine.class.hpp"
 
+class HttpResponse;
 
 class HttpRequest : public HttpRequestLine
 {
 	public:
-		HttpRequest ( std::string const & str_request ) throw (ExceptionHttpStatusCode);
 		HttpRequest ( HttpRequest const & model );
-		HttpRequest & operator=(HttpRequest const & model);
+		virtual HttpRequest & operator=(HttpRequest const & model);
+		
+		// virtual void					process_header( void ) = 0;
+		// virtual HttpResponse			generate_response( void ) = 0;
+		virtual void					display_request( void ) const;
 
-		std::vector<std::string> const &getFieldValue(std::string const & filed_name, e_status &success_status) const;
+		HttpRequest ( void );
+		virtual void init( std::stringstream &request_stream ) throw(ExceptionHttpStatusCode);
+		virtual ~HttpRequest( void );
+
+	protected:
+
+		bool							checkFieldExistence(std::string const & field_name) const;
+		const std::vector<std::string>	&getFieldValue(std::string const & field_name) const throw(ExceptionHttpStatusCode);
+
 
 	private:
-		HttpRequest ( void );
-		virtual ~HttpRequest( void );
-		std::vector<std::string> _fields;
-		
+
+		std::vector<HttpField> _fields;
+		void	_fill_fields(std::stringstream &request_stream) throw (ExceptionHttpStatusCode);	
 };
+
 #endif
