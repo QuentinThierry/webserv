@@ -1,5 +1,57 @@
 #include "DefineVariableFields.hpp"
 
+bool	_is_correct_ip(std::string ip)
+{
+	unsigned int nb_digits = 0;
+	unsigned int nb_dots = 0;
+
+	for (unsigned int i = 0; i < ip.size(); i++)
+	{
+		if ((!std::isdigit(ip[i]) && ip[i] != '.') || nb_dots > 3)
+			return false;
+		if (ip[i] == '.' && (nb_digits == 0 || nb_digits > 3))
+			return false;
+		if (ip[i] == '.')
+		{
+			nb_dots++;
+			nb_digits = 0;
+		}
+		else
+			nb_digits++;
+	}
+	if (nb_digits > 3 || nb_dots != 3)
+		return false;
+	return true;
+}
+
+uint32_t	_convert_host_to_uint(std::string const &host)
+{
+	std::string tmp = "";
+	u_ip_uint32 res = {0};
+	unsigned int j = 0;
+	int tmp_val = 0;
+
+	for (unsigned int i = 0; i < 4; i++)
+	{
+		for (; j < host.size(); j++) {
+			if (host[j] == '.')
+			{
+				j++;
+				break;
+			}
+			tmp += host[j];
+		}
+		if (tmp.size() > 3)
+			throw std::out_of_range("overflow1");
+		tmp_val = std::atoi(tmp.c_str());
+		if (tmp_val > 255)
+			throw std::out_of_range("overflow2");
+		*((uint8_t *)(&res) + i) = tmp_val;
+		tmp.clear();
+	}
+	return ntohl(res.ip);
+}
+
 u_int16_t	str_to_short(std::string str)
 {
 	for (unsigned int i = 0; i < str.size(); i++) {
@@ -39,6 +91,9 @@ void	_parse_listen_argument(std::string &token, Server &server)
 	server.setHost(token.substr(0, colon_pos));
 	if (server.getHost() == LOCALHOST)
 		server.setHost(LOCALHOST_RESOLVE);
+	else if (!_is_correct_ip(server.getHost()))
+		throw std::out_of_range("non ok host");
+	server.setHostUint(_convert_host_to_uint(server.getHost()));
 	server.setPort(str_to_short(token.substr(colon_pos + 1)));
 }
 

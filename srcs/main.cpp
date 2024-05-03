@@ -17,9 +17,22 @@ bool	wrap_getline_throw(std::fstream &s, std::string &buffer)
 	return true;
 }
 
+#include <arpa/inet.h>
+
+void	_print_real_host_val(std::string const &host)
+{
+	struct sockaddr_in addr;
+
+	inet_aton(host.c_str(), &addr.sin_addr);
+
+	std::cout << " (should be " << ntohl(addr.sin_addr.s_addr) << ")" << std::endl;
+}
+
 void	print_server(Server &server)
 {
 	std::cout << "Host : " << server.getHost() << std::endl;
+	std::cout << "Host uint : " << server.getHostUint();
+	_print_real_host_val(server.getHost());
 	std::cout << "Port : " << server.getPort() << std::endl;
 	std::cout << "Server_names : " << std::endl;
 	for (unsigned int i = 0; i < server.getServerName().size(); i++) {
@@ -54,7 +67,6 @@ void	print_server(Server &server)
 	std::cout << std::endl;
 }
 
-
 int	main(int argc, char **argv)
 {
 	if (argc != 2)
@@ -84,6 +96,7 @@ int	main(int argc, char **argv)
 	{
 		std::cout << e.what() << std::endl;
 	}
+	
 	
 	std::cout << "OK" << std::endl;
 }

@@ -13,6 +13,7 @@ Server::Server()
 }
 
 std::string const &Server::getHost() const {return this->_host;}
+uint32_t const &Server::getHostUint() const {return this->_host_uint;}
 t_port const &Server::getPort() const {return this->_port;}
 std::vector<std::string> const &Server::getServerName() const {return this->_server_name;}
 std::vector<std::string> &Server::getServerName() {return this->_server_name;}
@@ -25,6 +26,7 @@ bool	&Server::_getHasFoundErrorPagePath() {return this->__has_found_error_page_p
 bool	&Server::_getHasListen() {return this->__has_listen;}
 
 void	Server::setHost(std::string host) {this->_host = host;}
+void	Server::setHostUint(uint32_t host_uint) {this->_host_uint = host_uint;}
 void	Server::setServerName(std::vector<std::string> server_names) {this->_server_name = server_names;}
 void	Server::addServerName(std::string server_name) {this->_server_name.push_back(server_name);}
 void	Server::setPort(t_port port) {this->_port = port;}

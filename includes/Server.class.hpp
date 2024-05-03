@@ -10,6 +10,7 @@ class Server
 	public:
 		Server();
 		std::string const &getHost() const;
+		uint32_t const &getHostUint() const;
 		t_port const &getPort() const;
 		std::vector<std::string> const &getServerName() const;
 		std::vector<std::string> &getServerName();
@@ -22,6 +23,7 @@ class Server
 		bool	&_getHasListen();
 
 		void	setHost(std::string host);
+		void	setHostUint(uint32_t host_uint);
 		void	setServerName(std::vector<std::string> server_names);
 		void	addServerName(std::string server_name);
 		void	setPort(t_port port);
@@ -37,6 +39,7 @@ class Server
 
 	private:
 		std::string							_host;
+		uint32_t							_host_uint;
 		t_port								_port;
 		std::vector<std::string>			_server_name;
 		std::map<t_http_code, std::string>	_error_page_path;
