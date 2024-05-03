@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 17:47:33 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/02 18:45:17 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/03 21:30:16 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 
 # include "Shared.hpp"
 
-enum e_status_code
+typedef enum 
 {
 	HTTP_100 = 100,
 	HTTP_101 = 101,
@@ -82,7 +82,7 @@ enum e_status_code
 	HTTP_508 = 508,
 	HTTP_510 = 510,
 	HTTP_511 = 511,
-};
+} e_status_code;
 
 class ExceptionUnknownStatusCode : public std::exception
 {
