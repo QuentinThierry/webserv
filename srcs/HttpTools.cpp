@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 19:47:57 by acardona          #+#    #+#             */
-/*   Updated: 2024/04/12 21:30:16 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/03 21:32:58 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,6 +175,12 @@ e_status find_end_word(std::string const & str, size_t start_idx,
 			return (find_end_word(str, end_idx + 1, delimiters, end_idx));
 		return (SUCCESS);
 	}
+}
+
+void	throw_http_err_with_log(e_status_code error_code, std::string log_msg)
+{
+	protected_write(g_err_log_fd, log_msg);
+	throw(ExceptionHttpStatusCode(error_code));
 }
 
 /*

@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 15:52:09 by acardona          #+#    #+#             */
-/*   Updated: 2024/04/12 21:24:16 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/03 21:36:27 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,18 +19,12 @@ HttpField::HttpField( std::string const & whole_line ) throw (ExceptionHttpStatu
 {
 	size_t separator_position = whole_line.find(":");
 	if (!str_contains_one_single_colon(whole_line, separator_position))
-	{
-		protected_write(g_err_log_fd, MSG_ERR_NO_UNIQUE_SEPARATOR);
-		throw(ExceptionHttpStatusCode(HTTP_400));
-	}
+		throw_http_err_with_log(HTTP_400, MSG_ERR_NO_UNIQUE_SEPARATOR);
 	
 	this->_setName(whole_line.substr(0, separator_position ));
 
 	if (separator_position + 1 == std::string::npos)
-	{
-		protected_write(g_err_log_fd, MSG_ERR_NO_FIELD_VALUE);
-		throw(ExceptionHttpStatusCode(HTTP_400));
-	}
+		throw_http_err_with_log(HTTP_400, MSG_ERR_NO_FIELD_VALUE);
 	else
 		this->_addNewValues(whole_line.substr(separator_position + 1));
 
@@ -68,8 +62,6 @@ std::vector<std::string> const & HttpField::getValues( void ) const
 {
 	return (_values);
 }
-
-
 
 
 static bool	_is_field_authorized_whitespace( unsigned char const c )
@@ -113,10 +105,7 @@ void	HttpField::_add_one_value( std::string const & str, size_t start_idx,
 	value = str.substr(start_idx, end_idx - start_idx);
 	trim_whitespace(value);
 	if (! __is_one_value_syntax_ok(value))
-	{
-		protected_write(g_err_log_fd, MSG_ERR_INVALID_FIELD_CHARACTER);
-		throw(ExceptionHttpStatusCode(HTTP_400));
-	}
+		throw_http_err_with_log(HTTP_400, MSG_ERR_INVALID_FIELD_CHARACTER);
 	if (value.size())
 		_values.push_back(value);
 }
@@ -152,15 +141,9 @@ static bool _is_name_syntax_ok( std::string const &str )
 void HttpField::_setName( std::string const &str )
 {
 	if (str.empty())
-	{
-		protected_write(g_err_log_fd, MSG_ERR_NO_FIELD_NAME);
-		throw(ExceptionHttpStatusCode(HTTP_400));
-	}
+		throw_http_err_with_log(HTTP_400, MSG_ERR_NO_FIELD_NAME);
 	if (! _is_name_syntax_ok(str) )
-	{
-		protected_write(g_err_log_fd, MSG_ERR_INVALID_FIELD_CHARACTER);
-		throw(ExceptionHttpStatusCode(HTTP_400));
-	}
+		throw_http_err_with_log(HTTP_400, MSG_ERR_INVALID_FIELD_CHARACTER);
 	_name = str;
 	format_string_to_canonical(_name);
 	
@@ -178,10 +161,7 @@ void	HttpField::_add_all_values( std::string & str)
 		if (start_idx == str_size)
 			return ;
 		if (find_end_word(str, start_idx, ",", end_idx) == FAILURE)
-		{
-			protected_write(g_err_log_fd, MSG_ERR_QUOTE_NOT_CLOSED);
-			throw(ExceptionHttpStatusCode(HTTP_400));	
-		}
+			throw_http_err_with_log(HTTP_400, MSG_ERR_QUOTE_NOT_CLOSED);
 		_add_one_value(str, start_idx, end_idx);
 		start_idx = end_idx;
 	}
@@ -190,21 +170,19 @@ void	HttpField::_add_all_values( std::string & str)
 void	HttpField::_addNewValues( std::string str )
 {
 	if ( str.empty() )
-	{
-		protected_write(g_err_log_fd, MSG_ERR_EMPTY_ADDED_VALUE);
-		throw(ExceptionHttpStatusCode(HTTP_400));
-	}
+		throw_http_err_with_log(HTTP_400, MSG_ERR_EMPTY_ADDED_VALUE);
 	if (_is_values_list_syntax_ok(str) == false)
-	{
-		protected_write(g_err_log_fd, MSG_ERR_INVALID_FIELD_CHARACTER);
-		throw(ExceptionHttpStatusCode(HTTP_400));
-	}
+		throw_http_err_with_log(HTTP_400, MSG_ERR_INVALID_FIELD_CHARACTER);
 	_add_all_values(str);
 	if (_values.size() == 0)
-	{
-		protected_write(g_err_log_fd, MSG_ERR_EMPTY_ADDED_VALUE);
-		throw(ExceptionHttpStatusCode(HTTP_400));
-	}
+		throw_http_err_with_log(HTTP_400, MSG_ERR_EMPTY_ADDED_VALUE);
+}
+
+void	HttpField::mergeFieldValues( HttpField &to_merge)
+{
+	const std::vector<std::string> values_to_add = to_merge.getValues();
+	for (std::vector<std::string>::const_iterator it = values_to_add.begin() ; it != values_to_add.end(); ++it)
+		_values.push_back(*it);
 }
 
 

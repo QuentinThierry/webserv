@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 19:43:37 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/02 19:00:11 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/03 21:31:36 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,5 +53,7 @@ void		format_string_to_canonical(std::string & str);
 
 e_status	find_end_word(std::string const & str, size_t start_idx,
 				std::string delimiters, size_t &end_idx);
+
+void		throw_http_err_with_log(e_status_code error_code, std::string log_msg);
 
 #endif
