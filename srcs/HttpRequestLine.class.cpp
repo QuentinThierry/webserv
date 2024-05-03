@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 20:02:08 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/03 21:57:24 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/03 22:06:02 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,6 +144,12 @@ void	HttpRequestLine::_fill_request_line_with_stream( std::stringstream & reques
 		throw_http_err_with_log(HTTP_500, MSG_ERR_LINE_BAD_SSTREAM_INPUT);
 	_fill_request_line(first_line);
 }
+
+void	HttpRequestLine::display_request_line( void ) const
+{
+	std::cout << *_method << " " << _target << " " << *_version << std::endl;
+}
+
 
 /*
 

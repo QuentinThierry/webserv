@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 17:32:04 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/03 21:56:46 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/03 22:04:48 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,9 +30,11 @@ class HttpRequestLine
 		HttpRequestLine( HttpRequestLine const & model);
 		HttpRequestLine & operator=(HttpRequestLine const & model );
 
-		it_method	const & getMethod( void ) const;
-		std::string	const & getTarget( void ) const;
-		it_version	const & getVersion( void ) const;
+		it_method const &	getMethod( void ) const;
+		std::string const &	getTarget( void ) const;
+		it_version const &	getVersion( void ) const;
+
+		void	display_request_line( void ) const;
 
 	protected :
 		HttpRequestLine( void );

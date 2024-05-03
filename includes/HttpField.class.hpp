@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 15:52:09 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/03 21:41:24 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/03 22:07:02 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,8 @@ class HttpField
 		std::string const &					getName( void ) const;
 		std::vector<std::string> const &	getValues( void ) const;
 		void								mergeFieldValues( HttpField &to_merge);
+
+		void	display_field ( void ) const;
 
 	private:
 		std::string					_name;

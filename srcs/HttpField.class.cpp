@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 15:52:09 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/03 21:41:22 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/03 22:19:54 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,6 +183,21 @@ void	HttpField::mergeFieldValues( HttpField &to_merge)
 	const std::vector<std::string> values_to_add = to_merge.getValues();
 	for (std::vector<std::string>::const_iterator it = values_to_add.begin() ; it != values_to_add.end(); ++it)
 		_values.push_back(*it);
+}
+
+void	HttpField::display_field ( void ) const
+{
+	std::cout << _name << ": ";
+	if (_values.size())
+	{
+		std::cout << _values[0];
+		for (std::vector<std::string>::const_iterator it = ++(_values.begin());
+			it != _values.end(); ++it)
+		{
+			std::cout << ", " << *it;
+		}
+	}
+	std::cout << std::endl;
 }
 
 
