@@ -16,17 +16,23 @@
 # include "HttpTools.hpp"
 # include "HttpRequest.class.hpp"
 
+# define MSG_ERR_HTTPDELETE_SSTREAM_FAIL "ERROR: internal: stringstream failure in the delete request construction"
+# define MSG_ERR_HTTPDELETE_WRONG_METHOD "ERROR: internal: call to the wrong HTTP method constructor"
+
+class HttpResponse;
+
 class HttpRequestDelete : public HttpRequest
 {
 	public:
 		HttpRequestDelete (std::string const & str_request) throw (ExceptionHttpStatusCode);
 		HttpRequestDelete ( HttpRequestDelete const & model);
 		HttpRequestDelete & operator= (HttpRequestDelete const & model);
+		~HttpRequestDelete( void );
+
+		void			process_header( void );
+		HttpResponse	generate_response( void );
 
 	private:
 		HttpRequestDelete( void );
-		~HttpRequestDelete( void );
-
 };
-
 # endif
