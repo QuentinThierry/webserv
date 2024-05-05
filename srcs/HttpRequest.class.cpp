@@ -103,7 +103,9 @@ void	HttpRequest::display_request( void ) const
 
 
 
-/*
+
+#if 0
+
 int g_err_log_fd = STDERR_FILENO;
 
 int main()
@@ -130,4 +132,5 @@ int main()
 
 	return 0;
 }
-*/
+
+#endif
