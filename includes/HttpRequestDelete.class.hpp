@@ -17,7 +17,7 @@
 # include "HttpRequest.class.hpp"
 
 # define MSG_ERR_HTTPDELETE_SSTREAM_FAIL "ERROR: internal: stringstream failure in the delete request construction"
-# define MSG_ERR_HTTPDELETE_WRONG_METHOD "ERROR: internal: call to the wrong HTTP method constructor"
+# define MSG_ERR_HTTPDELETE_WRONG_METHOD "ERROR: internal: call to the wrong HTTP method constructor (DELETE)"
 
 class HttpResponse;
 
