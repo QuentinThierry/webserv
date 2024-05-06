@@ -23,6 +23,7 @@ Cluster::~Cluster(){};
 Cluster::Cluster(std::vector<Server> servers)
 {
 	_max_fd = 0;
+	_close_connection = false;
 	for (unsigned int i = 0; i < servers.size(); i++)
 		_addServer(servers[i]);
 }
@@ -115,14 +116,14 @@ void Cluster::runServer()
 		timeout.tv_sec = 3; // 0
 		timeout.tv_usec = 0;
 		_init_set_fds(&readfds, &writefds, &exceptfds);
-		// _print_set(&readfds, "READ");
-		// _print_set(&writefds, "WRITE");
-		// _print_set(&exceptfds, "EXCEPT");
-		// std::cout << " ----- SELECT() ---- " << std::endl;
+		_print_set(&readfds, "READ");
+		_print_set(&writefds, "WRITE");
+		_print_set(&exceptfds, "EXCEPT");
+		std::cout << " ----- SELECT() ---- " << std::endl;
 		int nb_fds = select(_max_fd + 1, &readfds, &writefds, &exceptfds, &timeout);
-		// _print_set(&readfds, "READ");
-		// _print_set(&writefds, "WRITE");
-		// _print_set(&exceptfds, "EXCEPT");
+		_print_set(&readfds, "READ");
+		_print_set(&writefds, "WRITE");
+		_print_set(&exceptfds, "EXCEPT");
 		if (nb_fds == -1)
 			return ; //??
 		if (nb_fds == 0)
@@ -148,12 +149,12 @@ void Cluster::runServer()
 			}
 			else if (FD_ISSET(_map_sockets.at(i).first, &writefds))
 			{
-				// _map_sockets.at(i).second.writeSocket(_map_sockets.at(i).first, *this);
+				_map_sockets.at(i).second.writeSocket(_map_sockets.at(i).first, *this);
 				break ;
 			}
 			else if (FD_ISSET(_map_sockets.at(i).first, &readfds))
 			{
-				// _map_sockets.at(i).second.readSocket(_map_sockets.at(i).first, *this);
+				_map_sockets.at(i).second.readSocket(_map_sockets.at(i).first, *this);
 				break ;
 			}
 		}
@@ -206,15 +207,18 @@ void Cluster::closeConnection(int fd)
 	{
 		_fd_write.erase(pos);
 	}
-	t_iter_map_sockets elem = std::find(_map_sockets.begin(), _map_sockets.end(), fd);
-	if (elem != _map_sockets.end())
+	for (t_iter_map_sockets it = _map_sockets.begin(); it != _map_sockets.end(); it++)
 	{
-		close(elem->first);
-		if (elem == _map_sockets.begin())
-			_map_sockets.pop_front();
-		else
-			_map_sockets.erase(elem);
-		_close_connection = true;
+		if (it->first == fd)
+		{
+			close(it->first);
+			if (it == _map_sockets.begin())
+				_map_sockets.pop_front();
+			else
+				_map_sockets.erase(it);
+			_close_connection = true;
+			break;
+		}
 	}
 }
 

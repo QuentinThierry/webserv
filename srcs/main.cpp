@@ -4,15 +4,8 @@
 
 extern int const g_err_log_fd;
 
-
-void test(int)
-{
-	std::exit(FAILURE);
-}
-
 int main()
 {
-	signal(SIGINT, test);
 	std::vector<Server> servers;
 	Server first(8080, INADDR_ANY);
 	servers.push_back(first);
