@@ -7,6 +7,7 @@
 
 # include <sys/time.h>
 # include <vector>
+# include <deque>
 # include <algorithm>
 
 
@@ -14,9 +15,9 @@ typedef std::vector<Socket>::const_iterator	t_const_iter_sockets;
 typedef std::vector<Socket>::iterator		t_iter_sockets;
 typedef std::vector<Socket>					t_sockets;
 
-typedef std::map<int, HttpExchange>::const_iterator	t_const_iter_map_sockets;
-typedef std::map<int, HttpExchange>::iterator		t_iter_map_sockets;
-typedef std::map<int, HttpExchange>					t_map_sockets;
+typedef std::deque<std::pair<int, HttpExchange> >::const_iterator	t_const_iter_map_sockets;
+typedef std::deque<std::pair<int, HttpExchange> >::iterator			t_iter_map_sockets;
+typedef std::deque<std::pair<int, HttpExchange> >					t_map_sockets;
 
 class Cluster
 {
@@ -38,9 +39,10 @@ class Cluster
 		void _acceptNewConnection(Socket const & socket);
 
 		std::vector<Socket>				_sockets; //fd that are listening
-		std::map<int, HttpExchange>		_map_sockets; //fd create with accept => read
+		std::deque<std::pair<int, HttpExchange> >	_map_sockets; //fd create with accept => read
 		std::vector<int>				_fd_write; //fd create with accept => write
 		int								_max_fd;
+		bool							_close_connection;
 
 };
 

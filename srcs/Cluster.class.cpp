@@ -1,7 +1,7 @@
 #include "Cluster.class.hpp"
-#include "error.hpp"
+#include "util.hpp"
 
-Cluster::Cluster():_max_fd(0){};
+Cluster::Cluster():_max_fd(0), _close_connection(false){};
 
 Cluster::Cluster(Cluster const &copy)
 {
@@ -14,6 +14,7 @@ Cluster & Cluster::operator=(Cluster const &copy)
 	_map_sockets = copy._map_sockets;
 	_fd_write = copy._fd_write;
 	_max_fd = copy._max_fd;
+	_close_connection = copy._close_connection;
 	return *this;
 }
 
@@ -114,14 +115,14 @@ void Cluster::runServer()
 		timeout.tv_sec = 3; // 0
 		timeout.tv_usec = 0;
 		_init_set_fds(&readfds, &writefds, &exceptfds);
-		_print_set(&readfds, "READ");
-		_print_set(&writefds, "WRITE");
-		_print_set(&exceptfds, "EXCEPT");
-		std::cout << " ----- SELECT() ---- " << std::endl;
+		// _print_set(&readfds, "READ");
+		// _print_set(&writefds, "WRITE");
+		// _print_set(&exceptfds, "EXCEPT");
+		// std::cout << " ----- SELECT() ---- " << std::endl;
 		int nb_fds = select(_max_fd + 1, &readfds, &writefds, &exceptfds, &timeout);
-		_print_set(&readfds, "READ");
-		_print_set(&writefds, "WRITE");
-		_print_set(&exceptfds, "EXCEPT");
+		// _print_set(&readfds, "READ");
+		// _print_set(&writefds, "WRITE");
+		// _print_set(&exceptfds, "EXCEPT");
 		if (nb_fds == -1)
 			return ; //??
 		if (nb_fds == 0)
@@ -130,25 +131,31 @@ void Cluster::runServer()
 		{
 			if (FD_ISSET(it->getFd(), &exceptfds))
 				std::cout << "ERROR" << std::endl;
-				// error(it);
 			else if (FD_ISSET(it->getFd(), &readfds))
 				_acceptNewConnection(*it);
 		}
-		t_iter_map_sockets next;
-		for (t_iter_map_sockets it = _map_sockets.begin(); it != _map_sockets.end(); it = next)
+		for (unsigned int i = 0; i < _map_sockets.size() + (_close_connection == true); i++)
 		{
-			next = ++it;
-			it--;
-			if (FD_ISSET(it->first, &exceptfds))
+			if (_close_connection == true)
+			{
+				i--;
+				_close_connection = false;
+			}
+			if (FD_ISSET(_map_sockets.at(i).first, &exceptfds))
 			{
 				std::cout << "ERROR" << std::endl;
-				// error(it);
-				closeConnection(it->first);
+				closeConnection(_map_sockets.at(i).first);
 			}
-			else if (FD_ISSET(it->first, &readfds))
-				it->second.readSocket(it->first, *this);
-			else if (FD_ISSET(it->first, &writefds))
-				it->second.writeSocket(it->first, *this);
+			else if (FD_ISSET(_map_sockets.at(i).first, &writefds))
+			{
+				// _map_sockets.at(i).second.writeSocket(_map_sockets.at(i).first, *this);
+				break ;
+			}
+			else if (FD_ISSET(_map_sockets.at(i).first, &readfds))
+			{
+				// _map_sockets.at(i).second.readSocket(_map_sockets.at(i).first, *this);
+				break ;
+			}
 		}
 		std::cout << " ----- fin ---- " << std::endl;
 	}
@@ -173,7 +180,7 @@ void Cluster::_acceptNewConnection(Socket const & socket)
 					"Error: Too many servers, igonre new connection to"));
 		return ;
 	}
-	_map_sockets.insert(std::make_pair(new_fd, HttpExchange(socket)));
+	_map_sockets.push_back(std::make_pair(new_fd, HttpExchange(socket)));
 }
 
 Socket const *Cluster::get_matching_socket(int fd, std::string server_name) const
@@ -199,11 +206,15 @@ void Cluster::closeConnection(int fd)
 	{
 		_fd_write.erase(pos);
 	}
-	t_iter_map_sockets elem = _map_sockets.find(fd);
+	t_iter_map_sockets elem = std::find(_map_sockets.begin(), _map_sockets.end(), fd);
 	if (elem != _map_sockets.end())
 	{
 		close(elem->first);
-		_map_sockets.erase(elem);
+		if (elem == _map_sockets.begin())
+			_map_sockets.pop_front();
+		else
+			_map_sockets.erase(elem);
+		_close_connection = true;
 	}
 }
 

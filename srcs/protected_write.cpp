@@ -1,5 +1,5 @@
 #include "shared.hpp"
-#include "error.hpp"
+#include "util.hpp"
 
 int protected_write(int const fd, std::string const str)
 {
