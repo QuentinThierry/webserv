@@ -22,7 +22,7 @@ HttpRequestPost::HttpRequestPost (std::string const & str_request)
 	if (*getMethod() != "POST")
 		throw_http_err_with_log(HTTP_500, MSG_ERR_HTTPPOST_WRONG_METHOD);
 
-	_add_body_from_request_stream(_body, stream_request);
+	_add_body_from_request_stream(getBody(), stream_request);
 
 
 
@@ -34,7 +34,6 @@ HttpRequestPost::HttpRequestPost (std::string const & str_request)
 HttpRequestPost::HttpRequestPost ( HttpRequestPost const & model)
 	: HttpRequest(model)
 {
-		_body = model._body;
 }
 
 HttpRequestPost & HttpRequestPost::operator= (HttpRequestPost const & model)
@@ -52,23 +51,6 @@ HttpRequestPost::~HttpRequestPost( void )
 {
 }
 
-std::string	const &	HttpRequestPost::getBody( void ) const
-{
-	return (_body);
-}
-
-void				HttpRequestPost::addStringToBody( std::string const & extra_body_content)
-{
-	_body += extra_body_content;
-}
-
-void	HttpRequestPost::display_request( void ) const
-{
-	HttpRequest::display_request();
-	std::cout << std::endl <<  _body << std::endl;
-}
-
-
 void			HttpRequestPost::process_header( void )
 {
 	//TODO
@@ -80,6 +62,12 @@ HttpResponse	HttpRequestPost::generate_response( void )
 	return (HttpResponse());
 }
 
+bool	HttpRequestPost::hasBody() const
+{
+	// TODO
+	    // return (_chunk_body_flags == true || _content_length_flags == true);
+	return (false);
+}
 
 #if 0
 

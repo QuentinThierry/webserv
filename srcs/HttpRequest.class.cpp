@@ -6,9 +6,9 @@ HttpRequest::HttpRequest ( void ) : HttpRequestLine()
 	// a call to HttpRequest::init must be done after calling this constructor
 }
 
-HttpRequest::HttpRequest ( HttpRequest const & model ) : HttpRequestLine(model)
+HttpRequest::HttpRequest ( HttpRequest const & model ) :
+	HttpRequestLine(model), _fields(model._fields), _body(model._body)
 {
-	_fields = model._fields;
 }
 
 HttpRequest & HttpRequest::operator=(HttpRequest const & model)
@@ -17,6 +17,7 @@ HttpRequest & HttpRequest::operator=(HttpRequest const & model)
 	{
 		HttpRequestLine::operator=(model);
 		_fields = model._fields;
+		_body = model._body;
 	}
 	return (*this);
 }
@@ -99,9 +100,20 @@ void	HttpRequest::display_request( void ) const
 	{
 		it->display_field();
 	}
+	if (!_body.empty())
+		std::cout << std::endl << _body << std::endl;
 }
 
 
+std::string &	HttpRequest::getBody( void )
+{
+	return (_body);
+}
+
+void				HttpRequest::addStringToBody( std::string const & extra_body_content)
+{
+	_body += extra_body_content;
+}
 
 
 #if 0

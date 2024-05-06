@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:23:29 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/05 19:28:47 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/06 17:56:01 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,9 +28,11 @@ class HttpRequestGet : public HttpRequest
 		HttpRequestGet ( HttpRequestGet const & model);
 		HttpRequestGet & operator= (HttpRequestGet const & model);
 		~HttpRequestGet( void );
+		
 
-		void			process_header( void );
-		HttpResponse	generate_response( void );
+		void				process_header( void );
+		HttpResponse		generate_response( void );
+		bool				hasBody() const;
 
 	private:
 		HttpRequestGet( void );

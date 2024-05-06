@@ -31,6 +31,7 @@ class HttpRequestDelete : public HttpRequest
 
 		void			process_header( void );
 		HttpResponse	generate_response( void );
+		bool			hasBody() const;
 
 	private:
 		HttpRequestDelete( void );

@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:23:29 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/05 19:44:54 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/06 17:57:42 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,17 +28,12 @@ class HttpRequestPost : public HttpRequest
 		HttpRequestPost & operator= (HttpRequestPost const & model);
 		~HttpRequestPost( void );
 
-		std::string	const &	getBody( void ) const;
-		void				addStringToBody( std::string const & extra_body_content);
-
-		void	display_request( void ) const;
-	
 		void			process_header( void );
 		HttpResponse	generate_response( void );
+		bool			hasBody() const;
 
 	private:
 		HttpRequestPost( void );
-		std::string _body;
 };
 
 # endif

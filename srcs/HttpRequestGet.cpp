@@ -46,6 +46,12 @@ HttpResponse	HttpRequestGet::generate_response( void )
 	return (HttpResponse());
 }
 
+bool	HttpRequestGet::hasBody() const
+{
+	return (false);
+}
+
+
 
 #if 0
 

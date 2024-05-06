@@ -47,6 +47,12 @@ HttpResponse	HttpRequestDelete::generate_response( void )
 }
 
 
+bool	HttpRequestDelete::hasBody() const
+{
+	return (false);
+}
+
+
 #if 0
 
 int g_err_log_fd = STDERR_FILENO;
