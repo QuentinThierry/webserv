@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 17:32:04 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/03 22:04:48 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/06 18:14:42 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,12 +17,12 @@
 # include "HttpTools.hpp"
 # include "HttpField.class.hpp"
 
-# define MSG_ERR_LINE_MISSING_WORD "ERROR: Http request: incomplete request first line"
-# define MSG_ERR_LINE_WRONG_METHOD "ERROR: Http request: method incorrect or not supported"
-# define MSG_ERR_LINE_WRONG_VERSION "ERROR: Http request: version incorrect or not supported"
-# define MSG_ERR_LINE_TOO_MANY_WORDS "ERROR: Http request: too much words in the request first line"
-# define MSG_ERR_LINE_SSTREAM_FAIL "ERROR: internal: stringstream failure in the request line parsing"
-# define MSG_ERR_LINE_BAD_SSTREAM_INPUT "ERROR: internal: stringstream input corrupted in the request line parsing"
+# define MSG_ERR_LINE_MISSING_WORD		"ERROR: Http request: incomplete request first line"
+# define MSG_ERR_LINE_WRONG_METHOD		"ERROR: Http request: method incorrect or not supported"
+# define MSG_ERR_LINE_WRONG_VERSION		"ERROR: Http request: version incorrect or not supported"
+# define MSG_ERR_LINE_TOO_MANY_WORDS	"ERROR: Http request: too much words in the request first line"
+# define MSG_ERR_LINE_SSTREAM_FAIL		"ERROR: internal: stringstream failure in the request line parsing"
+# define MSG_ERR_LINE_BAD_SSTREAM_INPUT	"ERROR: internal: stringstream input corrupted in the request line parsing"
 
 class HttpRequestLine
 {
