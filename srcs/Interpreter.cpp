@@ -30,13 +30,55 @@ void	interpret_field_loop(std::string &token, std::queue<std::string> &tokens, S
 	}
 }
 
+// TODO: add fields to cgi and complete parsing
+void interpret_cgi_field_loop(std::string &token, std::queue<std::string> &tokens, CgiLocation &cgiObj)
+{
+	unsigned int arg_counter = 0;
+	std::string identifier;
+
+	while (!tokens.empty())
+	{
+		if (token[0] == '{' || token[0] == '}')
+			continue;
+		else if (token[0] == ';')
+		{
+			if (arg_counter < 2)
+				throw std::out_of_range("not enough path arg");
+			break;
+		}
+		else
+		{
+			if (arg_counter == 0) // define identifier
+				identifier = token;
+			else if (identifier == "cgi_path")
+			{
+				if (arg_counter != 1)
+					throw std::out_of_range("too much args cgi field path");
+				cgiObj.setExecPath(token);
+			}
+			if (identifier != "cgi_path")
+				throw std::out_of_range("not a cgi field!");
+		}
+		arg_counter++;
+		token = extract_token(tokens);
+	}
+}
+
 void	interpret_location_loop(std::queue<std::string> &tokens, Server &server)
 {
+	bool is_cgi_loc = false;
 	Location location(server.getDefaultLocation());
+	CgiLocation cgi_loc;
 
 	std::string token = extract_token(tokens);
 	location.setLocationPath(token);
-
+	if (token[0] == '~') // can be a cgi location
+	{
+		token = extract_token(tokens);
+		if (token[0] != '{') // is for sure a cgi location
+			is_cgi_loc = true;
+		cgi_loc.setExtension(token);
+	}
 	while (!tokens.empty())
 	{
 		std::string token = extract_token(tokens);
@@ -44,11 +86,19 @@ void	interpret_location_loop(std::queue<std::string> &tokens, Server &server)
 			continue;
 		else if (token[0] == '}')
 		{
-			server.addLocations(location);
+			if (is_cgi_loc)
+				server.addCgiLocation(cgi_loc);
+			else
+				server.addLocations(location);
 			break;
 		}
 		else
-			interpret_field_loop(token, tokens, server, &location);
+		{
+			if (is_cgi_loc)
+				interpret_cgi_field_loop(token, tokens, cgi_loc);
+			else
+				interpret_field_loop(token, tokens, server, &location);
+		}
 	}
 }
 
@@ -56,7 +106,6 @@ Server	interpret_server_loop(std::queue<std::string> &tokens)
 {
 	Server server;
 	Location default_location;
-
 
 	server.addLocations(default_location);
 

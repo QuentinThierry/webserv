@@ -12,8 +12,6 @@ Location::Location()
 	_default_dir_path = std::vector<std::string>();
 	_has_autoindex = false;
 	_upload_path = "";
-	_has_cgi = false;
-	_cgi_path = "";
 	__has_set_autoindex = false;
 }
 
@@ -32,8 +30,6 @@ Location &Location::operator=(Location const &ref)
 	_default_dir_path = ref._default_dir_path;
 	_has_autoindex = ref._has_autoindex;
 	_upload_path = ref._upload_path;
-	_has_cgi = ref._has_cgi;
-	_cgi_path = ref._cgi_path;
 	__has_set_autoindex = false;
 	return *this;
 }
@@ -48,8 +44,6 @@ std::pair<t_http_code, std::string> &Location::getRedirect() {return this->_redi
 std::vector<std::string> const &Location::getDefaultDirPath() const {return this->_default_dir_path;}
 bool const &Location::getHasAutoindex() const {return this->_has_autoindex;}
 std::string const &Location::getUploadPath() const {return this->_upload_path;}
-bool const &Location::getHasCgi() const {return this->_has_cgi;}
-std::string const &Location::getCgiPath() const {return this->_cgi_path;}
 
 void	Location::setLocationPath(std::string location_path) {this->_location_path = location_path;}
 void	Location::setMethods(std::vector<std::string> methods) {this->_accepted_methods = methods;}
@@ -67,5 +61,3 @@ void	Location::setHasAutoindex(bool has_auto_index)
 	this->_has_autoindex = has_auto_index;
 }
 void	Location::setUploadPath(std::string upload_path) {this->_upload_path = upload_path;}
-void	Location::setHasCgi(bool has_cgi) {this->_has_cgi = has_cgi;}
-void	Location::setCgiPath(std::string cgi_path) {this->_cgi_path = cgi_path;}

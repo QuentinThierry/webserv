@@ -21,6 +21,7 @@ std::map<t_http_code, std::string> const &Server::getErrorPagePath() const {retu
 std::map<t_http_code, std::string> &Server::getErrorPagePath() {return this->_error_page_path;}
 uint64_t const &Server::getClientmaxBodySize() const {return this->_client_max_body_size;}
 std::vector<Location> const &Server::getLocations() const {return this->_locations;}
+std::vector<CgiLocation> const &Server::getCgiLocations() const {return this->_cgi_locations;}
 Location &Server::getDefaultLocation() {return this->_locations[0];}
 bool	&Server::_getHasFoundErrorPagePath() {return this->__has_found_error_page_path;}
 bool	&Server::_getHasListen() {return this->__has_listen;}
@@ -35,8 +36,11 @@ void	Server::addErrorPagePath(t_http_code http_code, std::string path) {this->_e
 void	Server::setClientmaxBodySize(uint64_t client_max_body_size) {this->_client_max_body_size = client_max_body_size;}
 void	Server::setLocations(std::vector<Location> locations) {this->_locations = locations;}
 void	Server::addLocations(Location location) {this->_locations.push_back(location);}
+void	Server::addCgiLocation(CgiLocation cgi_loc) {this->_cgi_locations.push_back(cgi_loc);}
 void	Server::_setHasFoundErrorPagePath(bool has_found_error_page_path) {this->__has_found_error_page_path = has_found_error_page_path;}
 void	Server::_setHasListen(bool has_listen) {this->__has_listen = has_listen;}
+
+
 
 // return if the server has the same host and port
 bool	Server::is_equal(Server const &ref)

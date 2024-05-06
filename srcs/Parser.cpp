@@ -15,6 +15,9 @@ static void	_enter_field_loop(std::queue<std::string> &tokens)
 static void	_parse_location_first_part(std::queue<std::string> &tokens)
 {
 	bool	has_first_field = false;
+	bool	has_second_field = false;
+	bool	is_cgi_loc = false;
+
 	while (!tokens.empty())
 	{
 		std::string token = extract_token(tokens);
@@ -23,19 +26,32 @@ static void	_parse_location_first_part(std::queue<std::string> &tokens)
 		// good
 		if (token[0] == '{')
 		{
+			if (has_second_field == false)
+				is_cgi_loc = false;
 			if (has_first_field == false)
 				throw std::exception();
 			break ;
 		}
 		else
+		{
+			if (!is_cgi_loc && has_first_field)
+				throw std::exception();
 			has_first_field = true;
+			if (token.size() == 1 && token[0] == '~')
+				is_cgi_loc = true;
+			else if (is_cgi_loc && !has_second_field)
+			{
+				if (token[0] != '.')
+					throw std::exception();
+				has_second_field = true;
+			}
+		}
 	}
 }
 
 static void	_enter_location_loop(std::queue<std::string> &tokens)
 {
 	_parse_location_first_part(tokens);
-
 	unsigned int nb_open_bracket = 1;
 
 	while (!tokens.empty())

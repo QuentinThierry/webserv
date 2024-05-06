@@ -2,6 +2,7 @@
 #define SERVER_HPP
 
 #include "Location.class.hpp"
+#include "CgiLocation.class.hpp"
 #include <stdint.h>
 #include <map>
 
@@ -18,6 +19,7 @@ class Server
 		std::map<t_http_code, std::string> &getErrorPagePath();
 		uint64_t const &getClientmaxBodySize() const;
 		std::vector<Location> const &getLocations() const;
+		std::vector<CgiLocation> const &getCgiLocations() const;
 		Location &getDefaultLocation();
 		bool	&_getHasFoundErrorPagePath();
 		bool	&_getHasListen();
@@ -32,6 +34,7 @@ class Server
 		void	setClientmaxBodySize(uint64_t client_max_body_size);
 		void	setLocations(std::vector<Location> locations);
 		void	addLocations(Location location);
+		void	addCgiLocation(CgiLocation cgi_loc);
 		void	_setHasFoundErrorPagePath(bool has_found_error_page_path);
 		void	_setHasListen(bool has_listen);
 
@@ -45,6 +48,7 @@ class Server
 		std::map<t_http_code, std::string>	_error_page_path;
 		uint64_t							_client_max_body_size;
 		std::vector<Location>				_locations;
+		std::vector<CgiLocation>			_cgi_locations;
 		bool								__has_found_error_page_path;
 		bool								__has_listen;
 };
