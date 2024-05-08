@@ -34,10 +34,10 @@ Location &Location::operator=(Location const &ref)
 	return *this;
 }
 
+// do not check location path
 bool	Location::operator==(Location const &rref) const
 {
-	if (this->_location_path == rref._location_path
-		&& this->_accepted_methods == rref._accepted_methods
+	if (this->_accepted_methods == rref._accepted_methods
 		&& _root_path == rref._root_path
 		&& this->_has_redirect == rref._has_redirect
 		&& this->_redirect == rref._redirect

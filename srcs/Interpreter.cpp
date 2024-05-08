@@ -86,9 +86,9 @@ void	interpret_location_loop(std::queue<std::string> &tokens, Server &server)
 			continue;
 		else if (token[0] == '}')
 		{
-			if (is_cgi_loc)
+			if (is_cgi_loc && !cgi_loc.is_empty_cgi_location())
 				server.addCgiLocation(cgi_loc);
-			else
+			else if (!is_cgi_loc && !location.is_empty_location(server.getDefaultLocation()))
 				server.addLocations(location);
 			break;
 		}
