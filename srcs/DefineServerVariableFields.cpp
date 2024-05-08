@@ -72,7 +72,7 @@ void	_parse_listen_argument(std::string &token, Server &server)
 	if (colon_pos == std::string::npos)
 	{
 		// only port
-		server.setHost("");
+		server.setHost("0");
 		server.setPort(str_to_short(token));
 		return ;
 	}
@@ -83,7 +83,7 @@ void	_parse_listen_argument(std::string &token, Server &server)
 	if (token[0] == ':')
 	{
 		// only port
-		server.setHost("");
+		server.setHost("0");
 		server.setPort(str_to_short(token.substr(1)));
 		return ;
 	}

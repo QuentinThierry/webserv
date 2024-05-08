@@ -2,7 +2,8 @@
 
 Server::Server()
 {
-	_host = "";
+	_host = "0";
+	_host_uint = 0;
 	_port = 0;
 	_server_name = std::vector<std::string>();
 	_error_page_path = std::map<t_http_code, std::string>();
@@ -50,4 +51,25 @@ bool	Server::is_equal(Server const &ref)
 	if (this->getPort() != ref.getPort())
 		return false;
 	return true;
+}
+
+Location const &Server::searchLocation(std::string path)
+{
+	for (unsigned int i = path.size() - 1; i > 0; i--)
+	{
+		if (path[i] != '/')
+			break ;
+		else
+			path.erase(i);
+	}
+	size_t slash_pos = path.find_last_of('/');
+	if (slash_pos != std::string::npos && path.size() - slash_pos > 1)
+		path = path.substr(slash_pos + 1);
+	std::vector<Location> const &locations = this->getLocations();
+	for (unsigned int i = 1; i < locations.size(); i++)
+	{
+		if (locations[i].getLocationPath() == path)
+			return locations[i];
+	}
+	return this->getDefaultLocation();
 }

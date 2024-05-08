@@ -40,6 +40,8 @@ class Server
 
 		bool	is_equal(Server const &ref);
 
+		Location const &searchLocation(std::string path);
+
 	private:
 		std::string							_host;
 		uint32_t							_host_uint;
