@@ -5,6 +5,7 @@
 #include <vector>
 #include <utility>
 #include <stdint.h>
+#include <algorithm>
 
 typedef uint16_t t_http_code;
 typedef uint16_t t_port;
@@ -41,6 +42,7 @@ class Location
 		void	setUploadPath(std::string upload_path);
 
 		bool	is_empty_location(Location &default_location);
+		bool	does_accept_method(std::string method);
 
 
 	private:
