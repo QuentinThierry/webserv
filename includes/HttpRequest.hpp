@@ -1,6 +1,7 @@
 #ifndef HTTPREQUEST_HPP
 # define HTTPREQUEST_HPP
 # include "shared.hpp"
+# include "Socket.class.hpp"
 # include "HttpResponseStatus.hpp"
 # include <vector>
 
@@ -36,58 +37,31 @@ class HttpRequestLine
 
 class HttpRequest : public HttpRequestLine
 {
-    public:
-        HttpRequest ( std::string const & str_request ) throw (ExceptionHttpStatusCode);
-        HttpRequest ( HttpRequest const & model );
-        HttpRequest & operator=(HttpRequest const & model);
+	public:
+		HttpRequest ( HttpRequest const & model );
+		virtual HttpRequest & operator=(HttpRequest const & model);
+		
+		virtual void					process_header( Socket const * const socket ) = 0;
+		// virtual HttpResponse			generate_response( void ) = 0;
+		virtual void					readBody(int fd) = 0;
+		virtual bool					hasBody() const = 0;
 
-        std::vector<std::string> const &getFieldValue(std::string const & filed_name, e_status &success_status) const;
+		virtual void					display_request( void ) const;
 
-    private:
-        HttpRequest ( void );
-        virtual ~HttpRequest( void );
-        std::vector<std::string> _fields;
-        
+		HttpRequest ( void );
+		virtual void init( std::stringstream &request_stream ) throw(ExceptionHttpStatusCode);
+		virtual ~HttpRequest( void );
+
+		bool							checkFieldExistence(std::string const & field_name) const;
+		const std::vector<std::string>	&getFieldValue(std::string const & field_name) const throw(ExceptionHttpStatusCode);
+		
+		std::string	const &				getBody( void ) const;
+		void							addStringToBody( std::string const & extra_body_content);
+	private:
+		// std::vector<HttpField> _fields;
+		std::string	_body;
+
+		void	_fill_fields(std::stringstream &request_stream) throw (ExceptionHttpStatusCode);    
 };
-
-// class HttpRequest : public HttpRequestLine
-// {
-// 	public:
-// 		HttpRequest ( void );
-// 		HttpRequest ( std::string const & str_request ) throw (ExceptionHttpStatusCode);
-// 		HttpRequest ( HttpRequest const & model );
-// 		HttpRequest & operator=(HttpRequest const & model);
-
-// 		void parseRequest(std::string const & str_request) throw (ExceptionHttpStatusCode);
-
-// 		bool hasBody() const; //! added by me
-// 		uint64_t getContentLength() const; //! added by me
-// 		uint64_t getReadSize() const; //! added by me
-// 		void addStringToBody( std::string const & extra_body_content); //! added by me
-// 		bool getContentLengthFlags() const;  //! added by me
-// 		bool getChunkBodyFlags() const;  //! added by me
-// 		void setBodyReadType(uint64_t max_boby_client);		//! added by me
-// 		uint64_t getSizeToReadBody(uint64_t max_boby_client) const;
-
-// 		std::vector<std::string> const &getFieldValue(std::string const & filed_name, e_status &success_status) const;
-
-// 		void process_header_post(uint64_t max_boby_client); //! added by me
-// 		void process_header_delete(); //! added by me
-// 		void process_header_get(); //! added by me
-// 		void (HttpRequest::*process_header)(); //! added by me
-// 	private:
-
-// 		virtual ~HttpRequest( void );
-
-// 		uint64_t	_read_size;									//! added by me INIT TO 0
-// 		uint64_t	_content_length;							//! added by me INIT TO 0
-
-// 		bool	_chunk_body_flags;								//! added by me INIT TO FALSE
-// 		bool	_content_length_flags;							//! added by me INIT TO FALSE
-
-
-// 		std::vector<std::string> _fields;
-// 		std::string _body;
-// };
 
 #endif

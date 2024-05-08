@@ -9,12 +9,22 @@ class HttpRequestPost : public HttpRequest
 		HttpRequestPost ( HttpRequestPost const & model);
 		HttpRequestPost & operator= (HttpRequestPost const & model);
 
-		std::string	const &	getBody( void ) const;
-		void				addStringToBody( std::string const & extra_body_content);
+		void				readBody(int fd, Socket const * const socket);
+		void				process_header( Socket const * const socket );
+		bool				hasBody() const;
+
 	private:
 		HttpRequestPost( void );
 		~HttpRequestPost( void );
-		std::string _body;
+		void			_setBodyReadType(uint64_t maxClientBody);
+		uint64_t		_getSizeToReadBody(uint64_t maxClientBody) const;
+
+
+		uint64_t _content_length;
+		uint64_t _read_size;
+
+		bool _chunk_body_flags;
+		bool _content_length_flags;
 };
 
 #endif
