@@ -19,7 +19,7 @@ void	parse_tokens(std::queue<std::string> tokens);
 
 void	interpret_tokens(std::queue<std::string> &tokens, std::vector<Server> &servers);
 
-t_token_append_function define_token_var_function(std::string &token);
+t_token_append_function define_token_var_function(std::string &token, Location *location);
 
 bool	does_http_code_exist(std::string code);
 t_http_code	str_to_http_code(std::string code);

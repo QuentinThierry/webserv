@@ -106,3 +106,7 @@ int	main(int argc, char **argv)
 	
 	std::cout << "OK" << std::endl;
 }
+
+
+// accepted methods yes of no taking a string
+// add upload_path boolean in parsing

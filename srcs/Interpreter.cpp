@@ -3,7 +3,7 @@
 void	fill_field_value(std::string &token, Server &server, Location *location, t_token_append_function &token_var_function, unsigned int arg_counter)
 {
 	if (token_var_function == NULL)
-		token_var_function = define_token_var_function(token);
+		token_var_function = define_token_var_function(token, location);
 	else
 		token_var_function(token, server, location, arg_counter);
 }
@@ -102,13 +102,36 @@ void	interpret_location_loop(std::queue<std::string> &tokens, Server &server)
 	}
 }
 
-Server	interpret_server_loop(std::queue<std::string> &tokens)
+// tokens is a copy
+void	interpret_server_fields(Server &server, std::queue<std::string> tokens)
 {
-	Server server;
-	Location default_location;
+	bool	skipping_location = false;
+	while (!tokens.empty())
+	{
+		std::string token = extract_token(tokens);
+		if (token[0] == '{' || token[0] == ';')
+			continue;
+		else if (token[0] == '}')
+		{
+			if (skipping_location)
+			{
+				skipping_location = false;
+				continue ;
+			}
+			break ;
+		}
+		else if (skipping_location)
+			continue ;
+		else if (token == "location")
+			skipping_location = true;
+		else
+			interpret_field_loop(token, tokens, server, NULL);
+	}
+}
 
-	server.addLocations(default_location);
-
+// tokens is a reference
+void	interpret_location_fields(Server &server, std::queue<std::string> &tokens)
+{
 	while (!tokens.empty())
 	{
 		std::string token = extract_token(tokens);
@@ -118,9 +141,19 @@ Server	interpret_server_loop(std::queue<std::string> &tokens)
 			break ;
 		else if (token == "location")
 			interpret_location_loop(tokens, server);
-		else
-			interpret_field_loop(token, tokens, server, NULL);
 	}
+}
+
+
+Server	interpret_server_loop(std::queue<std::string> &tokens)
+{
+	Server server;
+	Location default_location;
+
+	server.addLocations(default_location);
+
+	interpret_server_fields(server, tokens);
+	interpret_location_fields(server, tokens);
 	if (server._getHasListen() == false)
 		throw std::exception();
 	return server;
