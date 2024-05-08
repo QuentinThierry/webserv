@@ -16,6 +16,7 @@ class Location
 		Location(Location const &ref);
 
 		Location &operator=(Location const &ref);
+		bool	operator==(Location const &rref) const;
 
 		std::string const &getLocationPath() const;
 		std::vector<std::string> const &getMethods() const;
@@ -39,6 +40,7 @@ class Location
 		void	setHasAutoindex(bool has_auto_index);
 		void	setUploadPath(std::string upload_path);
 
+		bool	is_empty_location(Location &default_location);
 
 
 	private:

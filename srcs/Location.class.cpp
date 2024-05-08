@@ -34,6 +34,21 @@ Location &Location::operator=(Location const &ref)
 	return *this;
 }
 
+bool	Location::operator==(Location const &rref) const
+{
+	if (this->_location_path == rref._location_path
+		&& this->_accepted_methods == rref._accepted_methods
+		&& _root_path == rref._root_path
+		&& this->_has_redirect == rref._has_redirect
+		&& this->_redirect == rref._redirect
+		&& this->_default_dir_path == rref._default_dir_path
+		&& this->_has_autoindex == rref._has_autoindex
+		&& this->_upload_path == rref._upload_path
+		&& this->__has_set_autoindex == rref.__has_set_autoindex)
+		return true;
+	return false;
+}
+
 std::string const &Location::getLocationPath() const {return this->_location_path;}
 std::vector<std::string> const &Location::getMethods() const {return this->_accepted_methods;}
 std::vector<std::string> &Location::getMethods() {return this->_accepted_methods;}
@@ -61,3 +76,10 @@ void	Location::setHasAutoindex(bool has_auto_index)
 	this->_has_autoindex = has_auto_index;
 }
 void	Location::setUploadPath(std::string upload_path) {this->_upload_path = upload_path;}
+
+bool	Location::is_empty_location(Location &default_location)
+{
+	if (*this == default_location)
+		return true;
+	return false;
+}
