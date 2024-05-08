@@ -41,7 +41,7 @@ static void	_parse_location_first_part(std::queue<std::string> &tokens)
 				is_cgi_loc = true;
 			else if (is_cgi_loc && !has_second_field)
 			{
-				if (token[0] != '.')
+				if (token[0] != '.' || token.find('/') != std::string::npos)
 					throw std::exception();
 				has_second_field = true;
 			}
