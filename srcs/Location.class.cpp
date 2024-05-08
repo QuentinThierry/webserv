@@ -12,7 +12,6 @@ Location::Location()
 	_default_dir_path = std::vector<std::string>();
 	_has_autoindex = false;
 	_upload_path = "";
-	__has_set_autoindex = false;
 }
 
 Location::Location(Location const &ref)
@@ -30,7 +29,6 @@ Location &Location::operator=(Location const &ref)
 	_default_dir_path = ref._default_dir_path;
 	_has_autoindex = ref._has_autoindex;
 	_upload_path = ref._upload_path;
-	__has_set_autoindex = false;
 	return *this;
 }
 
@@ -43,8 +41,7 @@ bool	Location::operator==(Location const &rref) const
 		&& this->_redirect == rref._redirect
 		&& this->_default_dir_path == rref._default_dir_path
 		&& this->_has_autoindex == rref._has_autoindex
-		&& this->_upload_path == rref._upload_path
-		&& this->__has_set_autoindex == rref.__has_set_autoindex)
+		&& this->_upload_path == rref._upload_path)
 		return true;
 	return false;
 }
@@ -68,13 +65,7 @@ void	Location::setHasRedirect(bool has_redirect) {this->_has_redirect = has_redi
 void	Location::setRedirect(std::pair<t_http_code, std::string> redirect) {this->_redirect = redirect;}
 void	Location::setDefaultDirPath(std::vector<std::string> default_path) {this->_default_dir_path = default_path;}
 void	Location::addDefaultDirPath(std::string default_path) {this->_default_dir_path.push_back(default_path);}
-void	Location::setHasAutoindex(bool has_auto_index)
-{
-	if (__has_set_autoindex)
-		return ;
-	__has_set_autoindex = true;
-	this->_has_autoindex = has_auto_index;
-}
+void	Location::setHasAutoindex(bool has_auto_index){this->_has_autoindex = has_auto_index;}
 void	Location::setUploadPath(std::string upload_path) {this->_upload_path = upload_path;}
 
 bool	Location::is_empty_location(Location &default_location)

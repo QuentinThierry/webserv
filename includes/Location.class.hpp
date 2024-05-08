@@ -54,7 +54,6 @@ class Location
 		std::vector<std::string>			_default_dir_path;
 		bool								_has_autoindex;
 		std::string							_upload_path;
-		bool								__has_set_autoindex;
 };
 
 #endif
