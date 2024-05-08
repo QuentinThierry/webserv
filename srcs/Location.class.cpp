@@ -77,7 +77,7 @@ bool	Location::is_empty_location(Location &default_location)
 
 bool	Location::does_accept_method(std::string method)
 {
-	if (std::find(this->getMethods().front(), this->getMethods().back(), method) != this->getMethods().back())
+	if (std::find(this->getMethods().begin(), this->getMethods().end(), method) != this->getMethods().end())
 		return true;
 	return false;
 }
