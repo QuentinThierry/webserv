@@ -1,7 +1,7 @@
 #ifndef SERVER_CLASS_HPP
 # define SERVER_CLASS_HPP
 
-# include "shared.hpp"
+# include "Shared.hpp"
 # include <stdint.h>
 # include <vector>
 // #include "Location.hpp"

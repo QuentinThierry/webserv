@@ -1,6 +1,58 @@
 #include "HttpExchange.class.hpp"
-#include "HttpRequestPost.hpp"
+#include "HttpRequestPost.class.hpp"
 #include "util.hpp"
+
+
+
+static void	_add_body_from_request_stream( std::string &request_body,
+				std::stringstream &stream_request )
+{
+	if (!stream_request.eof() && stream_request.peek() != EOF
+			&& !std::getline(stream_request, request_body, '\0'))
+		throw_http_err_with_log(HTTP_500, MSG_ERR_HTTPPOST_SSTREAM_FAIL);
+}
+
+HttpRequestPost::HttpRequestPost (std::string const & str_request)
+	throw (ExceptionHttpStatusCode)
+	: HttpRequest()
+{
+	std::stringstream	stream_request (str_request);
+
+	if (stream_request.bad())
+		throw_http_err_with_log(HTTP_500, MSG_ERR_HTTPPOST_SSTREAM_FAIL);
+	HttpRequest::init(stream_request);
+
+	if (*getMethod() != "POST")
+		throw_http_err_with_log(HTTP_500, MSG_ERR_HTTPPOST_WRONG_METHOD);
+
+	_add_body_from_request_stream(_body, stream_request);
+
+
+
+	//TODO you can complete the body with socket read read here or using addStringToBody outside of the constructor
+
+
+}
+
+HttpRequestPost::HttpRequestPost ( HttpRequestPost const & model)
+	: HttpRequest(model)
+{
+}
+
+HttpRequestPost & HttpRequestPost::operator= (HttpRequestPost const & model)
+{
+	if (&model != this)
+		HttpRequest::operator=(model);
+	return (*this);
+}
+
+HttpRequestPost::HttpRequestPost( void ) //unused
+{
+}
+
+HttpRequestPost::~HttpRequestPost( void )
+{
+}
 
 bool HttpRequestPost::hasBody() const
 {
@@ -18,13 +70,13 @@ void HttpRequestPost::readBody(int fd, Socket const * const socket)
 					std::string("Error: read() ") + std::strerror(errno)));
 		return; //!send error to client
 	}
-	else if (ret == 0) //EOF
-	{
-		cluster.switchHttpExchangeToWrite(fd);
-	}
+	// else if (ret == 0) //EOF
+	// {
+	// 	cluster.switchHttpExchangeToWrite(fd);
+	// }
 	else
 	{
-		_request.addStringToBody(buffer);
+		addStringToBody(buffer);
 	}
 }
 
@@ -40,12 +92,13 @@ uint64_t HttpRequestPost::_getSizeToReadBody(uint64_t max_boby_client) const
 
 void	HttpRequestPost::process_header(Socket const * const socket)
 {
+	//check if method accept
 	//check location for cgi
 	//read body with client_max_body => write in file
 	//check method
 	//check location file to upload file
 	_setBodyReadType(socket->getServer().getClientmaxBodySize());
-	_read_size = _body.size();
+	_read_size = getBody().size();
 	//open file to save data
 }
 
@@ -75,4 +128,11 @@ void HttpRequestPost::_setBodyReadType(uint64_t maxClientBody)
 		_content_length_flags = true;
 		return ;
 	}
+}
+
+HttpResponse	HttpRequestPost::generate_response( Socket const * const socket )
+{
+	//TODO
+	(void)socket;
+	return HttpResponse();
 }

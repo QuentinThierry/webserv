@@ -133,7 +133,10 @@ void Cluster::runServer()
 			if (FD_ISSET(it->getFd(), &exceptfds))
 				std::cout << "ERROR" << std::endl;
 			else if (FD_ISSET(it->getFd(), &readfds))
+			{
+				std::cout << "new connection" << std::endl;
 				_acceptNewConnection(*it);
+			}
 		}
 		for (unsigned int i = 0; i < _map_sockets.size() + (_close_connection == true); i++)
 		{
@@ -149,11 +152,13 @@ void Cluster::runServer()
 			}
 			else if (FD_ISSET(_map_sockets.at(i).first, &writefds))
 			{
+				std::cout << "write data" << std::endl;
 				_map_sockets.at(i).second.writeSocket(_map_sockets.at(i).first, *this);
 				break ;
 			}
 			else if (FD_ISSET(_map_sockets.at(i).first, &readfds))
 			{
+				std::cout << "read data" << std::endl;
 				_map_sockets.at(i).second.readSocket(_map_sockets.at(i).first, *this);
 				break ;
 			}

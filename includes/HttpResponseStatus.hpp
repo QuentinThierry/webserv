@@ -6,7 +6,7 @@
 /*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 17:47:33 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/02 16:45:31 by jvigny           ###   ########.fr       */
+/*   Updated: 2024/05/09 12:00:14 by jvigny           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 # include <sstream>
 
-# include "shared.hpp"
+# include "Shared.hpp"
 
 enum e_status_code
 {
@@ -93,16 +93,18 @@ class ExceptionUnknownStatusCode : public std::exception
 		}
 };
 
+std::string get_error_reason_phrase(int error_code) throw( ExceptionUnknownStatusCode);
+
 class ExceptionHttpStatusCode : public std::exception 
 {
 	public:
-		ExceptionHttpStatusCode( e_status_code status_code ) throw (ExceptionUnknownStatusCode) : _status_code (status_code) {}
+		ExceptionHttpStatusCode( e_status_code status_code ) throw () : _status_code (status_code) {}
+		e_status_code const &	get_status_code( void ) const { return (_status_code);}
+		void					display_error() const {std::cout << "Error " << get_status_code() << " " << get_error_reason_phrase(_status_code) << std::endl;}
+
 	private:
 		ExceptionHttpStatusCode( void ) {}
 		e_status_code	_status_code;
 };
-
-
-std::string get_error_reason_phrase(int error_code) throw( ExceptionUnknownStatusCode);
 
 #endif

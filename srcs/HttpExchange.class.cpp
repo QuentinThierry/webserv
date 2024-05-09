@@ -1,11 +1,56 @@
 #include "HttpExchange.class.hpp"
 #include "HttpResponseStatus.hpp"
+#include "HttpRequestPost.class.hpp"
+#include "HttpRequestGet.class.hpp"
+#include "HttpRequestDelete.class.hpp"
+
 #include "Cluster.class.hpp"
 #include "util.hpp"
 
 #include <cstdlib>
 
-HttpExchange::HttpExchange(Socket const &socket): _socket(&socket), _request(){};
+HttpExchange::HttpExchange(Socket const &socket): _socket(&socket), _response()
+{
+	_buffer_read.clear();
+	_request = NULL;
+}
+
+HttpExchange::HttpExchange(HttpExchange const &copy): _socket(copy._socket)
+{
+	*this = copy;
+}
+
+void HttpExchange::_copyRequest(e_http_method method, HttpRequest const * request)
+{
+	switch (method)
+	{
+		case GET:
+			_request = ::new HttpRequestGet(*((HttpRequestGet*)request));
+		case POST:
+			_request = ::new HttpRequestPost(*((HttpRequestPost*)request));
+		case DELETE:
+			_request = ::new HttpRequestDelete(*((HttpRequestDelete*)request));
+		default:
+			throw ExceptionHttpStatusCode(HTTP_501);
+	}
+}
+
+HttpExchange & HttpExchange::operator=(HttpExchange const &assign)
+{
+	if (this != &assign)
+	{
+		_buffer_read = assign._buffer_read;
+		if (assign._request != NULL)
+			_copyRequest(_findMethod(*(assign._request->getMethod())), assign._request);
+		else
+			_request = NULL;
+		_response = assign._response;
+	}
+	return *this;
+}
+
+HttpExchange::~HttpExchange()
+{}
 
 void HttpExchange::_setRightSocket(Cluster const &cluster)
 {
@@ -25,18 +70,18 @@ void HttpExchange::_setRightSocket(Cluster const &cluster)
 		_socket = socket;
 }
 
-e_http_method HttpExchange::_findMethod()
+e_http_method HttpExchange::_findMethod(std::string const & cmp)
 {
 	std::string method_name[3] = {"GET", "POST", "DELETE"};
 	e_http_method method_value[3] = {GET, POST, DELETE};
 
-	for (int i = 0; i < 3; i++)
+	for (unsigned int i = 0; i < 3; i++)
 	{
-		for (int j = 0; j < method_name[i].size(); i++)
+		for (unsigned int j = 0; j < method_name[i].size(); i++)
 		{
-			if (method_name[i][j] != _buffer_read[j])
+			if (method_name[i][j] != cmp[j])
 				break;
-			else if (j == method_name[i].size() - 1 && _buffer_read[j + 1] == ' ')
+			else if (j == method_name[i].size() - 1 && cmp[j + 1] == ' ')
 			{
 				return method_value[i];
 			}
@@ -50,20 +95,27 @@ void HttpExchange::_initRequest(e_http_method method)
 	switch (method)
 	{
 		case GET:
-			_request = ::new HttpRequestPost(_buffer_read); //!to change
+			_request = ::new HttpRequestGet(_buffer_read);
 		case POST:
 			_request = ::new HttpRequestPost(_buffer_read);
 		case DELETE:
-			_request = ::new HttpRequestPost(_buffer_read); //!to change
+			_request = ::new HttpRequestDelete(_buffer_read);
 		default:
 			throw ExceptionHttpStatusCode(HTTP_501);
 	}
 }
 
+void HttpExchange::_handleError(int fd, Cluster &cluster, e_status_code error)
+{
+	_response.generateErrorResponse(error);
+	cluster.switchHttpExchangeToWrite(fd);
+}
+
+
 void HttpExchange::readSocket(int fd, Cluster &cluster)
 {
 	if (_request->hasBody() == true)
-		_request->readBody(fd);
+		_request->readBody(fd, _socket);
 	else
 		_handleHeader(fd, cluster);
 }
@@ -77,7 +129,13 @@ void HttpExchange::_handleHeader(int fd, Cluster &cluster)
 	{
 		protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
 					std::string("Error: read() ") + std::strerror(errno)));
-		return; //!send error to client
+		_handleError(fd, cluster, HTTP_500); //!send error to client
+		return;
+	}
+	if (ret == 0)
+	{
+		_handleError(fd, cluster, HTTP_400); //!send error to client
+		return;
 	}
 	std::cout << buffer << std::endl;
 	_buffer_read += buffer;
@@ -86,17 +144,23 @@ void HttpExchange::_handleHeader(int fd, Cluster &cluster)
 		std::cout << _buffer_read;
 		try
 		{
-			_initRequest(_findMethod());
+			_initRequest(_findMethod(_buffer_read));
 			_setRightSocket(cluster);
 			_buffer_read.clear();
 			_request->process_header(_socket);
 			if (_request->hasBody() == false)
 				cluster.switchHttpExchangeToWrite(fd);
 		}
+		catch(ExceptionHttpStatusCode &e)
+		{
+			std::cout << "Error \n";
+			_handleError(fd, cluster, e.get_status_code()); //!send error to client
+			return ;
+		}
 		catch(std::exception &e)
 		{
 			std::cout << "Error \n";
-			//!send response();
+			_handleError(fd, cluster, HTTP_500); //!send error to client
 			return ;
 		}
 	}

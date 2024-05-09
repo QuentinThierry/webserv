@@ -1,10 +1,9 @@
-#include "shared.hpp"
-#include <cctype>
+#include "Shared.hpp"
 
 uint64_t ft_atoi(std::string nb, e_status &error)
 {
 	uint64_t res = 0;
-	for (int i = 0; i < nb.size(); i++)
+	for (unsigned int i = 0; i < nb.size(); i++)
 	{
 		if (std::isdigit(nb[i]) == 0)
 		{

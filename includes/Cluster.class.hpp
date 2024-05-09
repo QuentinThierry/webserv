@@ -1,7 +1,7 @@
 #ifndef CLUSTER_CLIENT_HPP
 # define CLUSTER_CLIENT_HPP
 
-# include "shared.hpp"
+# include "Shared.hpp"
 # include "Socket.class.hpp"
 # include "HttpExchange.class.hpp"
 
