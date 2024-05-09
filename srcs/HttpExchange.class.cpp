@@ -11,6 +11,8 @@
 
 HttpExchange::HttpExchange(Socket const &socket): _socket(&socket), _response()
 {
+	if (gettimeofday(&_accept_request_time, NULL) == -1)
+		throw ExceptionHttpStatusCode(HTTP_500);
 	_buffer_read.clear();
 	_request = NULL;
 }
@@ -48,12 +50,19 @@ HttpExchange & HttpExchange::operator=(HttpExchange const &assign)
 		else
 			_request = NULL;
 		_response = assign._response;
+		_accept_request_time.tv_sec = assign._accept_request_time.tv_sec;
+		_accept_request_time.tv_usec = assign._accept_request_time.tv_usec;
 	}
 	return *this;
 }
 
 HttpExchange::~HttpExchange()
 {}
+
+struct timeval const & HttpExchange::getAcceptRequestTime() const
+{
+	return _accept_request_time;
+}
 
 void HttpExchange::_setRightSocket(Cluster const &cluster)
 {

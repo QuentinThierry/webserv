@@ -105,6 +105,21 @@ void Cluster::_print_set(fd_set *fds, std::string str) const
 	std::cout << "END" << std::endl;
 }
 
+void Cluster::_check_timeout()
+{
+	struct timeval time;
+
+	gettimeofday(&time, NULL);
+	for (unsigned int i = 0; i < _map_sockets.size(); i++)
+	{
+		if (_map_sockets.at(i).second.getAcceptRequestTime().tv_sec + TIMEOUT_SEC < time.tv_sec)
+		{
+			std::cout << "timeout " << _map_sockets.at(i).first << std::endl;//!close connection or send error to client
+			closeConnection(_map_sockets.at(i).first);
+		}
+	}
+}
+
 void Cluster::runServer()
 {
 	fd_set readfds;
@@ -160,10 +175,11 @@ void Cluster::runServer()
 			else if (FD_ISSET(_map_sockets.at(i).first, &readfds))
 			{
 				std::cout << "read data" << std::endl;
-				_map_sockets.at(i).second.readSocket(_map_sockets.at(i).first, *this);
+				// _map_sockets.at(i).second.readSocket(_map_sockets.at(i).first, *this);
 				break ;
 			}
 		}
+		_check_timeout();
 		std::cout << " ----- fin ---- " << std::endl;
 	}
 }

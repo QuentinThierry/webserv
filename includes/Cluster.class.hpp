@@ -10,6 +10,8 @@
 # include <deque>
 # include <algorithm>
 
+# define TIMEOUT_SEC 5  //+-1second
+
 
 typedef std::vector<Socket>::const_iterator	t_const_iter_sockets;
 typedef std::vector<Socket>::iterator		t_iter_sockets;
@@ -37,6 +39,8 @@ class Cluster
 		void _init_set_fds(fd_set *readfds, fd_set *writefds, fd_set *exceptfds) const;
 		void _print_set(fd_set *fds, std::string str) const;
 		void _acceptNewConnection(Socket const & socket);
+		void _check_timeout();
+
 
 		std::vector<Socket>				_sockets; //fd that are listening
 		std::deque<std::pair<int, HttpExchange> >	_map_sockets; //fd create with accept => read
