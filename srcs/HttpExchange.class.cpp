@@ -26,10 +26,13 @@ void HttpExchange::_copyRequest(e_http_method method, HttpRequest const * reques
 	{
 		case GET:
 			_request = ::new HttpRequestGet(*((HttpRequestGet*)request));
+			break;
 		case POST:
 			_request = ::new HttpRequestPost(*((HttpRequestPost*)request));
+			break;
 		case DELETE:
 			_request = ::new HttpRequestDelete(*((HttpRequestDelete*)request));
+			break;
 		default:
 			throw ExceptionHttpStatusCode(HTTP_501);
 	}
@@ -77,7 +80,7 @@ e_http_method HttpExchange::_findMethod(std::string const & cmp)
 
 	for (unsigned int i = 0; i < 3; i++)
 	{
-		for (unsigned int j = 0; j < method_name[i].size(); i++)
+		for (unsigned int j = 0; j < method_name[i].size(); j++)
 		{
 			if (method_name[i][j] != cmp[j])
 				break;
@@ -96,10 +99,13 @@ void HttpExchange::_initRequest(e_http_method method)
 	{
 		case GET:
 			_request = ::new HttpRequestGet(_buffer_read);
+			break;
 		case POST:
 			_request = ::new HttpRequestPost(_buffer_read);
+			break;
 		case DELETE:
 			_request = ::new HttpRequestDelete(_buffer_read);
+			break;
 		default:
 			throw ExceptionHttpStatusCode(HTTP_501);
 	}
@@ -114,7 +120,7 @@ void HttpExchange::_handleError(int fd, Cluster &cluster, e_status_code error)
 
 void HttpExchange::readSocket(int fd, Cluster &cluster)
 {
-	if (_request->hasBody() == true)
+	if (_request != NULL && _request->hasBody() == true)
 		_request->readBody(fd, _socket);
 	else
 		_handleHeader(fd, cluster);
@@ -153,13 +159,13 @@ void HttpExchange::_handleHeader(int fd, Cluster &cluster)
 		}
 		catch(ExceptionHttpStatusCode &e)
 		{
-			std::cout << "Error \n";
+			std::cout << "Error code\n";
 			_handleError(fd, cluster, e.get_status_code()); //!send error to client
 			return ;
 		}
 		catch(std::exception &e)
 		{
-			std::cout << "Error \n";
+			std::cout << "Error unknow\n";
 			_handleError(fd, cluster, HTTP_500); //!send error to client
 			return ;
 		}
@@ -180,7 +186,6 @@ void HttpExchange::writeSocket(int fd, Cluster &cluster)
 		else
 			_buffer_read.clear();
 	}
-	(void)cluster;
 	cluster.closeConnection(fd);
 }
 

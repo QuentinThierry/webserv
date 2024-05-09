@@ -142,7 +142,8 @@ void Cluster::runServer()
 		{
 			if (_close_connection == true)
 			{
-				i--;
+				if (i > 0)
+					i--;
 				_close_connection = false;
 			}
 			if (FD_ISSET(_map_sockets.at(i).first, &exceptfds))

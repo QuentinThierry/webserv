@@ -6,7 +6,7 @@
 /*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 15:07:56 by jvigny            #+#    #+#             */
-/*   Updated: 2024/05/09 12:32:59 by jvigny           ###   ########.fr       */
+/*   Updated: 2024/05/09 15:51:31 by jvigny           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ typedef enum e_status
 # include <unistd.h>
 # include <stdint.h>
 
-int const g_err_log_fd = STDERR_FILENO;
+extern int const g_err_log_fd;
 
 int protected_write(int const fd, std::string const str);
 

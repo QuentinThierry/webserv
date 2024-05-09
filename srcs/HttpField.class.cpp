@@ -6,7 +6,7 @@
 /*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 15:52:09 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/09 12:22:57 by jvigny           ###   ########.fr       */
+/*   Updated: 2024/05/09 15:12:21 by jvigny           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ HttpField::~HttpField( void )
 
 HttpField & HttpField::operator=(HttpField const & model)
 {
-	if (&model == this)
+	if (&model != this)
 	{
 		_name = model._name;
 		_values = model._values;

@@ -6,7 +6,7 @@
 /*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 19:43:37 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/09 12:08:05 by jvigny           ###   ########.fr       */
+/*   Updated: 2024/05/09 15:50:35 by jvigny           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,9 +22,9 @@
 # define HTTP_SEPARATORS "()<>@,;:\\/[]?={} \""
 # define HTTP_WHITESPACES " \t"
 
-static std::vector<std::string> g_http_methods;
+extern std::vector<std::string> g_http_methods;
 typedef std::vector<std::string>::const_iterator it_method;
-static std::vector<std::string> g_http_versions;
+extern std::vector<std::string> g_http_versions;
 typedef std::vector<std::string>::const_iterator it_version;
 
 bool		str_contains_one_single_colon(std::string const & str,
