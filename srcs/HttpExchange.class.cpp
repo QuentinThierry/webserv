@@ -12,7 +12,11 @@
 HttpExchange::HttpExchange(Socket const &socket): _socket(&socket), _response()
 {
 	if (gettimeofday(&_accept_request_time, NULL) == -1)
+	{
+		protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
+				std::string("Error: ") + std::strerror(errno) + "at"));
 		throw ExceptionHttpStatusCode(HTTP_500);
+	}
 	_buffer_read.clear();
 	_request = NULL;
 }
@@ -36,7 +40,9 @@ void HttpExchange::_copyRequest(e_http_method method, HttpRequest const * reques
 			_request = ::new HttpRequestDelete(*((HttpRequestDelete*)request));
 			break;
 		default:
-			throw ExceptionHttpStatusCode(HTTP_501);
+			protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
+				std::string("Error: invalid request method from")));
+			throw ExceptionHttpStatusCode(HTTP_500);
 	}
 }
 
@@ -70,11 +76,15 @@ void HttpExchange::_setRightSocket(Cluster const &cluster)
 
 	if (_request->checkFieldExistence("Host") == false)
 	{
+		protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
+					std::string("Error: Missing 'Host' variable in the http request from")));
 		throw ExceptionHttpStatusCode(HTTP_400); //!send error
 	}
 	std::vector<std::string> const &host_name = _request->getFieldValue("Host");
 	if (host_name.size() != 1)
 	{
+		protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
+					std::string("Error: Invalid format of 'Host' variable in the http request from")));
 		throw ExceptionHttpStatusCode(HTTP_400); //!send error
 	}
 	Socket const *socket = cluster.get_matching_socket(_socket->getFd(), host_name.at(0));
@@ -116,6 +126,8 @@ void HttpExchange::_initRequest(e_http_method method)
 			_request = ::new HttpRequestDelete(_buffer_read);
 			break;
 		default:
+			protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
+				std::string("Error: Http method not implemented in request from")));
 			throw ExceptionHttpStatusCode(HTTP_501);
 	}
 }
@@ -143,12 +155,14 @@ void HttpExchange::_handleHeader(int fd, Cluster &cluster)
 	if (ret == -1)
 	{
 		protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
-					std::string("Error: read() ") + std::strerror(errno)));
+					std::string("Error: read(): ") + std::strerror(errno) + "at"));
 		_handleError(fd, cluster, HTTP_500); //!send error to client
 		return;
 	}
 	if (ret == 0)
 	{
+		protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
+					std::string("Error: Missing empty line at the end of the http request from")));
 		_handleError(fd, cluster, HTTP_400); //!send error to client
 		return;
 	}
@@ -164,17 +178,21 @@ void HttpExchange::_handleHeader(int fd, Cluster &cluster)
 			_buffer_read.clear();
 			_request->process_header(_socket);
 			if (_request->hasBody() == false)
+			{
+				_request->generate_response(_socket);
 				cluster.switchHttpExchangeToWrite(fd);
+			}
 		}
 		catch(ExceptionHttpStatusCode &e)
 		{
-			std::cout << "Error code\n";
+			e.display_error();
 			_handleError(fd, cluster, e.get_status_code()); //!send error to client
 			return ;
 		}
 		catch(std::exception &e)
 		{
-			std::cout << "Error unknow\n";
+			protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
+					std::string("Error: ") + std::strerror(errno) + "at"));
 			_handleError(fd, cluster, HTTP_500); //!send error to client
 			return ;
 		}
@@ -189,7 +207,7 @@ void HttpExchange::writeSocket(int fd, Cluster &cluster)
 		if (ret == -1 || ret == 0)
 		{
 			protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
-					std::string("Error: write() ") + std::strerror(errno)));
+					std::string("Error: write() ") + std::strerror(errno) + "at"));
 			return; //!error
 		}
 		else
