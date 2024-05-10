@@ -41,6 +41,7 @@ class Server
 		bool	is_equal(Server const &ref);
 
 		Location const &searchLocation(std::string path);
+		bool searchCgiLocation(std::string path, CgiLocation &cgi_loc);
 
 	private:
 		std::string							_host;

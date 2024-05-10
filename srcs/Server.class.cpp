@@ -82,3 +82,30 @@ Location const &Server::searchLocation(std::string path)
 
 	return this->getDefaultLocation();
 }
+
+// returns true if a CgiLocation exists, and fills cgi_loc
+// else, returns false and cgi_loc is left untouched
+bool Server::searchCgiLocation(std::string path, CgiLocation &cgi_loc)
+{
+	if (path[path.size() - 1] == '/')
+		return false;
+	size_t slash_pos = path.find_last_of('/');
+	if (slash_pos == std::string::npos)
+		return false;
+	path = path.substr(slash_pos + 1);
+
+	size_t dot_pos = path.find_last_of('.');
+	if (dot_pos == std::string::npos || path[path.size() - 1] == '.')
+		return false;
+	path = path.substr(dot_pos);
+	
+	for (unsigned int i = 0; i < this->getCgiLocations().size(); i++)
+	{
+		if (this->getCgiLocations()[i].getExtension() == path)
+		{
+			cgi_loc = this->getCgiLocations()[i];
+			return true;
+		}
+	}
+	return true;
+}
