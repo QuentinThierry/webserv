@@ -53,23 +53,32 @@ bool	Server::is_equal(Server const &ref)
 	return true;
 }
 
+#include <iostream>
+
 Location const &Server::searchLocation(std::string path)
 {
-	for (unsigned int i = path.size() - 1; i > 0; i--)
+	size_t slash_pos = 0;
+
+	// exact match
+	for (unsigned int i = 1; i < this->getLocations().size(); i++)
 	{
-		if (path[i] != '/')
-			break ;
-		else
-			path.erase(i);
+		if (this->getLocations()[i].getLocationPath() == path)
+			return this->getLocations()[i];
 	}
-	size_t slash_pos = path.find_last_of('/');
-	if (slash_pos != std::string::npos && path.size() - slash_pos > 1)
-		path = path.substr(slash_pos + 1);
-	std::vector<Location> const &locations = this->getLocations();
-	for (unsigned int i = 1; i < locations.size(); i++)
+	// match directories
+	do
 	{
-		if (locations[i].getLocationPath() == path)
-			return locations[i];
-	}
+		for (unsigned int i = 1; i < this->getLocations().size(); i++)
+		{
+			if (this->getLocations()[i].getLocationPath() == path)
+				return this->getLocations()[i];
+		}
+		if (path[path.size() - 1] == '/')
+			path.erase(path.size() - 1);
+		slash_pos = path.find_last_of('/');
+		if (slash_pos != std::string::npos && path.size() - slash_pos > 1)
+			path = path.substr(0, slash_pos + 1);
+	} while (slash_pos != std::string::npos && path.size() != 0);
+
 	return this->getDefaultLocation();
 }
