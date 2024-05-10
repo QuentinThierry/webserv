@@ -90,10 +90,8 @@ bool Server::searchCgiLocation(std::string path, CgiLocation &cgi_loc)
 	if (path[path.size() - 1] == '/')
 		return false;
 	size_t slash_pos = path.find_last_of('/');
-	if (slash_pos == std::string::npos)
-		return false;
-	path = path.substr(slash_pos + 1);
-
+	if (slash_pos != std::string::npos)
+		path = path.substr(slash_pos + 1);
 	size_t dot_pos = path.find_last_of('.');
 	if (dot_pos == std::string::npos || path[path.size() - 1] == '.')
 		return false;
@@ -103,9 +101,10 @@ bool Server::searchCgiLocation(std::string path, CgiLocation &cgi_loc)
 	{
 		if (this->getCgiLocations()[i].getExtension() == path)
 		{
+			std::cout << "awd\n";
 			cgi_loc = this->getCgiLocations()[i];
 			return true;
 		}
 	}
-	return true;
+	return false;
 }
