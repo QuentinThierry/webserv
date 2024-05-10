@@ -1,9 +1,9 @@
 #include "HttpRequest.class.hpp"
 
-// bool HttpRequest::checkMethod(Location const & location)
-// {
-// 	location.acceptMethod(getMethod());
-// }
+bool HttpRequest::checkMethod(Location const & location) const
+{
+	location.acceptMethod(getMethod());
+}
 
 HttpRequest::HttpRequest ( void ) : HttpRequestLine()
 {

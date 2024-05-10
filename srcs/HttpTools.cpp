@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpTools.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 19:47:57 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/03 21:32:58 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/09 17:26:10 by jvigny           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ bool	str_contains_one_single_colon(std::string const & str,
 {
 	if (first_colon_pos == std::string::npos)
 		first_colon_pos = str.find(':');
-	return (_str_contain_a_colon(str, first_colon_pos) && ! _str_contains_multiple_colon(str, first_colon_pos));
+	return (_str_contain_a_colon(str, first_colon_pos));// && ! _str_contains_multiple_colon(str, first_colon_pos));
 }
 
 
@@ -182,85 +182,3 @@ void	throw_http_err_with_log(e_status_code error_code, std::string log_msg)
 	protected_write(g_err_log_fd, log_msg);
 	throw(ExceptionHttpStatusCode(error_code));
 }
-
-/*
-
-// tests
-
-#include <vector>
-
-static void _test__get_end_quote_idx( void );
-static void _test_find_end_word( void );
-
-int main()
-{
-	_test__get_end_quote_idx();
-	_test_find_end_word();
-}
-
-
-static void _test__get_end_quote_idx( void )
-{
-	std::vector<std::string>  fields;
-
-	fields.push_back("\"");
-	fields.push_back("\"abcde");
-	fields.push_back("\"abcde\"");
-	fields.push_back("\"abcde\"fgh");
-	fields.push_back("\"abcde\"\"fgh");
-	fields.push_back("\"abcde\"");
-	fields.push_back("\"abcde\\\"fgh\"");
-
-	std::cout << "Test _get_end_quote_idx : " << std::endl;
-
-	for (std::vector<std::string>::iterator it = fields.begin(); it != fields.end(); ++it)
-	{
-		std::cout << "- \""<< *it << "\" (size = " << it->size() << "):";
-		size_t	next_quote;
-
-		if (_get_end_quote_idx(*it, 0, next_quote) == SUCCESS)
-			std::cout << " -> success: " << next_quote << " (" << it->at(next_quote) << ")";
-		else
-			std::cout << " => not valid";
-		std::cout << std::endl;
-	}
-
-	std::cout << std::endl;
-}
-
-static void _test_find_end_word( void )
-{
-	std::vector<std::string>	fields;
-	size_t						end_value;
-
-	fields.push_back("simple_correct");
-	fields.push_back("simple_correct, with_next");
-	fields.push_back("\"quoted_correct\"abc");
-	fields.push_back("\"quoted_correct\"continued");
-	fields.push_back("\"quoted_correct\", next");
-	fields.push_back("  simple_correct_space  ");
-	fields.push_back("  incorrect_quote\"  ");
-
-	std::cout << "Test find_end_word : " << std::endl;
-
-	for (std::vector<std::string>::iterator it = fields.begin(); it != fields.end(); ++it)
-	{
-		std::cout << "- \""<< *it << "\" (size = " << it->size() << "):" << std::endl;
-
-		if (find_end_word(*it, 0, ",", end_value) == SUCCESS)
-		{
-			std::cout << " -> success: " << end_value;
-			if (end_value < it->size())
-				std::cout << " ('" << it->at(end_value) << "')" << std::endl;
-			else
-				std::cout << " (end of string)" << std::endl;
-		}
-		else
-		{
-			std::cout << " => not valid";
-		}
-	}
-
-	std::cout << std::endl;
-}
-*/

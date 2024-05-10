@@ -11,14 +11,19 @@ class HttpResponse
 {
 	public:
 		HttpResponse( HttpResponse const & model);
+		HttpResponse( it_version const & version);
 		HttpResponse & operator=(HttpResponse const & model );
 		void		generateErrorResponse(e_status_code status);
 		~HttpResponse( void );
 		HttpResponse( void );
 
+		bool	handle_redirect(Location const &);
+
+		void setStatusCode(e_status_code code);
+
 	private:
-		std::string		_version;
-		e_status_code	_status_code;
+		it_version		_version;
+		int				_status_code;
 
 		std::vector<HttpField>	_fields;
 		std::string				_body;

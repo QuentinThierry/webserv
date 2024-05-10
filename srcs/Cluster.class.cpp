@@ -175,7 +175,7 @@ void Cluster::runServer()
 			else if (FD_ISSET(_map_sockets.at(i).first, &readfds))
 			{
 				std::cout << "read data" << std::endl;
-				// _map_sockets.at(i).second.readSocket(_map_sockets.at(i).first, *this);
+				_map_sockets.at(i).second.readSocket(_map_sockets.at(i).first, *this);
 				break ;
 			}
 		}

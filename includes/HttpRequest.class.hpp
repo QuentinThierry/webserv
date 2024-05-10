@@ -35,13 +35,13 @@ class HttpRequest : public HttpRequestLine
 		virtual bool					hasBody() const = 0;
 		
 		std::string	const &				getBody( void ) const;
-		// std::string	const &				getBody( void ) const;
+
 		void							addStringToBody( std::string const & extra_body_content);
 
 		bool							checkFieldExistence(std::string const & field_name) const;
 		const std::vector<std::string>	&getFieldValue(std::string const & field_name) const throw(ExceptionHttpStatusCode);
 
-		// bool							checkMethod(Location const & location);
+		bool							checkMethod(Location const & location) const;
 		virtual void					display_request( void ) const;
 	protected:
 		std::string	_body;

@@ -10,7 +10,7 @@
 # include <deque>
 # include <algorithm>
 
-# define TIMEOUT_SEC 5  //+-1second
+# define TIMEOUT_SEC 30 //+-1second
 
 
 typedef std::vector<Socket>::const_iterator	t_const_iter_sockets;

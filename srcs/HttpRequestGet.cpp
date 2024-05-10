@@ -1,4 +1,6 @@
 #include "HttpRequestGet.class.hpp"
+#include <sys/stat.h>
+#include <fcntl.h>
 
 HttpRequestGet::HttpRequestGet (std::string const & str_request)
 	throw (ExceptionHttpStatusCode)
@@ -46,25 +48,65 @@ bool	HttpRequestGet::hasBody() const
 	return (false);
 }
 
+std::string	getUri(std::string root, std::string target)
+{
+	return (root + target);
+}
+
+bool	checktUriExist(std::string uri, int permission)
+{
+	return (access(uri.c_str(), permission) == 0 ? true : false);
+}
+
+bool	handle_directory(std::string & uri, Location const & location, HttpResponse & response)
+{
+	//check if uri is a directory
+	int fd = open(uri.c_str(), O_DIRECTORY);
+	if (fd == -1)
+		return false;
+	close(fd);
+	//check autoindex
+	if (location.getHasAutoindex())
+		return true; //TODO
+	//check default file => index
+	std::vector<std::string> index = location.getDefaultDirPath();
+	for (unsigned int i = 0; i < index.size(); i++)
+	{
+		if (access((uri + index.at(i)).c_str(), F_OK) != -1)
+		{
+			uri = uri + index.at(i);
+			response.setStatusCode(HTTP_304);
+			return false;
+		}
+	}
+	response.setStatusCode(HTTP_403);
+	return true;
+}
+
 HttpResponse	HttpRequestGet::generate_response( Socket const * const socket )
 {
-	(void)socket;
+	HttpResponse response(getVersion());
 
-	// Location location = socket->getServer().getLocation(string);// get location path
-	// //get location cgi if cgi
-	// //check method
-	// if (checkMethod(location) == false)
-	// {
-	// 	throw ExceptionHttpStatusCode(HTTP_405);//!send error to client with allow method
-	// }
-	// if (location.getHasRedirect())
-	//do redirection
-	//check if uri exist
-	//check if uri is a directory
-		//check autoindex
-		//check default file
+	Location location = socket->getServer().getLocation(getTarget());// get location path
+	//get location cgi if cgi
+	if (checkMethod(location) == false)
+	{
+		response.generateErrorResponse(HTTP_405);//!send error to client with allow method
+		return response;
+	}
+	std::string uri = getUri(location.getRootPath(), getTarget());
+	if (!checktUriExist(uri, R_OK))
+	{
+		response.generateErrorResponse(HTTP_403);
+		return response;
+	}
+	if (response.handle_redirect(location))
+		return response;
+	if (handle_directory(uri, location, response))
+		return response;
+	
 	//return files
-	return HttpResponse();
+	return response;
 }
 
 void	HttpRequestGet::readBody(int fd, Socket const * const socket)
