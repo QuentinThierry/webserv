@@ -5,8 +5,8 @@
 #include <queue>
 #include <fstream>
 #include <unistd.h>
-#include <exception>
 
+#include "ConfException.class.hpp"
 #include "Server.class.hpp"
 
 typedef void (* t_token_append_function)(std::string &, Server &, Location *, unsigned int arg_counter);
@@ -19,7 +19,7 @@ void	parse_tokens(std::queue<std::string> tokens);
 
 void	interpret_tokens(std::queue<std::string> &tokens, std::vector<Server> &servers);
 
-t_token_append_function define_token_var_function(std::string &token, Location *location);
+t_token_append_function define_token_var_function(std::string &token);
 
 bool	does_http_code_exist(std::string code);
 t_http_code	str_to_http_code(std::string code);

@@ -1,6 +1,6 @@
 #include "DefineVariableFields.hpp"
 
-t_token_append_function define_token_var_function(std::string &token, Location *location)
+t_token_append_function define_token_var_function(std::string &token)
 {
 	// find function that matches token
 	if (token == "listen")
@@ -16,8 +16,6 @@ t_token_append_function define_token_var_function(std::string &token, Location *
 	if (token == "autoindex")
 		return fill_autoindex;
 	// at this point, these fields can only be declare in a location
-	if (!location)
-		throw std::out_of_range("Token not in location : " + token);
 	if (token == "limit_except")
 		return fill_limit_except;
 	if (token == "return")
@@ -28,5 +26,5 @@ t_token_append_function define_token_var_function(std::string &token, Location *
 		return fill_can_upload;
 	if (token == "upload_path")
 		return fill_upload_path;
-	throw std::out_of_range("unknown token " + token);
+	throw std::exception();
 }

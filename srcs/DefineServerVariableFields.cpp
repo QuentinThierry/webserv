@@ -42,10 +42,10 @@ uint32_t	_convert_host_to_uint(std::string const &host)
 			tmp += host[j];
 		}
 		if (tmp.size() > 3)
-			throw std::out_of_range("overflow1");
+			throw std::exception();
 		tmp_val = std::atoi(tmp.c_str());
 		if (tmp_val > 255)
-			throw std::out_of_range("overflow2");
+			throw std::exception();
 		*((uint8_t *)(&res) + i) = tmp_val;
 		tmp.clear();
 	}
@@ -56,10 +56,10 @@ u_int16_t	str_to_short(std::string str)
 {
 	for (unsigned int i = 0; i < str.size(); i++) {
 		if (!std::isdigit(str[i]))
-			throw std::out_of_range("non digit");
+			throw std::exception();
 	}
 	if (str.size() > 5)
-		throw std::out_of_range("too long port");
+		throw std::exception();
 	return std::atoi(str.c_str());
 }
 
@@ -78,7 +78,7 @@ void	_parse_listen_argument(std::string &token, Server &server)
 	}
 	colon_pos = token.find_first_of(':', colon_pos + 1);
 	if (colon_pos != std::string::npos)
-		throw std::out_of_range("parse");
+		throw std::exception();
 	// host + port
 	if (token[0] == ':')
 	{
@@ -92,7 +92,7 @@ void	_parse_listen_argument(std::string &token, Server &server)
 	if (server.getHost() == LOCALHOST)
 		server.setHost(LOCALHOST_RESOLVE);
 	else if (!_is_correct_ip(server.getHost()))
-		throw std::out_of_range("non ok host");
+		throw std::exception();
 	server.setHostUint(_convert_host_to_uint(server.getHost()));
 	server.setPort(str_to_short(token.substr(colon_pos + 1)));
 }

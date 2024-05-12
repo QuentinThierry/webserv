@@ -3,7 +3,7 @@
 void	fill_field_value(std::string &token, Server &server, Location *location, t_token_append_function &token_var_function, unsigned int arg_counter)
 {
 	if (token_var_function == NULL)
-		token_var_function = define_token_var_function(token, location);
+		token_var_function = define_token_var_function(token);
 	else
 		token_var_function(token, server, location, arg_counter);
 }
@@ -43,7 +43,7 @@ void interpret_cgi_field_loop(std::string &token, std::queue<std::string> &token
 		else if (token[0] == ';')
 		{
 			if (arg_counter < 2)
-				throw std::out_of_range("not enough path arg");
+				throw std::exception();
 			break;
 		}
 		else
@@ -53,11 +53,11 @@ void interpret_cgi_field_loop(std::string &token, std::queue<std::string> &token
 			else if (identifier == "cgi_path")
 			{
 				if (arg_counter != 1)
-					throw std::out_of_range("too much args cgi field path");
+					throw std::exception();
 				cgiObj.setExecPath(token);
 			}
 			if (identifier != "cgi_path")
-				throw std::out_of_range("not a cgi field!");
+				throw std::exception();
 		}
 		arg_counter++;
 		token = extract_token(tokens);
@@ -160,7 +160,7 @@ Server	interpret_server_loop(std::queue<std::string> &tokens)
 	interpret_server_fields(server, tokens);
 	interpret_location_fields(server, tokens);
 	if (server.getHost().empty())
-		throw std::out_of_range("no listen");
+		throw std::exception();
 	return server;
 }
 
