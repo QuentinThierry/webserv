@@ -99,12 +99,13 @@ void	_parse_listen_argument(std::string &token, Server &server)
 
 void fill_listen(std::string &token, Server &server, Location *location, unsigned int arg_counter)
 {
-	if (server._getHasListen())
+	static bool has_listen = false;
+	if (has_listen == true)
 		throw std::exception();
 	if (location || arg_counter != 1)
 		throw std::exception();
 	_parse_listen_argument(token, server);
-	server._setHasListen(true);
+	has_listen = true;
 }
 
 void fill_server_name(std::string &token, Server &server, Location *location, unsigned int arg_counter)
@@ -117,25 +118,24 @@ void fill_server_name(std::string &token, Server &server, Location *location, un
 
 void fill_error_page(std::string &token, Server &server, Location *location, unsigned int arg_counter)
 {
+	static bool has_error_path = false;
 	if (location)
 		throw std::exception();
 	if (arg_counter == 1)
-		server._setHasFoundErrorPagePath(false);
-	if (server._getHasFoundErrorPagePath() == true)
+		has_error_path = false;
+	if (has_error_path == true)
 		throw std::exception();
 	if (does_http_code_exist(token) == false)
 	{
-		server._setHasFoundErrorPagePath(true);
-		std::map<t_http_code, std::string>::iterator it = --server.getErrorPagePath().end();
-		for (unsigned int i = 0; i < arg_counter - 1; i++)
+		has_error_path = true;
+		for (std::map<t_http_code, std::string>::iterator it = server.getErrorPagePath().begin(); it != server.getErrorPagePath().end(); it++)
 		{
-			if (it->second == "")
+			if (it->second == "") // fill the second part of the map for each error code
 				it->second = token;
-			it--;
 		}
 	}
 	else
-		server.addErrorPagePath(str_to_http_code(token), "");
+		server.addErrorPagePath(str_to_http_code(token), ""); // fill the first part of the pair, the error code
 }
 
 bool	_is_overflow_on_unit(std::string &token, char unit)

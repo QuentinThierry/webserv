@@ -23,8 +23,6 @@ class Server
 		std::vector<Location> const &getLocations() const;
 		std::vector<CgiLocation> const &getCgiLocations() const;
 		Location &getDefaultLocation();
-		bool	&_getHasFoundErrorPagePath();
-		bool	&_getHasListen();
 
 		void	setHost(std::string host);
 		void	setHostUint(uint32_t host_uint);
@@ -37,8 +35,6 @@ class Server
 		void	setLocations(std::vector<Location> locations);
 		void	addLocations(Location location);
 		void	addCgiLocation(CgiLocation cgi_loc);
-		void	_setHasFoundErrorPagePath(bool has_found_error_page_path);
-		void	_setHasListen(bool has_listen);
 
 		bool	is_equal(Server const &ref);
 
@@ -54,8 +50,6 @@ class Server
 		uint64_t							_client_max_body_size;
 		std::vector<Location>				_locations;
 		std::vector<CgiLocation>			_cgi_locations;
-		bool								__has_found_error_page_path;
-		bool								__has_listen;
 };
 
 #endif

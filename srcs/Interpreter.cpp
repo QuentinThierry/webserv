@@ -159,8 +159,8 @@ Server	interpret_server_loop(std::queue<std::string> &tokens)
 
 	interpret_server_fields(server, tokens);
 	interpret_location_fields(server, tokens);
-	if (server._getHasListen() == false)
-		throw std::exception();
+	if (server.getHost().empty())
+		throw std::out_of_range("no listen");
 	return server;
 }
 
