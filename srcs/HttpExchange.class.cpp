@@ -201,19 +201,7 @@ void HttpExchange::_handleHeader(int fd, Cluster &cluster)
 
 void HttpExchange::writeSocket(int fd, Cluster &cluster)
 {
-	if (_buffer_read.size() != 0)
-	{
-		int ret = write(fd, _buffer_read.c_str(), _buffer_read.size());
-		if (ret == -1 || ret == 0)
-		{
-			protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
-					std::string("Error: write() ") + std::strerror(errno) + "at"));
-			return; //!error
-		}
-		else
-			_buffer_read.clear();
-	}
-	cluster.closeConnection(fd);
+	_response.writeResponse(fd, cluster);
 }
 
 

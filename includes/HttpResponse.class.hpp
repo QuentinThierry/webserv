@@ -4,8 +4,18 @@
 # include "Socket.class.hpp"
 # include "HttpResponseStatus.hpp"
 # include "HttpField.class.hpp"
+# include "util.hpp"
 # include <vector>
+# include <fstream>
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <unistd.h>
 
+#define SIZE_WRITE 50
+
+class Cluster;
+
+# define SERVER_NAME "webserv"
 
 class HttpResponse
 {
@@ -13,20 +23,33 @@ class HttpResponse
 		HttpResponse( HttpResponse const & model);
 		HttpResponse( it_version const & version);
 		HttpResponse & operator=(HttpResponse const & model );
-		void		generateErrorResponse(e_status_code status);
 		~HttpResponse( void );
 		HttpResponse( void );
 
-		bool	handle_redirect(Location const &);
+		bool		handle_redirect(Location const &);
+		void		fillHeader();
 
-		void setStatusCode(e_status_code code);
+		uint32_t	statusCodeToInt() const;
+		void		setStatusCode(e_status_code code);
+		void		addAllowMethod(std::vector<std::string> const &);
+		e_status	openFstream(std::string filename);
+		bool		checkFieldExistence(std::string const & field_name) const;
 
+		void		generateErrorResponse(e_status_code status, Server const & server);
+
+		void		writeResponse(int fd, Cluster &cluster);
 	private:
+		void		_removeField(std::string const &);
+
 		it_version		_version;
-		int				_status_code;
+		e_status_code	_status_code;
 
 		std::vector<HttpField>	_fields;
+		std::string				_header;
+
 		std::string				_body;
+		std::ifstream			_bodyFile;
+		bool					_fileOpen;
 };
 
 /* 
@@ -40,9 +63,6 @@ Since the 205 status code implies that no additional content will be
    body consisting of a single chunk of zero-length; or, c) close the
    connection immediately after sending the blank line terminating the
    header section.
-
-405 => Allow header
-408 => connection close
  */
 
 #endif

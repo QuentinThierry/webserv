@@ -6,7 +6,7 @@
 /*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 15:52:09 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/09 15:12:21 by jvigny           ###   ########.fr       */
+/*   Updated: 2024/05/12 13:46:18 by jvigny           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,3 +199,21 @@ void	HttpField::display_field ( void ) const
 	}
 	std::cout << std::endl;
 }
+
+std::string	HttpField::getFields( void ) const
+{
+	std::string res;
+	res = _name + ": ";
+	if (_values.size())
+	{
+		res += _values[0];
+		for (std::vector<std::string>::const_iterator it = ++(_values.begin());
+			it != _values.end(); ++it)
+		{
+			res += ", " + *it;
+		}
+	}
+	res += "\r\n";
+	return res;
+}
+

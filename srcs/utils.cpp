@@ -1,4 +1,5 @@
 #include "Shared.hpp"
+#include <sstream>
 
 uint64_t ft_atoi(std::string nb, e_status &error)
 {
@@ -18,4 +19,11 @@ uint64_t ft_atoi(std::string nb, e_status &error)
 		res = res * 10 + (nb[i] - '0');
 	}
 	return res;
+}
+
+std::string ft_itoa( uint64_t number )
+{
+	std::ostringstream ss;
+	ss << number;
+	return ss.str();
 }

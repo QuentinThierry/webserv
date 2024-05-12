@@ -1,4 +1,5 @@
 #include "HttpResponse.class.hpp"
+#include "Cluster.class.hpp"
 
 HttpResponse::HttpResponse( HttpResponse const & model)
 {
@@ -8,8 +9,10 @@ HttpResponse::HttpResponse( HttpResponse const & model)
 HttpResponse::HttpResponse( it_version const & version)
 {
 	_version = version;
+	_status_code = HTTP_200;
+	_fileOpen = false;
 	_fields.push_back(HttpField("Connection", "close"));
-
+	_fields.push_back(HttpField("Server", SERVER_NAME));
 }
 
 
@@ -35,112 +38,235 @@ HttpResponse::HttpResponse( void )
 	//TODO
 }
 
-void	HttpResponse::setStatusCode(e_status_code code)
+uint32_t	HttpResponse::statusCodeToInt() const
 {
-	switch (code)
+	switch (_status_code)
 	{
 		case HTTP_307:
-			_status_code = 307;
+			return 307;
 		case HTTP_308:
-			_status_code = 308;
+			return 308;
 		case HTTP_400:
-			_status_code = 400;
+			return 400;
 		case HTTP_401:
-			_status_code = 401;
+			return 401;
 		case HTTP_402:
-			_status_code = 402;
+			return 402;
 		case HTTP_403:
-			_status_code = 403;
+			return 403;
 		case HTTP_404:
-			_status_code = 404;
+			return 404;
 		case HTTP_405:
-			_status_code = 405;
+			return 405;
 		case HTTP_406:
-			_status_code = 406;
+			return 406;
 		case HTTP_407:
-			_status_code = 407;
+			return 407;
 		case HTTP_408:
-			_status_code = 408;
+			return 408;
 		case HTTP_409:
-			_status_code = 409;
+			return 409;
 		case HTTP_410:
-			_status_code = 410;
+			return 410;
 		case HTTP_411:
-			_status_code = 411;
+			return 411;
 		case HTTP_412:
-			_status_code = 412;
+			return 412;
 		case HTTP_413:
-			_status_code = 413;
+			return 413;
 		case HTTP_414:
-			_status_code = 414;
+			return 414;
 		case HTTP_415:
-			_status_code = 415;
+			return 415;
 		case HTTP_416:
-			_status_code = 416;
+			return 416;
 		case HTTP_417:
-			_status_code = 417;
+			return 417;
 		case HTTP_418:
-			_status_code = 418;
+			return 418;
 		case HTTP_421:
-			_status_code = 421;
+			return 421;
 		case HTTP_422:
-			_status_code = 422;
+			return 422;
 		case HTTP_423:
-			_status_code = 423;
+			return 423;
 		case HTTP_424:
-			_status_code = 424;
+			return 424;
 		case HTTP_425:
-			_status_code = 425;
+			return 425;
 		case HTTP_426:
-			_status_code = 426;
+			return 426;
 		case HTTP_428:
-			_status_code = 428;
+			return 428;
 		case HTTP_429:
-			_status_code = 429;
+			return 429;
 		case HTTP_431:
-			_status_code = 431;
+			return 431;
 		case HTTP_451:
-			_status_code = 451;
+			return 451;
 		case HTTP_500:
-			_status_code = 500;
+			return 500;
 		case HTTP_501:
-			_status_code = 501;
+			return 501;
 		case HTTP_502:
-			_status_code = 502;
+			return 502;
 		case HTTP_503:
-			_status_code = 503;
+			return 503;
 		case HTTP_504:
-			_status_code = 504;
+			return 504;
 		case HTTP_505:
-			_status_code = 505;
+			return 505;
 		case HTTP_506:
-			_status_code = 506;
+			return 506;
 		case HTTP_507:
-			_status_code = 507;
+			return 507;
 		case HTTP_508:
-			_status_code = 508;
+			return 508;
 		case HTTP_510:
-			_status_code = 510;
+			return 510;
 		case HTTP_511:
-			_status_code = 511;
+			return 511;
 		default:
 			throw (ExceptionUnknownStatusCode());
 	}
 }
 
+void	HttpResponse::setStatusCode(e_status_code code)
+{
+	_status_code = code;
+}
+
+
 bool	HttpResponse::handle_redirect(Location const & location)
 {
 	if (location.getHasRedirect())
 	{
-		setStatusCode(location.getRedirect().first);
+		_status_code = location.getRedirect().first;
 		_fields.push_back(HttpField("Location", location.getRedirect().second));
 		return true;
 	}
 	return false;
 }
 
-
-void	HttpResponse::generateErrorResponse(e_status_code status)
+void		HttpResponse::fillHeader()
 {
-	setStatusCode(status);
+	_header.clear();
+	_header = *_version + " " + ft_itoa(statusCodeToInt()) + " "
+			+ get_error_reason_phrase(_status_code) + "\r\n";
+	for (unsigned int i = 0; i < _fields.size(); i++)
+		_header += _fields.at(i).getFields();
+	_header += "\r\n";
+}
+
+e_status HttpResponse::openFstream(std::string filename)
+{
+	_bodyFile.open(filename.c_str());
+	if (_bodyFile.is_open() == false)
+	{
+		return FAILURE;
+	}
+	_fileOpen = true;
+	struct stat buffer;
+	if (stat(filename.c_str(), &buffer) != 0)
+	{
+		_fileOpen = false;
+		_bodyFile.close();
+		return FAILURE;
+	}
+	_fields.push_back(HttpField("Content-Length", ft_itoa(buffer.st_size)));
+	return SUCCESS;
+}
+
+bool	HttpResponse::checkFieldExistence(std::string const & field_name) const
+{
+	std::vector<HttpField>::const_iterator it;
+
+	for (it = _fields.begin(); it != _fields.end(); ++it)
+	{
+		if (it->getName() == field_name)
+			return (true);
+	}
+	return (false);
+}
+
+void	HttpResponse::addAllowMethod(std::vector<std::string> const &method)
+{
+	HttpField res("Allow", method);
+	_fields.push_back(res);
+}
+
+
+void HttpResponse::_removeField(std::string const &name)
+{
+	std::vector<HttpField>::iterator it;
+
+	for (it = _fields.begin(); it != _fields.end(); ++it)
+	{
+		if (it->getName() == name)
+		{
+			_fields.erase(it);
+			return;
+		}
+	}
+}
+
+void	HttpResponse::generateErrorResponse(e_status_code status, Server const & server)
+{
+	_version = --g_http_versions.end(); //!temporaire
+	_status_code = status;
+	if (!checkFieldExistence("Connection"))
+		_fields.push_back(HttpField("Connection", "close"));
+	if (!checkFieldExistence("Server"))
+		_fields.push_back(HttpField("Server", SERVER_NAME));
+	if (checkFieldExistence("Content-Length"))
+		_removeField("Content-Length");
+	if (_fileOpen == true)
+	{
+		_fileOpen = false;
+		_bodyFile.close();
+	}
+	_body.clear();
+	std::string path = server.getErrorPath(statusCodeToInt());
+	openFstream(path);
+}
+
+
+void HttpResponse::writeResponse(int fd, Cluster &cluster)
+{
+	std::string buffer;
+
+	if (_fileOpen)
+	{
+		char tmp[SIZE_WRITE + 1] = {0};
+		_bodyFile.read(tmp, SIZE_WRITE);
+		if (_bodyFile.eof() || _bodyFile.fail())
+		{
+			_fileOpen = false;
+			_bodyFile.close();
+		}
+		buffer = tmp;
+	}
+	else if (!_header.empty())
+	{
+		buffer = _header;
+		_header.clear();
+	}
+	else
+	{
+		buffer = _body;
+		_body.clear();
+	}
+	int ret = write(fd, buffer.c_str(), buffer.size());
+	if (ret == -1 || ret == 0)
+	{
+		if (_fileOpen == true)
+			_bodyFile.close();
+		cluster.closeConnection(fd);
+	}
+	if (_header.empty() && _body.empty() && _fileOpen == false)
+	{
+		if (_fileOpen == true)
+			_bodyFile.close();
+		cluster.closeConnection(fd);
+	}
 }
