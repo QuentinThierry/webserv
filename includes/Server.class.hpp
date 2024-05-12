@@ -6,6 +6,8 @@
 #include <stdint.h>
 #include <map>
 
+#define ONE_MEGABIT 1048576
+
 class Server
 {
 	public:

@@ -5,10 +5,10 @@ Server::Server()
 	_host = "0";
 	_host_uint = 0;
 	_port = 0;
-	_server_name = std::vector<std::string>();
-	_error_page_path = std::map<t_http_code, std::string>();
-	_client_max_body_size = 0;
-	_locations = std::vector<Location>();
+	_server_name.clear();
+	_error_page_path.clear();
+	_client_max_body_size = ONE_MEGABIT;
+	_locations.clear();
 	__has_found_error_page_path = false;
 	__has_listen = false;
 }
@@ -52,8 +52,6 @@ bool	Server::is_equal(Server const &ref)
 		return false;
 	return true;
 }
-
-#include <iostream>
 
 Location const &Server::searchLocation(std::string path)
 {
@@ -101,7 +99,6 @@ bool Server::searchCgiLocation(std::string path, CgiLocation &cgi_loc)
 	{
 		if (this->getCgiLocations()[i].getExtension() == path)
 		{
-			std::cout << "awd\n";
 			cgi_loc = this->getCgiLocations()[i];
 			return true;
 		}

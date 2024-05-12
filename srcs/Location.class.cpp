@@ -6,10 +6,10 @@ Location::Location()
 	_accepted_methods.push_back("GET");
 	_accepted_methods.push_back("POST");
 	_accepted_methods.push_back("DELETE");
-	_root_path = "";
+	_root_path = "/tmp/webserv/";
 	_has_redirect = false;
 	_redirect = std::pair<int, std::string>();
-	_default_dir_path = std::vector<std::string>();
+	_default_dir_path.clear();
 	_has_autoindex = false;
 	_upload_path = "";
 }
