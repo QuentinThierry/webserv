@@ -77,6 +77,19 @@ void fill_default_dir_file(std::string &token, Server &server, Location *locatio
 	location->addDefaultDirPath(token);
 }
 
+void fill_can_upload(std::string &token, Server &server, Location *location, unsigned int arg_counter)
+{
+	(void)server;
+	if (arg_counter != 1 || !location)
+		throw std::exception();
+	if (token == "on")
+		location->setCanUpload(true);
+	else if (token == "off")
+		location->setCanUpload(false);
+	else
+		throw std::exception();
+}
+
 void fill_upload_path(std::string &token, Server &server, Location *location, unsigned int arg_counter)
 {
 	(void)server;

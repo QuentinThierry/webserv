@@ -24,6 +24,8 @@ t_token_append_function define_token_var_function(std::string &token, Location *
 		return fill_redirect;
 	if (token == "index")
 		return fill_default_dir_file;
+	if (token == "can_upload")
+		return fill_can_upload;
 	if (token == "upload_path")
 		return fill_upload_path;
 	throw std::out_of_range("unknown token " + token);

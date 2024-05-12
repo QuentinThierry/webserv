@@ -60,6 +60,7 @@ void	print_server(Server &server)
 			std::cout << "\t\t" << loc.getDefaultDirPath()[j] << std::endl;
 		}
 		std::cout << "\tHas autoindex : " << loc.getHasAutoindex() << std::endl;
+		std::cout << "\tCan upload ? : " << loc.getCanUpload() << std::endl;
 		std::cout << "\tUpload dir : " << loc.getUploadPath() << std::endl;
 	}
 
@@ -102,11 +103,5 @@ int	main(int argc, char **argv)
 	{
 		std::cout << e.what() << std::endl;
 	}
-	
-	
 	std::cout << "OK" << std::endl;
 }
-
-
-// accepted methods yes of no taking a string
-// add upload_path boolean in parsing
