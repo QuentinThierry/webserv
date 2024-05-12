@@ -99,13 +99,12 @@ void	_parse_listen_argument(std::string &token, Server &server)
 
 void fill_listen(std::string &token, Server &server, Location *location, unsigned int arg_counter)
 {
-	static bool has_listen = false;
-	if (has_listen == true)
+	if (server._gethasListen() == true)
 		throw std::exception();
 	if (location || arg_counter != 1)
 		throw std::exception();
 	_parse_listen_argument(token, server);
-	has_listen = true;
+	server._sethasListen(true);
 }
 
 void fill_server_name(std::string &token, Server &server, Location *location, unsigned int arg_counter)

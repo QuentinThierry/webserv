@@ -9,6 +9,7 @@ Server::Server()
 	_error_page_path.clear();
 	_client_max_body_size = ONE_MEGABIT;
 	_locations.clear();
+	__has_listen = false;
 }
 
 std::string const &Server::getHost() const {return this->_host;}
@@ -22,6 +23,7 @@ uint64_t const &Server::getClientmaxBodySize() const {return this->_client_max_b
 std::vector<Location> const &Server::getLocations() const {return this->_locations;}
 std::vector<CgiLocation> const &Server::getCgiLocations() const {return this->_cgi_locations;}
 Location &Server::getDefaultLocation() {return this->_locations[0];}
+bool const &Server::_gethasListen() const {return this->__has_listen;}
 
 void	Server::setHost(std::string host) {this->_host = host;}
 void	Server::setHostUint(uint32_t host_uint) {this->_host_uint = host_uint;}
@@ -34,7 +36,7 @@ void	Server::setClientmaxBodySize(uint64_t client_max_body_size) {this->_client_
 void	Server::setLocations(std::vector<Location> locations) {this->_locations = locations;}
 void	Server::addLocations(Location location) {this->_locations.push_back(location);}
 void	Server::addCgiLocation(CgiLocation cgi_loc) {this->_cgi_locations.push_back(cgi_loc);}
-
+void	Server::_sethasListen(bool has_listen) {this->__has_listen = has_listen;}
 
 
 // return if the server has the same host and port
