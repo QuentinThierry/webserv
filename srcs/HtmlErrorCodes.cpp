@@ -23,6 +23,6 @@ bool	does_http_code_exist(std::string code)
 t_http_code	str_to_http_code(std::string code)
 {
 	if (!does_http_code_exist(code))
-		throw std::exception();
+		ThrowMisc("unknown http code `" + code + "`");
 	return (code[0] - '0') * 100 + (code[1] - '0') * 10 + (code[2] - '0');
 }

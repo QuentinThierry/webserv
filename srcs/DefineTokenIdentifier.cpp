@@ -26,5 +26,34 @@ t_token_append_function define_token_var_function(std::string &token)
 		return fill_can_upload;
 	if (token == "upload_path")
 		return fill_upload_path;
-	throw std::exception();
+	ThrowMisc("unknown field `" + token + "`");
+}
+
+std::string func_ptr_to_str(t_token_append_function ptr)
+{
+	// find function that matches token
+	if (ptr == fill_listen)
+		return "listen";
+	if (ptr == fill_server_name)
+		return "server_name";
+	if (ptr == fill_error_page)
+		return "error_page";
+	if (ptr == fill_client_max_body_size)
+		return "client_max_body_size";
+	if (ptr == fill_root_path)
+		return "root";
+	if (ptr == fill_autoindex)
+		return "autoindex";
+	// at this point, these fields can only be declare in a location
+	if (ptr == fill_limit_except)
+		return "limit_except";
+	if (ptr == fill_redirect)
+		return "return";
+	if (ptr == fill_default_dir_file)
+		return "index";
+	if (ptr == fill_can_upload)
+		return "can_upload";
+	if (ptr == fill_upload_path)
+		return "upload_path";
+	return "";
 }

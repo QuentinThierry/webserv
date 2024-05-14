@@ -10,10 +10,7 @@ bool	wrap_getline_throw(std::fstream &s, std::string &buffer)
 			return false;
 	}
 	else if (s.fail())
-	{
-		std::cout << "Failed to read conf file" << std::endl;
-		throw std::exception(); // EXCEPTION failed to read
-	}
+		ThrowMisc("Failed to read conf file");
 	return true;
 }
 

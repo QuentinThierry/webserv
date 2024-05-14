@@ -20,7 +20,7 @@ void	interpret_field_loop(std::string &token, std::queue<std::string> &tokens, S
 		else if (token[0] == ';')
 		{
 			if (arg_counter == 1)
-				throw std::exception();
+				ThrowMisc("missing argument for `" + func_ptr_to_str(token_identifier) + "`");
 			break;
 		}
 		else
@@ -34,7 +34,7 @@ void	interpret_field_loop(std::string &token, std::queue<std::string> &tokens, S
 void interpret_cgi_field_loop(std::string &token, std::queue<std::string> &tokens, CgiLocation &cgiObj)
 {
 	unsigned int arg_counter = 0;
-	std::string identifier;
+	std::string identifier = "";
 
 	while (!tokens.empty())
 	{
@@ -42,8 +42,8 @@ void interpret_cgi_field_loop(std::string &token, std::queue<std::string> &token
 			continue;
 		else if (token[0] == ';')
 		{
-			if (arg_counter < 2)
-				throw std::exception();
+			if (arg_counter != 1)
+				ThrowBadArgumentNumber("cgi_path", 1, false);
 			break;
 		}
 		else
@@ -53,11 +53,11 @@ void interpret_cgi_field_loop(std::string &token, std::queue<std::string> &token
 			else if (identifier == "cgi_path")
 			{
 				if (arg_counter != 1)
-					throw std::exception();
+					ThrowBadArgumentNumber("cgi location", 1, arg_counter > 2);
 				cgiObj.setExecPath(token);
 			}
 			if (identifier != "cgi_path")
-				throw std::exception();
+				ThrowBadArgument(identifier, "cgi location");
 		}
 		arg_counter++;
 		token = extract_token(tokens);
@@ -160,7 +160,7 @@ Server	interpret_server_loop(std::queue<std::string> &tokens)
 	interpret_server_fields(server, tokens);
 	interpret_location_fields(server, tokens);
 	if (server.getHost().empty())
-		throw std::exception();
+		ThrowMisc("missing `listen` field");
 	return server;
 }
 

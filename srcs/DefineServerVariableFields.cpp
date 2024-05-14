@@ -181,6 +181,8 @@ void	_parse_client_max_body_size_argument(std::string &token, Server &server)
 	unit_pos = token.find_first_of("MmKk");
 	if (unit_pos == std::string::npos)
 		unit = 'b';
+	else if (unit_pos != token.size() - 1)
+		ThrowMisc("client_max_body_size value is incorrect");
 	else
 		unit = std::tolower(token[unit_pos]);
 	if (unit_pos != std::string::npos)
