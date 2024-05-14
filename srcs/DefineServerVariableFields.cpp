@@ -99,12 +99,12 @@ void	_parse_listen_argument(std::string &token, Server &server)
 
 void fill_listen(std::string &token, Server &server, Location *location, unsigned int arg_counter)
 {
-	if (server._gethasListen() == true)
-		ThrowMisc("Too much listen arguments");
 	if (location)
 		ThrowBadFieldLocation("location", "listen");
 	if (arg_counter != 1)
 		ThrowBadArgumentNumber("listen", 1, arg_counter > 1);
+	if (server._gethasListen() == true)
+		ThrowMisc("Too much listen arguments");
 	_parse_listen_argument(token, server);
 	server._sethasListen(true);
 }
