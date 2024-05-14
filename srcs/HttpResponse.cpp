@@ -140,6 +140,7 @@ void	HttpResponse::generateErrorResponse(e_status_code status, Server const & se
 	_body.clear();
 	std::string path = server.getErrorPagePath(statusCodeToInt());
 	openFstream(path);
+	fillHeader();
 }
 
 
@@ -147,7 +148,12 @@ void HttpResponse::writeResponse(int fd, Cluster &cluster)
 {
 	std::string buffer;
 
-	if (_fileOpen)
+	if (!_header.empty())
+	{
+		buffer = _header;
+		_header.clear();
+	}
+	else if (_fileOpen)
 	{
 		char tmp[SIZE_WRITE + 1] = {0};
 		_bodyFile.read(tmp, SIZE_WRITE);
@@ -157,11 +163,6 @@ void HttpResponse::writeResponse(int fd, Cluster &cluster)
 			_bodyFile.close();
 		}
 		buffer = tmp;
-	}
-	else if (!_header.empty())
-	{
-		buffer = _header;
-		_header.clear();
 	}
 	else
 	{
