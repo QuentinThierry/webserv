@@ -48,23 +48,26 @@ static void check_field()
 	fields_str_ko.push_back("name_ok: ko, forbidden\ttab ");
 	fields_str_ko.push_back("name_ok: ko, forbidden\vverticaltab ");
 
+	fields_str_ok.push_back("multiple_fields: value1\r\nsecond_one: value2");
+
 	std::cout << "Fields ok:" << std::endl;
 	for (size_t	i = 0; i < fields_str_ok.size(); ++i)
 	{
-		std::string request = "GET / HTTP/1.1\n";
+		std::string request = "GET / HTTP/1.1\r\n";
 		request += fields_str_ok[i];
 		try {
 			HttpRequestGet test(request);
 			std::cout << " test " << i << ":\tok" << std::endl;
 		} catch (std::exception & e) {
 			std::cout << " test " << i << ":\tko (\"" << fields_str_ok[i] << "\")" << std::endl;
+			
 		}
 	}
 
 	std::cout << "Fields ko:" << std::endl;
 	for (size_t	i = 0; i < fields_str_ko.size(); ++i)
 	{
-		std::string request = "GET / HTTP/1.1\n";
+		std::string request = "GET / HTTP/1.1\r\n";
 		request += fields_str_ko[i];
 		try {
 			HttpRequestGet test(request);

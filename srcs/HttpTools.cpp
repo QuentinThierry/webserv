@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 19:47:57 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/14 16:17:57 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/14 18:40:18 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,17 @@ bool	str_contains_one_single_colon(std::string const & str,
 	if (first_colon_pos == std::string::npos)
 		first_colon_pos = str.find(':');
 	return (str_contains_a_colon(str, first_colon_pos) && ! _str_contains_multiple_colon(str, first_colon_pos));
+}
+
+//after a getline, if the line ended with \n it must be preceded by a \r
+bool	is_line_properly_ended(std::stringstream & stream, std::string & line)
+{
+	if (stream.eof())
+		return (true);
+	if (!line.size() || line.at(line.size() - 1) != '\r')
+		return (false);
+	line.pop_back();
+	return (true);
 }
 
 

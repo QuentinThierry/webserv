@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 19:43:37 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/14 16:17:57 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/14 18:21:16 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@
 
 # define HTTP_SEPARATORS "()<>@,;:\\/[]?={} \""
 # define HTTP_WHITESPACES " \t"
+
+# define MSG_ERR_WRONG_END_OF_LINE "Error: http request: line not properly ended"
 
 static const std::vector<std::string> g_http_methods = {"GET", "POST", "DELETE"};
 typedef std::vector<std::string>::const_iterator it_method;
@@ -38,6 +40,7 @@ bool		str_contains_a_colon(std::string const & str,
 				size_t first_colon_pos = std::string::npos);
 bool		str_contains_one_single_colon(std::string const & str,
 				size_t first_colon_pos = std::string::npos);
+bool		is_line_properly_ended(std::stringstream & stream, std::string & line);
 
 bool		is_ascii(unsigned char const &c);
 bool		is_VCHAR(unsigned char const &c);

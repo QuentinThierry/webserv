@@ -75,7 +75,7 @@ int g_err_log_fd = STDERR_FILENO;
 
 int main ()
 {
-	std::string request = "POST the_target/ HTTP/1.1\nfield1:value1\nField2:value1\n\nThis body is amazing\nDon't you think so?";
+	std::string request = "POST the_target/ HTTP/1.1\r\nfield1:value1\r\nField2:value1\r\n\r\nThis body is amazing\r\nDon't you think so?";
 
 	try
 	{
