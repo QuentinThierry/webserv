@@ -55,9 +55,9 @@ static void check_field()
 		request += fields_str_ok[i];
 		try {
 			HttpRequestGet test(request);
-			std::cout << " test " << i << ": ok" << std::endl;
+			std::cout << " test " << i << ":\tok" << std::endl;
 		} catch (std::exception & e) {
-			std::cout << " test " << i << ": ko (\"" << fields_str_ok[i] << "\")" << std::endl;
+			std::cout << " test " << i << ":\tko (\"" << fields_str_ok[i] << "\")" << std::endl;
 		}
 	}
 
@@ -68,11 +68,11 @@ static void check_field()
 		request += fields_str_ko[i];
 		try {
 			HttpRequestGet test(request);
-			std::cout << " test " << i << ": ko (\"" << fields_str_ko[i] << "\")" << std::endl;
+			std::cout << " test " << i << ":\tko (\"" << fields_str_ko[i] << "\")" << std::endl;
 		} catch (ExceptionHttpStatusCode & e) {
-			std::cout << " test " << i << ": ok" << std::endl;
+			std::cout << " test " << i << ":\tok" << std::endl;
 		} catch (std::exception & e){
-			std::cout << " test " << i << ": ko (\"" << fields_str_ko[i] << "\")" << std::endl;
+			std::cout << " test " << i << ":\tko (\"" << fields_str_ko[i] << "\")" << std::endl;
 		}
 	}
 }
