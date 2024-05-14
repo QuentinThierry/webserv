@@ -87,7 +87,7 @@ inline static std::string to_string(int val)
 
 #define ThrowBadArgumentNumber(field, max_nb_arg, is_too_much)  throw BadArgumentNumberException(ERROR + (field) + ((is_too_much) ? " has too much" : " does not have enough") + " arguments, requires " + to_string((max_nb_arg)))
 
-#define ThrowWrongFieldLocation(location, field) throw BadFieldException((ERROR + "`" + (location) + "' scope does not accept `" + (field) + "' field"))
+#define ThrowBadFieldLocation(location, field) throw BadFieldException((ERROR + "`" + (location) + "' scope does not accept `" + (field) + "' field"))
 
 
 #endif

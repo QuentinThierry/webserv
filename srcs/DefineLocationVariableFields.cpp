@@ -17,7 +17,7 @@ void fill_limit_except(std::string &token, Server &server, Location *location, u
 	(void)server;
 	(void)arg_counter;
 	if (!location)
-		ThrowWrongFieldLocation("location", "limit_except");
+		ThrowBadFieldLocation("location", "limit_except");
 	_parse_method(token, *location);
 }
 
@@ -81,7 +81,7 @@ void fill_can_upload(std::string &token, Server &server, Location *location, uns
 {
 	(void)server;
 	if (!location)
-		ThrowWrongFieldLocation("server", "can_upload");
+		ThrowBadFieldLocation("server", "can_upload");
 	if (arg_counter != 1)
 		ThrowBadArgumentNumber("can_upload", 1, true);
 	if (token == "on")
@@ -96,7 +96,7 @@ void fill_upload_path(std::string &token, Server &server, Location *location, un
 {
 	(void)server;
 	if (!location)
-		ThrowWrongFieldLocation("server", "upload_path");
+		ThrowBadFieldLocation("server", "upload_path");
 	if (arg_counter != 1)
 		ThrowBadArgumentNumber("upload_path", 1, true);
 	location->setUploadPath(token);
