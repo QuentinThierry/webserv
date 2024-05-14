@@ -32,7 +32,7 @@ Socket::Socket(Server const &server):_server(server)
 	memset(&_addr, 0, _sizeaddr);
 	// getsockname(_fd_listening, (sockaddr*)&addr, (socklen_t*)&sizeaddr);
 	_addr.sin_family = AF_INET;
-	_addr.sin_addr.s_addr = htonl(server.getHost()); //uint32_t
+	_addr.sin_addr.s_addr = htonl(server.getHostUint()); //uint32_t
 	_addr.sin_port = htons(server.getPort()); //uint16_t
 	if (bind(_fd, (const sockaddr*)&_addr, _sizeaddr) == -1)
 	{

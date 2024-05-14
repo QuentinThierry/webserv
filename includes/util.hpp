@@ -1,6 +1,7 @@
 #ifndef UTIL_HPP
 # define UTIL_HPP
 # include "Server.class.hpp"
+# include "Shared.hpp"
 # include <cstdio>
 
 std::string error_message_server(Server const &server, std::string const &message);

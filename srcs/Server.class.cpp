@@ -19,10 +19,15 @@ std::vector<std::string> const &Server::getServerName() const {return this->_ser
 std::vector<std::string> &Server::getServerName() {return this->_server_name;}
 std::map<t_http_code, std::string> const &Server::getErrorPagePath() const {return this->_error_page_path;}
 std::map<t_http_code, std::string> &Server::getErrorPagePath() {return this->_error_page_path;}
+std::string const &Server::getErrorPagePath(int error) const
+{
+	return (_error_page_path.find(error) != _error_page_path.end() ? _error_page_path.find(error)->second : _error_page_path.begin()->second );
+}
 uint64_t const &Server::getClientmaxBodySize() const {return this->_client_max_body_size;}
 std::vector<Location> const &Server::getLocations() const {return this->_locations;}
 std::vector<CgiLocation> const &Server::getCgiLocations() const {return this->_cgi_locations;}
 Location &Server::getDefaultLocation() {return this->_locations[0];}
+Location const &Server::getDefaultLocation() const {return this->_locations[0];}
 bool const &Server::_gethasListen() const {return this->__has_listen;}
 
 void	Server::setHost(std::string host) {this->_host = host;}
@@ -49,7 +54,7 @@ bool	Server::is_equal(Server const &ref)
 	return true;
 }
 
-Location const &Server::searchLocation(std::string path)
+Location const &Server::searchLocation(std::string path) const
 {
 	size_t slash_pos = 0;
 

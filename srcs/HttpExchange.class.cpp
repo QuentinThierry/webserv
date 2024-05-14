@@ -134,7 +134,7 @@ void HttpExchange::_initRequest(e_http_method method)
 
 void HttpExchange::_handleError(int fd, Cluster &cluster, e_status_code error)
 {
-	_response.generateErrorResponse(error);
+	_response.generateErrorResponse(error, _socket->getServer());
 	cluster.switchHttpExchangeToWrite(fd);
 }
 

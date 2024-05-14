@@ -6,7 +6,7 @@
 /*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 15:52:09 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/12 13:40:11 by jvigny           ###   ########.fr       */
+/*   Updated: 2024/05/14 18:11:31 by jvigny           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ class HttpField
 	public:
 		HttpField( std::string const & whole_line ) throw (ExceptionHttpStatusCode);
 		HttpField( std::string const & name, std::string const & values ) throw (ExceptionHttpStatusCode);
+		HttpField( std::string const & name, std::vector<std::string> const & values ) throw (ExceptionHttpStatusCode);
 		HttpField( HttpField const & model );
 		HttpField & operator=( HttpField const & model );
 		virtual ~HttpField( void );

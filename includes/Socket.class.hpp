@@ -2,6 +2,7 @@
 # define SOCKET_CLASS_HPP
 
 # include "Server.class.hpp"
+# include "Shared.hpp"
 
 # include <sys/socket.h> //socket(), bind(), listen(), accpet()
 # include <netinet/in.h> //sockaddr_in

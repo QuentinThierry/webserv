@@ -15,7 +15,6 @@ HttpResponse::HttpResponse( it_version const & version)
 	_fields.push_back(HttpField("Server", SERVER_NAME));
 }
 
-
 HttpResponse & HttpResponse::operator=(HttpResponse const & model )
 {
 	if (this != &model)
@@ -35,7 +34,153 @@ HttpResponse::~HttpResponse( void )
 
 HttpResponse::HttpResponse( void )
 {
-	//TODO
+	_version = --g_http_versions.end();
+	_status_code = HTTP_200;
+	_fileOpen = false;
+	_fields.push_back(HttpField("Connection", "close"));
+	_fields.push_back(HttpField("Server", SERVER_NAME));
+}
+
+
+
+void	HttpResponse::setStatusCode(e_status_code code)
+{
+	_status_code = code;
+}
+
+
+bool	HttpResponse::handle_redirect(Location const & location)
+{
+	if (location.getHasRedirect())
+	{
+		_status_code = intToStatusCode(location.getRedirect().first);
+		_fields.push_back(HttpField("Location", location.getRedirect().second));
+		return true;
+	}
+	return false;
+}
+
+void		HttpResponse::fillHeader()
+{
+	_header.clear();
+	_header = *_version + " " + ft_itoa(statusCodeToInt()) + " "
+			+ get_error_reason_phrase(_status_code) + "\r\n";
+	for (unsigned int i = 0; i < _fields.size(); i++)
+		_header += _fields.at(i).getFields();
+	_header += "\r\n";
+}
+
+e_status HttpResponse::openFstream(std::string filename)
+{
+	_bodyFile.open(filename.c_str());
+	if (_bodyFile.is_open() == false)
+	{
+		return FAILURE;
+	}
+	_fileOpen = true;
+	struct stat buffer;
+	if (stat(filename.c_str(), &buffer) != 0)
+	{
+		_fileOpen = false;
+		_bodyFile.close();
+		return FAILURE;
+	}
+	_fields.push_back(HttpField("Content-Length", ft_itoa(buffer.st_size)));
+	return SUCCESS;
+}
+
+bool	HttpResponse::checkFieldExistence(std::string const & field_name) const
+{
+	std::vector<HttpField>::const_iterator it;
+
+	for (it = _fields.begin(); it != _fields.end(); ++it)
+	{
+		if (it->getName() == field_name)
+			return (true);
+	}
+	return (false);
+}
+
+void	HttpResponse::addAllowMethod(std::vector<std::string> const &method)
+{
+	HttpField res("Allow", method);
+	_fields.push_back(res);
+}
+
+
+void HttpResponse::_removeField(std::string const &name)
+{
+	std::vector<HttpField>::iterator it;
+
+	for (it = _fields.begin(); it != _fields.end(); ++it)
+	{
+		if (it->getName() == name)
+		{
+			_fields.erase(it);
+			return;
+		}
+	}
+}
+
+void	HttpResponse::generateErrorResponse(e_status_code status, Server const & server)
+{
+	_version = --g_http_versions.end(); //!temporaire
+	_status_code = status;
+	if (!checkFieldExistence("Connection"))
+		_fields.push_back(HttpField("Connection", "close"));
+	if (!checkFieldExistence("Server"))
+		_fields.push_back(HttpField("Server", SERVER_NAME));
+	if (checkFieldExistence("Content-Length"))
+		_removeField("Content-Length");
+	if (_fileOpen == true)
+	{
+		_fileOpen = false;
+		_bodyFile.close();
+	}
+	_body.clear();
+	std::string path = server.getErrorPagePath(statusCodeToInt());
+	openFstream(path);
+}
+
+
+void HttpResponse::writeResponse(int fd, Cluster &cluster)
+{
+	std::string buffer;
+
+	if (_fileOpen)
+	{
+		char tmp[SIZE_WRITE + 1] = {0};
+		_bodyFile.read(tmp, SIZE_WRITE);
+		if (_bodyFile.eof() || _bodyFile.fail())
+		{
+			_fileOpen = false;
+			_bodyFile.close();
+		}
+		buffer = tmp;
+	}
+	else if (!_header.empty())
+	{
+		buffer = _header;
+		_header.clear();
+	}
+	else
+	{
+		buffer = _body;
+		_body.clear();
+	}
+	int ret = write(fd, buffer.c_str(), buffer.size());
+	if (ret == -1 || ret == 0)
+	{
+		if (_fileOpen == true)
+			_bodyFile.close();
+		cluster.closeConnection(fd);
+	}
+	if (_header.empty() && _body.empty() && _fileOpen == false)
+	{
+		if (_fileOpen == true)
+			_bodyFile.close();
+		cluster.closeConnection(fd);
+	}
 }
 
 uint32_t	HttpResponse::statusCodeToInt() const
@@ -131,142 +276,95 @@ uint32_t	HttpResponse::statusCodeToInt() const
 	}
 }
 
-void	HttpResponse::setStatusCode(e_status_code code)
+e_status_code	HttpResponse::intToStatusCode(uint16_t number) const
 {
-	_status_code = code;
-}
-
-
-bool	HttpResponse::handle_redirect(Location const & location)
-{
-	if (location.getHasRedirect())
+	switch (number)
 	{
-		_status_code = location.getRedirect().first;
-		_fields.push_back(HttpField("Location", location.getRedirect().second));
-		return true;
-	}
-	return false;
-}
-
-void		HttpResponse::fillHeader()
-{
-	_header.clear();
-	_header = *_version + " " + ft_itoa(statusCodeToInt()) + " "
-			+ get_error_reason_phrase(_status_code) + "\r\n";
-	for (unsigned int i = 0; i < _fields.size(); i++)
-		_header += _fields.at(i).getFields();
-	_header += "\r\n";
-}
-
-e_status HttpResponse::openFstream(std::string filename)
-{
-	_bodyFile.open(filename.c_str());
-	if (_bodyFile.is_open() == false)
-	{
-		return FAILURE;
-	}
-	_fileOpen = true;
-	struct stat buffer;
-	if (stat(filename.c_str(), &buffer) != 0)
-	{
-		_fileOpen = false;
-		_bodyFile.close();
-		return FAILURE;
-	}
-	_fields.push_back(HttpField("Content-Length", ft_itoa(buffer.st_size)));
-	return SUCCESS;
-}
-
-bool	HttpResponse::checkFieldExistence(std::string const & field_name) const
-{
-	std::vector<HttpField>::const_iterator it;
-
-	for (it = _fields.begin(); it != _fields.end(); ++it)
-	{
-		if (it->getName() == field_name)
-			return (true);
-	}
-	return (false);
-}
-
-void	HttpResponse::addAllowMethod(std::vector<std::string> const &method)
-{
-	HttpField res("Allow", method);
-	_fields.push_back(res);
-}
-
-
-void HttpResponse::_removeField(std::string const &name)
-{
-	std::vector<HttpField>::iterator it;
-
-	for (it = _fields.begin(); it != _fields.end(); ++it)
-	{
-		if (it->getName() == name)
-		{
-			_fields.erase(it);
-			return;
-		}
-	}
-}
-
-void	HttpResponse::generateErrorResponse(e_status_code status, Server const & server)
-{
-	_version = --g_http_versions.end(); //!temporaire
-	_status_code = status;
-	if (!checkFieldExistence("Connection"))
-		_fields.push_back(HttpField("Connection", "close"));
-	if (!checkFieldExistence("Server"))
-		_fields.push_back(HttpField("Server", SERVER_NAME));
-	if (checkFieldExistence("Content-Length"))
-		_removeField("Content-Length");
-	if (_fileOpen == true)
-	{
-		_fileOpen = false;
-		_bodyFile.close();
-	}
-	_body.clear();
-	std::string path = server.getErrorPath(statusCodeToInt());
-	openFstream(path);
-}
-
-
-void HttpResponse::writeResponse(int fd, Cluster &cluster)
-{
-	std::string buffer;
-
-	if (_fileOpen)
-	{
-		char tmp[SIZE_WRITE + 1] = {0};
-		_bodyFile.read(tmp, SIZE_WRITE);
-		if (_bodyFile.eof() || _bodyFile.fail())
-		{
-			_fileOpen = false;
-			_bodyFile.close();
-		}
-		buffer = tmp;
-	}
-	else if (!_header.empty())
-	{
-		buffer = _header;
-		_header.clear();
-	}
-	else
-	{
-		buffer = _body;
-		_body.clear();
-	}
-	int ret = write(fd, buffer.c_str(), buffer.size());
-	if (ret == -1 || ret == 0)
-	{
-		if (_fileOpen == true)
-			_bodyFile.close();
-		cluster.closeConnection(fd);
-	}
-	if (_header.empty() && _body.empty() && _fileOpen == false)
-	{
-		if (_fileOpen == true)
-			_bodyFile.close();
-		cluster.closeConnection(fd);
+		case 307:
+			return HTTP_307;
+		case 308:
+			return HTTP_308;
+		case 400:
+			return HTTP_400;
+		case 401:
+			return HTTP_401;
+		case 402:
+			return HTTP_402;
+		case 403:
+			return HTTP_403;
+		case 404:
+			return HTTP_404;
+		case 405:
+			return HTTP_405;
+		case 406:
+			return HTTP_406;
+		case 407:
+			return HTTP_407;
+		case 408:
+			return HTTP_408;
+		case 409:
+			return HTTP_409;
+		case 410:
+			return HTTP_410;
+		case 411:
+			return HTTP_411;
+		case 412:
+			return HTTP_412;
+		case 413:
+			return HTTP_413;
+		case 414:
+			return HTTP_414;
+		case 415:
+			return HTTP_415;
+		case 416:
+			return HTTP_416;
+		case 417:
+			return HTTP_417;
+		case 418:
+			return HTTP_418;
+		case 421:
+			return HTTP_421;
+		case 422:
+			return HTTP_422;
+		case 423:
+			return HTTP_423;
+		case 424:
+			return HTTP_424;
+		case 425:
+			return HTTP_425;
+		case 426:
+			return HTTP_426;
+		case 428:
+			return HTTP_428;
+		case 429:
+			return HTTP_429;
+		case 431:
+			return HTTP_431;
+		case 451:
+			return HTTP_451;
+		case 500:
+			return HTTP_500;
+		case 501:
+			return HTTP_501;
+		case 502:
+			return HTTP_502;
+		case 503:
+			return HTTP_503;
+		case 504:
+			return HTTP_504;
+		case 505:
+			return HTTP_505;
+		case 506:
+			return HTTP_506;
+		case 507:
+			return HTTP_507;
+		case 508:
+			return HTTP_508;
+		case 510:
+			return HTTP_510;
+		case 511:
+			return HTTP_511;
+		default:
+			throw (ExceptionUnknownStatusCode());
 	}
 }

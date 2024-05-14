@@ -2,7 +2,7 @@
 
 bool HttpRequest::checkMethod(Location const & location) const
 {
-	location.acceptMethod(getMethod());
+	return (location.does_accept_method(*getMethod()));
 }
 
 HttpRequest::HttpRequest ( void ) : HttpRequestLine()

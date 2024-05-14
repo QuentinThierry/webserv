@@ -6,7 +6,7 @@
 /*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 15:52:09 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/12 13:46:18 by jvigny           ###   ########.fr       */
+/*   Updated: 2024/05/14 18:13:29 by jvigny           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,12 @@ HttpField::HttpField( std::string const & whole_line ) throw (ExceptionHttpStatu
 	else
 		this->_addNewValues(whole_line.substr(separator_position + 1));
 
+}
+
+HttpField::HttpField(std::string const & name, std::vector<std::string> const & values ) throw (ExceptionHttpStatusCode)
+{
+	_setName(name);
+	_addNewValues(values[0]);
 }
 
 HttpField::HttpField(std::string const & name, std::string const & values) throw (ExceptionHttpStatusCode)

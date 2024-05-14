@@ -52,7 +52,7 @@ std::string	getUri(std::string root, std::string target)
 	return (root + target);
 }
 
-bool	handle_directory(std::string & uri, Location const & location, HttpResponse & response)
+bool	handle_directory(std::string & uri, Location const & location, HttpResponse & response, Server const & server)
 {
 	//check if uri is a directory
 	int fd = open(uri.c_str(), O_DIRECTORY);
@@ -74,15 +74,15 @@ bool	handle_directory(std::string & uri, Location const & location, HttpResponse
 			return false;
 		}
 	}
-	response.generateErrorResponse(HTTP_403);
+	response.generateErrorResponse(HTTP_403, server);
 	return true;
 }
 
-void	handle_file(std::string & uri, HttpResponse & response)
+void	handle_file(std::string & uri, HttpResponse & response, Server const & server)
 {
 	if (response.openFstream(uri) == FAILURE)
 	{
-		response.generateErrorResponse(HTTP_403); //! not sure
+		response.generateErrorResponse(HTTP_403, server); //! not sure
 		return ;
 	}
 }
@@ -91,20 +91,20 @@ HttpResponse	HttpRequestGet::_initResponse( Socket const * const socket )
 {
 	HttpResponse response(getVersion());
 
-	Location location = socket->getServer().getLocation(getTarget());// get location path
+	Location location = socket->getServer().searchLocation(getTarget());// get location path
 	//get location cgi if cgi
 	if (response.handle_redirect(location))
 		return response;
 	if (checkMethod(location) == false)
 	{
-		response.addAllowMethod(location.getMethod());
-		response.generateErrorResponse(HTTP_405);//!send error to client with allow method
+		response.addAllowMethod(location.getMethods());
+		response.generateErrorResponse(HTTP_405, socket->getServer());//!send error to client with allow method
 		return response;
 	}
 	std::string uri = getUri(location.getRootPath(), getTarget());
-	if (handle_directory(uri, location, response))
+	if (handle_directory(uri, location, response, socket->getServer()))
 		return response;
-	handle_file(uri, response);
+	handle_file(uri, response, socket->getServer());
 	return response;
 }
 
@@ -112,6 +112,7 @@ HttpResponse	HttpRequestGet::generate_response( Socket const * const socket )
 {
 	HttpResponse res = _initResponse(socket);
 	res.fillHeader();
+	return res;
 }
 
 void	HttpRequestGet::readBody(int fd, Socket const * const socket)

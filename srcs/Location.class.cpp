@@ -80,7 +80,7 @@ bool	Location::is_empty_location(Location &default_location)
 	return false;
 }
 
-bool	Location::does_accept_method(std::string method)
+bool	Location::does_accept_method(std::string method) const
 {
 	if (std::find(this->getMethods().begin(), this->getMethods().end(), method) != this->getMethods().end())
 		return true;
