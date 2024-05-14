@@ -6,14 +6,13 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 19:47:57 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/03 21:32:58 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/14 16:17:57 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/HttpTools.hpp"
 
-static bool	_str_contain_a_colon(std::string const & str,
-				size_t first_colon_pos = std::string::npos)
+bool	str_contains_a_colon(std::string const & str, size_t first_colon_pos)
 {
 	if (first_colon_pos == std::string::npos)
 		first_colon_pos = str.find(':');
@@ -25,7 +24,7 @@ static bool	_str_contains_multiple_colon(std::string const & str,
 {
 	if (first_colon_pos == std::string::npos)
 		first_colon_pos = str.find(':');
-	return (_str_contain_a_colon(str, first_colon_pos) && first_colon_pos != str.find_last_of(":") );
+	return (str_contains_a_colon(str, first_colon_pos) && first_colon_pos != str.find_last_of(":") );
 }
 
 bool	str_contains_one_single_colon(std::string const & str,
@@ -33,7 +32,7 @@ bool	str_contains_one_single_colon(std::string const & str,
 {
 	if (first_colon_pos == std::string::npos)
 		first_colon_pos = str.find(':');
-	return (_str_contain_a_colon(str, first_colon_pos) && ! _str_contains_multiple_colon(str, first_colon_pos));
+	return (str_contains_a_colon(str, first_colon_pos) && ! _str_contains_multiple_colon(str, first_colon_pos));
 }
 
 

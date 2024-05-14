@@ -19,7 +19,6 @@ static void check_field()
 	std::vector<std::string>  fields_str_ok;
 	std::vector<std::string>  fields_str_ko;
 
-	fields_str_ko.push_back("double:colon:ko");
 	fields_str_ko.push_back("no_colon_ko");
 
 	fields_str_ok.push_back("");

@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 19:43:37 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/03 21:31:36 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/14 16:17:57 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,8 @@ typedef std::vector<std::string>::const_iterator it_version;
 // 	HTTP_DELETE
 // }	e_http_method;
 
+bool		str_contains_a_colon(std::string const & str,
+				size_t first_colon_pos = std::string::npos);
 bool		str_contains_one_single_colon(std::string const & str,
 				size_t first_colon_pos = std::string::npos);
 

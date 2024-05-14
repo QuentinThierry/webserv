@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 15:52:09 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/14 16:11:50 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/14 16:18:43 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 
 # include <vector>
 
-# define MSG_ERR_FIELD_NO_UNIQUE_SEPARATOR	"Error: HTTP request: a field does not contain a unique ':' separator"
+# define MSG_ERR_FIELD_NO_SEPARATOR			"Error: HTTP request: a field does not contain a ':' separator"
 # define MSG_ERR_FIELD_NO_VALUE				"Error: HTTP request: a field does not contain any value"
 # define MSG_ERR_FIELD_NO_NAME				"Error: HTTP request: a field does not contain any name"
 # define MSG_ERR_FIELD_QUOTE_NOT_CLOSED		"Error: HTTP request: quote note closed in a field"

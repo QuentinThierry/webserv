@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 15:52:09 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/03 22:19:54 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/14 16:19:59 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,8 @@ HttpField::HttpField ( void )
 HttpField::HttpField( std::string const & whole_line ) throw (ExceptionHttpStatusCode)
 {
 	size_t separator_position = whole_line.find(":");
-	if (!str_contains_one_single_colon(whole_line, separator_position))
-		throw_http_err_with_log(HTTP_400, MSG_ERR_FIELD_NO_UNIQUE_SEPARATOR);
+	if (!str_contains_a_colon(whole_line, separator_position))
+		throw_http_err_with_log(HTTP_400, MSG_ERR_FIELD_NO_SEPARATOR);
 	
 	this->_setName(whole_line.substr(0, separator_position ));
 
@@ -413,7 +413,6 @@ static void _test_constructor( void )
 	fields.push_back("correct_name: correct_value_spaces , correct_value1");
 	fields.push_back("incorrect name: correct_value");
 	fields.push_back("name: incorrect value");
-	fields.push_back("double_colon:correct_value:correct_value2");
 	fields.push_back("no_colon");
 	fields.push_back("no_colon correct_value");
 
