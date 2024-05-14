@@ -6,7 +6,7 @@
 /*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 20:02:08 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/09 12:23:09 by jvigny           ###   ########.fr       */
+/*   Updated: 2024/05/14 19:18:42 by jvigny           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,6 +142,8 @@ void	HttpRequestLine::_fill_request_line_with_stream( std::stringstream & reques
 	if (request_header_stream.eof()
 		|| ! getline(request_header_stream, first_line))
 		throw_http_err_with_log(HTTP_500, MSG_ERR_LINE_BAD_SSTREAM_INPUT);
+	if (!is_line_properly_ended(request_header_stream, first_line))
+		throw_http_err_with_log(HTTP_400, MSG_ERR_WRONG_END_OF_LINE);
 	_fill_request_line(first_line);
 }
 

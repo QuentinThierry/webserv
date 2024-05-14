@@ -89,9 +89,12 @@ void	HttpRequest::_fill_fields( std::stringstream &request_stream)
 {
 	std::string			line;
 
-	while (!request_stream.eof() && std::getline(request_stream, line)
-		&& !line.empty())
+	while (!request_stream.eof() && std::getline(request_stream, line))
 	{
+		if (!is_line_properly_ended(request_stream, line))	
+			throw_http_err_with_log(HTTP_400, MSG_ERR_WRONG_END_OF_LINE);
+		if (line.empty())
+			break;
 		_add_field(_fields, HttpField(line));
 	}
 }

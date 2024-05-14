@@ -6,7 +6,7 @@
 /*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 15:52:09 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/14 18:13:29 by jvigny           ###   ########.fr       */
+/*   Updated: 2024/05/14 19:17:09 by jvigny           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,8 @@ HttpField::HttpField ( void )
 HttpField::HttpField( std::string const & whole_line ) throw (ExceptionHttpStatusCode)
 {
 	size_t separator_position = whole_line.find(":");
-	if (!str_contains_one_single_colon(whole_line, separator_position))
-		throw_http_err_with_log(HTTP_400, MSG_ERR_FIELD_NO_UNIQUE_SEPARATOR);
+	if (!str_contains_a_colon(whole_line, separator_position))
+		throw_http_err_with_log(HTTP_400, MSG_ERR_FIELD_NO_SEPARATOR);
 	
 	this->_setName(whole_line.substr(0, separator_position ));
 

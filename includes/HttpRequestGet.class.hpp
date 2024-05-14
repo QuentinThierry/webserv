@@ -6,14 +6,14 @@
 /*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:23:29 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/12 12:51:20 by jvigny           ###   ########.fr       */
+/*   Updated: 2024/05/14 19:13:11 by jvigny           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef HTTPREQUESTGET_CLASS_HPP
 # define HTTPREQUESTGET_CLASS_HPP
 
-// # include "HttpTools.hpp"
+# include "HttpTools.hpp"
 # include "HttpRequest.class.hpp"
 
 # define MSG_ERR_HTTPGET_SSTREAM_FAIL "ERROR: internal: stringstream failure in the get request construction"
