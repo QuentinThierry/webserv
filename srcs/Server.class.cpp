@@ -86,8 +86,8 @@ bool Server::searchCgiLocation(std::string path, CgiLocation &cgi_loc)
 	size_t slash_pos = path.find_last_of('/');
 	if (slash_pos != std::string::npos)
 		path = path.substr(slash_pos + 1);
-	size_t dot_pos = path.find_last_of('.');
-	if (dot_pos == std::string::npos || path[path.size() - 1] == '.')
+	size_t dot_pos = path.find_first_of('.');
+	if (dot_pos == std::string::npos || path.size() == 1)
 		return false;
 	path = path.substr(dot_pos);
 	
