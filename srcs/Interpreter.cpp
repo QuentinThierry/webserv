@@ -42,8 +42,8 @@ void interpret_cgi_field_loop(std::string &token, std::queue<std::string> &token
 			continue;
 		else if (token[0] == ';')
 		{
-			if (arg_counter != 1)
-				ThrowBadArgumentNumber("cgi_path", 1, false);
+			if (arg_counter != 2)
+				ThrowBadArgumentNumber("cgi_path", 2, false);
 			break;
 		}
 		else

@@ -6,10 +6,21 @@ static void	_enter_field_loop(std::queue<std::string> &tokens)
 	{
 		std::string token = extract_token(tokens);
 		if (token[0] == '{' || token[0] == '}')
-			ThrowUnexpectedToken(token); //bad
+			ThrowUnexpectedToken(token);
 		else if (token[0] == ';')
-			break ; // good
+			break ;
 	}
+}
+
+static bool is_good_extension(std::string extension)
+{
+	if (extension.size() < 2)
+		return false;
+	if (extension[0] != '.')
+		return false;
+	if (extension.find("..") != std::string::npos)
+		return false;
+	return true;
 }
 
 static void	_parse_location_first_part(std::queue<std::string> &tokens)
@@ -22,7 +33,7 @@ static void	_parse_location_first_part(std::queue<std::string> &tokens)
 	{
 		std::string token = extract_token(tokens);
 		if (token[0] == '}' || token[0] == ';')
-			ThrowUnexpectedToken(token); //bad
+			ThrowUnexpectedToken(token);
 		if (token[0] == '{')
 		{
 			if (has_second_field == false)
@@ -40,10 +51,12 @@ static void	_parse_location_first_part(std::queue<std::string> &tokens)
 				is_cgi_loc = true;
 			else if (is_cgi_loc && !has_second_field)
 			{
-				if (token[0] != '.' || token.find('/') != std::string::npos)
-					ThrowUnexpectedToken(token);
+				if (!is_good_extension(token))
+					ThrowMisc("misformatted cgi extension at `" + token + "'");
 				has_second_field = true;
 			}
+			else if (has_first_field && has_second_field)
+				ThrowUnexpectedToken(token);
 		}
 	}
 }
@@ -96,20 +109,18 @@ static void	_enter_server_loop(std::queue<std::string> &tokens)
 			if (nb_open_bracket != 0)
 				ThrowUnexpectedToken(token);
 			nb_open_bracket++;
-			// good
 		}
 		else if (token[0] == '}')
 		{
 			if (nb_open_bracket == 0)
 				ThrowUnexpectedToken(token);
+			nb_open_bracket--;
 			break ;
-			// good
 		}
 		else if (token[0] == ';')
 		{
 			if (nb_open_bracket == 0)
 				ThrowUnexpectedToken(token);
-			// good
 		}
 		else if (token == "location")
 		{
@@ -124,6 +135,8 @@ static void	_enter_server_loop(std::queue<std::string> &tokens)
 			_enter_field_loop(tokens);
 		}
 	}
+	if (nb_open_bracket != 0)
+		ThrowMisc("unexpected EOF");
 }
 
 std::string	extract_token(std::queue<std::string> &tokens)
