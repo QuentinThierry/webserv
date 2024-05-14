@@ -74,6 +74,16 @@ class WrongScopeException : public std::runtime_error
 		}
 };
 
+class MiscException : public std::runtime_error
+{
+	public:
+		MiscException(std::string error_message) : std::runtime_error(error_message) {}
+		const char *what() const throw()
+		{
+			return std::runtime_error::what();
+		}
+};
+
 inline static std::string to_string(int val)
 {
 	std::stringstream s;
@@ -89,5 +99,6 @@ inline static std::string to_string(int val)
 
 #define ThrowBadFieldLocation(location, field) throw BadFieldException((ERROR + "`" + (location) + "' scope does not accept `" + (field) + "' field"))
 
+#define ThrowMisc(string) throw MiscException(ERROR + (string))
 
 #endif
