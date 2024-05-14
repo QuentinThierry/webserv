@@ -18,7 +18,15 @@ Cluster & Cluster::operator=(Cluster const &copy)
 	return *this;
 }
 
-Cluster::~Cluster(){};
+Cluster::~Cluster()
+{
+	for (t_iter_map_sockets it = _map_sockets.begin(); it != _map_sockets.end(); it++)
+	{
+		close(it->first);
+	}
+	for (t_iter_sockets it = _sockets.begin(); it != _sockets.end(); it++)
+		close(it->getFd());
+}
 
 Cluster::Cluster(std::vector<Server> servers)
 {
@@ -224,6 +232,7 @@ void Cluster::switchHttpExchangeToWrite(int fd)
 
 void Cluster::closeConnection(int fd)
 {
+	std::cout << "close connection\n";
 	std::vector<int>::iterator pos = std::find(_fd_write.begin(), _fd_write.end(), fd);
 	if (pos != _fd_write.end())
 	{

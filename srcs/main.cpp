@@ -1,5 +1,6 @@
 #include "ConfParser.hpp"
 #include <arpa/inet.h>
+#include <signal.h>
 #include "Cluster.class.hpp"
 #include "HttpTools.hpp"
 void	print_server(Server &server);
@@ -8,8 +9,14 @@ int const	g_err_log_fd = STDERR_FILENO;
 std::vector<std::string>	g_http_methods;
 std::vector<std::string>	g_http_versions;
 
+void cltr_c(int sig)
+{
+	(void)sig;
+}
+
 int main(int argc, char **argv)
 {
+	signal(SIGINT, cltr_c);
 	g_http_methods.push_back("GET");
 	g_http_methods.push_back("POST");
 	g_http_methods.push_back("DELETE");

@@ -63,7 +63,10 @@ HttpExchange & HttpExchange::operator=(HttpExchange const &assign)
 }
 
 HttpExchange::~HttpExchange()
-{}
+{
+	if (_request != NULL)
+		free(_request);
+}
 
 struct timeval const & HttpExchange::getAcceptRequestTime() const
 {
