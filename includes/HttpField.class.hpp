@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 15:52:09 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/03 22:07:02 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/14 16:11:50 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,12 +17,12 @@
 
 # include <vector>
 
-# define MSG_ERR_FIELD_NO_UNIQUE_SEPARATOR "Error: HTTP request: a field does not contain a unique ':' separator"
-# define MSG_ERR_FIELD_NO_VALUE "Error: HTTP request: a field does not contain any value"
-# define MSG_ERR_FIELD_NO_NAME "Error: HTTP request: a field does not contain any name"
-# define MSG_ERR_FIELD_QUOTE_NOT_CLOSED "Error: HTTP request: quote note closed in a field"
-# define MSG_ERR_FIELD_INVALID_CHARACTER "Error: HTTP request: invalid character in a field"
-# define MSG_ERR_FIELD_EMPTY_ADDED_VALUE "Error: HTTP request: attempted to add an empty value to a field"
+# define MSG_ERR_FIELD_NO_UNIQUE_SEPARATOR	"Error: HTTP request: a field does not contain a unique ':' separator"
+# define MSG_ERR_FIELD_NO_VALUE				"Error: HTTP request: a field does not contain any value"
+# define MSG_ERR_FIELD_NO_NAME				"Error: HTTP request: a field does not contain any name"
+# define MSG_ERR_FIELD_QUOTE_NOT_CLOSED		"Error: HTTP request: quote note closed in a field"
+# define MSG_ERR_FIELD_INVALID_CHARACTER	"Error: HTTP request: invalid character in a field"
+# define MSG_ERR_FIELD_EMPTY_ADDED_VALUE	"Error: HTTP request: attempted to add an empty value to a field"
 
 
 class HttpField
