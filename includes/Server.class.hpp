@@ -43,6 +43,8 @@ class Server
 		Location const &searchLocation(std::string path);
 		bool searchCgiLocation(std::string path, CgiLocation &cgi_loc);
 
+		std::string getErrorPagePath(t_http_code error_code) const;
+
 	private:
 		std::string							_host;
 		uint32_t							_host_uint;

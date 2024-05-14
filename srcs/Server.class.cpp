@@ -101,3 +101,11 @@ bool Server::searchCgiLocation(std::string path, CgiLocation &cgi_loc)
 	}
 	return false;
 }
+
+std::string Server::getErrorPagePath(t_http_code error_code) const {
+	std::map<t_http_code, std::string>::const_iterator it;
+	it = this->_error_page_path.find(error_code);
+	if (it != this->_error_page_path.end())
+		return it->second;
+	return "";
+}
