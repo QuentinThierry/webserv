@@ -23,6 +23,7 @@ class Server
 		std::vector<Location> const &getLocations() const;
 		std::vector<CgiLocation> const &getCgiLocations() const;
 		Location &getDefaultLocation();
+		Location const &getDefaultLocation() const;
 		bool const &_gethasListen() const;
 
 		void	setHost(std::string host);
@@ -38,10 +39,10 @@ class Server
 		void	addCgiLocation(CgiLocation cgi_loc);
 		void	_sethasListen(bool has_listen);
 
-		bool	is_equal(Server const &ref);
+		bool	is_equal(Server const &ref) const;
 
-		Location const &searchLocation(std::string path);
-		bool searchCgiLocation(std::string path, CgiLocation &cgi_loc);
+		Location const &searchLocation(std::string path) const;
+		bool searchCgiLocation(std::string path, CgiLocation &cgi_loc) const;
 
 		std::string getErrorPagePath(t_http_code error_code) const;
 

@@ -23,6 +23,7 @@ uint64_t const &Server::getClientmaxBodySize() const {return this->_client_max_b
 std::vector<Location> const &Server::getLocations() const {return this->_locations;}
 std::vector<CgiLocation> const &Server::getCgiLocations() const {return this->_cgi_locations;}
 Location &Server::getDefaultLocation() {return this->_locations[0];}
+Location const &Server::getDefaultLocation() const {return this->_locations[0];}
 bool const &Server::_gethasListen() const {return this->__has_listen;}
 
 void	Server::setHost(std::string host) {this->_host = host;}
@@ -40,7 +41,7 @@ void	Server::_sethasListen(bool has_listen) {this->__has_listen = has_listen;}
 
 
 // return if the server has the same host and port
-bool	Server::is_equal(Server const &ref)
+bool	Server::is_equal(Server const &ref) const
 {
 	if (this->getHost() != ref.getHost())
 		return false;
@@ -49,7 +50,7 @@ bool	Server::is_equal(Server const &ref)
 	return true;
 }
 
-Location const &Server::searchLocation(std::string path)
+Location const &Server::searchLocation(std::string path) const
 {
 	size_t slash_pos = 0;
 
@@ -79,7 +80,7 @@ Location const &Server::searchLocation(std::string path)
 
 // returns true if a CgiLocation exists, and fills cgi_loc
 // else, returns false and cgi_loc is left untouched
-bool Server::searchCgiLocation(std::string path, CgiLocation &cgi_loc)
+bool Server::searchCgiLocation(std::string path, CgiLocation &cgi_loc) const
 {
 	if (path[path.size() - 1] == '/')
 		return false;
