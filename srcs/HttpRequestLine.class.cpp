@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 20:02:08 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/15 17:01:55 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/15 17:22:07 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ static it_method	_check_and_get_method( std::stringstream & line )
 {
 	std::string	method_token;
 
-	method_token = _extract_first_word( line);
+	method_token = _extract_first_word(line);
 	return (_match_token_to_method(method_token));
 }
 
@@ -156,6 +156,8 @@ void	HttpRequestLine::display_request_line( void ) const
 /*
 
 int g_err_log_fd = STDERR_FILENO;
+std::vector<std::string> g_http_methods;
+std::vector<std::string> g_http_versions;
 
 int main()
 {

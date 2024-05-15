@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 15:52:09 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/15 17:01:22 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/15 18:06:43 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -220,6 +220,8 @@ static void _test__setName( void );
 static void _test_constructor( void );
 
 int g_err_log_fd = STDERR_FILENO;
+std::vector<std::string> g_http_methods;
+std::vector<std::string> g_http_versions;
 
 int main()
 {

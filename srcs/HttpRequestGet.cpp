@@ -53,15 +53,17 @@ bool	HttpRequestGet::hasBody() const
 
 
 
-#if 0
+#if 1
 
 int g_err_log_fd = STDERR_FILENO;
+std::vector<std::string> g_http_methods;
+std::vector<std::string> g_http_versions;
 
 int main ()
 {
 	_init_available_http_methods_versions();
 
-	std::string request = "GET toto HTTP/1.1\t\nfield1:value1\r\n\r\nthis is the body\r\nit shouldn't appear";
+	std::string request = "GET / HTTP/1.1\r\nHost: localhost:8081\r\nUser-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8\r\nAccept-Language: en-US,en;q=0.5\r\nAccept-Encoding: gzip, deflate, br\r\nConnection: keep-alive\r\nUpgrade-Insecure-Requests: 1\r\nSec-Fetch-Dest: document\r\nSec-Fetch-Mode: navigate\r\nSec-Fetch-Site: none\r\nSec-Fetch-User: ?1";
 
 	try
 	{

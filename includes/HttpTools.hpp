@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 19:43:37 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/15 16:59:52 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/15 17:39:27 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,10 +24,10 @@
 
 # define MSG_ERR_WRONG_END_OF_LINE "Error: http request: line not properly ended"
 
-static std::vector<std::string> g_http_methods;
-typedef std::vector<std::string>::const_iterator it_method;
-static std::vector<std::string> g_http_versions;
-typedef std::vector<std::string>::const_iterator it_version;
+extern	std::vector<std::string> g_http_methods;
+typedef	std::vector<std::string>::const_iterator it_method;
+extern	std::vector<std::string> g_http_versions;
+typedef	std::vector<std::string>::const_iterator it_version;
 
 void		_init_available_http_methods_versions( void );
 
