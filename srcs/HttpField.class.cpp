@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 15:52:09 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/14 16:19:59 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/15 16:48:20 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ HttpField::~HttpField( void )
 
 HttpField & HttpField::operator=(HttpField const & model)
 {
-	if (&model == this)
+	if (&model != this)
 	{
 		_name = model._name;
 		_values = model._values;
