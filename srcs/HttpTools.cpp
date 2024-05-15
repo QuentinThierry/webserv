@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 19:47:57 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/14 18:40:18 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/15 16:53:24 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ bool	is_line_properly_ended(std::stringstream & stream, std::string & line)
 		return (true);
 	if (!line.size() || line.at(line.size() - 1) != '\r')
 		return (false);
-	line.pop_back();
+	line.erase(line.end() - 1);
 	return (true);
 }
 
