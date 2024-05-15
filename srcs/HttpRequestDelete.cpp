@@ -59,32 +59,3 @@ void	HttpRequestDelete::readBody(int fd, Socket const * const socket)
 	(void)fd;
 	(void)socket;
 }
-
-
-
-#if 0
-
-int g_err_log_fd = STDERR_FILENO;
-
-int main ()
-{
-	std::string request = "DELETE toto HTTP/1.1\nfield1:value1\n\nthis is the body\nit shouldn't appear";
-
-	try
-	{
-		HttpRequestDelete get_request (request);
-
-		get_request.display_request();
-	}
-	catch (ExceptionHttpStatusCode & e)
-	{
-		e.display_error();
-	}
-	catch (std::exception & e)
-	{
-		std::cout << "Non http error: " << e.what() << std::endl;
-	}
-	return (true);
-}
-
-#endif

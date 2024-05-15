@@ -6,7 +6,7 @@
 /*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 19:43:37 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/14 19:30:00 by jvigny           ###   ########.fr       */
+/*   Updated: 2024/05/15 18:13:52 by jvigny           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,10 +24,12 @@
 
 # define MSG_ERR_WRONG_END_OF_LINE "Error: http request: line not properly ended"
 
-extern std::vector<std::string> g_http_methods;
-typedef std::vector<std::string>::const_iterator it_method;
-extern std::vector<std::string> g_http_versions;
-typedef std::vector<std::string>::const_iterator it_version;
+extern	std::vector<std::string> g_http_methods;
+typedef	std::vector<std::string>::const_iterator it_method;
+extern	std::vector<std::string> g_http_versions;
+typedef	std::vector<std::string>::const_iterator it_version;
+
+void		_init_available_http_methods_versions( void );
 
 bool		str_contains_a_colon(std::string const & str,
 				size_t first_colon_pos = std::string::npos);
@@ -42,7 +44,7 @@ bool		is_control(unsigned char const &c);
 bool		is_separator(unsigned char const &c);
 bool		is_escaped(std::string const & str, size_t index);
 
-
+bool		is_whitespace(const unsigned char c);
 void		trim_whitespace(std::string & str);
 void		trim_whitespace_r(std::string & str);
 void		trim_whitespace_l(std::string & str);

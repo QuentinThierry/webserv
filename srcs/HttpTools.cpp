@@ -6,11 +6,33 @@
 /*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 19:47:57 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/14 19:27:46 by jvigny           ###   ########.fr       */
+/*   Updated: 2024/05/15 18:16:19 by jvigny           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/HttpTools.hpp"
+
+static void	_init_available_http_methods( void )
+{
+	g_http_methods.push_back("GET");
+	g_http_methods.push_back("POST");
+	g_http_methods.push_back("DELETE");
+}
+
+static void	_init_available_http_versions( void )
+{
+	g_http_versions.push_back("HTTP");
+	g_http_versions.push_back("HTTP/0.9");
+	g_http_versions.push_back("HTTP/1.0");
+	g_http_versions.push_back("HTTP/1.1");
+}
+
+void	_init_available_http_methods_versions( void )
+{
+	_init_available_http_methods();
+	_init_available_http_versions();
+}
+
 
 bool	str_contains_a_colon(std::string const & str, size_t first_colon_pos)
 {
@@ -46,6 +68,13 @@ bool	is_line_properly_ended(std::stringstream & stream, std::string & line)
 	return (true);
 }
 
+
+bool	is_whitespace(const unsigned char c)
+{
+	std::string whitespaces(HTTP_WHITESPACES);
+
+	return (whitespaces.find(c) != std::string::npos);
+}
 
 /* === trim whitespaces (space and htab) === */
 

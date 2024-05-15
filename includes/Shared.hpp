@@ -6,7 +6,7 @@
 /*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 15:07:56 by jvigny            #+#    #+#             */
-/*   Updated: 2024/05/14 19:15:05 by jvigny           ###   ########.fr       */
+/*   Updated: 2024/05/15 18:14:03 by jvigny           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ typedef enum e_status
 
 # include <string>
 # include <iostream>
+#include <fstream>
 # include <exception>
 # include <unistd.h>
 # include <stdint.h>
