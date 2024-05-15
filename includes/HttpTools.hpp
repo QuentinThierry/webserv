@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 19:43:37 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/14 18:21:16 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/15 16:59:52 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,17 +24,12 @@
 
 # define MSG_ERR_WRONG_END_OF_LINE "Error: http request: line not properly ended"
 
-static const std::vector<std::string> g_http_methods = {"GET", "POST", "DELETE"};
+static std::vector<std::string> g_http_methods;
 typedef std::vector<std::string>::const_iterator it_method;
-static const std::vector<std::string> g_http_versions = {"HTTP", "HTTP/0.9", "HTTP/1.0", "HTTP/1.1"};
+static std::vector<std::string> g_http_versions;
 typedef std::vector<std::string>::const_iterator it_version;
 
-// typedef enum
-// {
-// 	HTTP_GET,
-// 	HTTP_POST,
-// 	HTTP_DELETE
-// }	e_http_method;
+void		_init_available_http_methods_versions( void );
 
 bool		str_contains_a_colon(std::string const & str,
 				size_t first_colon_pos = std::string::npos);
