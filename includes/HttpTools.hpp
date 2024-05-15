@@ -44,7 +44,7 @@ bool		is_control(unsigned char const &c);
 bool		is_separator(unsigned char const &c);
 bool		is_escaped(std::string const & str, size_t index);
 
-
+bool		is_whitespace(const unsigned char c);
 void		trim_whitespace(std::string & str);
 void		trim_whitespace_r(std::string & str);
 void		trim_whitespace_l(std::string & str);

@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 19:47:57 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/15 16:59:27 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/15 18:03:06 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,13 @@ bool	is_line_properly_ended(std::stringstream & stream, std::string & line)
 	return (true);
 }
 
+
+bool	is_whitespace(const unsigned char c)
+{
+	std::string whitespaces(HTTP_WHITESPACES);
+
+	return (whitespaces.find(c) != std::string::npos);
+}
 
 /* === trim whitespaces (space and htab) === */
 

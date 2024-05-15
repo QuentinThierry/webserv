@@ -89,9 +89,16 @@ static	bool _is_values_list_syntax_ok( std::string const &str )
 
 static	bool __is_one_value_syntax_ok( std::string const &str )
 {
+
 	for (unsigned int i = 0; i < str.size(); ++i)
 	{
-		if (!is_VCHAR(str.at(i)))
+		
+		if (is_whitespace(str.at(i)))
+		{
+			if (i != 0 && is_whitespace(str.at(i - 1)))
+				return (false);
+		}
+		else if (!is_VCHAR(str.at(i)))
 			return (false);
 	}
 	return (true);
@@ -415,7 +422,8 @@ static void _test_constructor( void )
 	fields.push_back("correct_name: correct_value_spaces ");
 	fields.push_back("correct_name: correct_value_spaces , correct_value1");
 	fields.push_back("incorrect name: correct_value");
-	fields.push_back("name: incorrect value");
+	fields.push_back("name: correct value");
+	fields.push_back("name: incorrect  value");
 	fields.push_back("no_colon");
 	fields.push_back("no_colon correct_value");
 
