@@ -43,7 +43,7 @@ class Location
 		void	setCanUpload(bool can_upload);
 		void	setUploadPath(std::string upload_path);
 
-		bool	is_empty_location(Location &default_location);
+		bool	is_empty_location(Location &default_location) const;
 		bool	does_accept_method(std::string method) const;
 
 

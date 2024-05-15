@@ -19,7 +19,6 @@ class Server
 		std::vector<std::string> &getServerName();
 		std::map<t_http_code, std::string> const &getErrorPagePath() const;
 		std::map<t_http_code, std::string> &getErrorPagePath();
-		std::string const &getErrorPagePath(int number) const;
 		uint64_t const &getClientmaxBodySize() const;
 		std::vector<Location> const &getLocations() const;
 		std::vector<CgiLocation> const &getCgiLocations() const;
@@ -40,10 +39,12 @@ class Server
 		void	addCgiLocation(CgiLocation cgi_loc);
 		void	_sethasListen(bool has_listen);
 
-		bool	is_equal(Server const &ref);
+		bool	is_equal(Server const &ref) const;
 
 		Location const &searchLocation(std::string path) const;
-		bool searchCgiLocation(std::string path, CgiLocation &cgi_loc);
+		bool searchCgiLocation(std::string path, CgiLocation &cgi_loc) const;
+
+		std::string getErrorPagePath(t_http_code error_code) const;
 
 	private:
 		std::string							_host;
