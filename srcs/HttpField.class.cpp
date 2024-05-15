@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 15:52:09 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/15 16:48:20 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/15 17:01:22 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -223,6 +223,7 @@ int g_err_log_fd = STDERR_FILENO;
 
 int main()
 {
+	_init_available_http_methods_versions();
 	_test__is_values_list_syntax_ok();
 	_test___is_one_value_syntax_ok();
 	_test__add_one_value();

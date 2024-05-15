@@ -59,6 +59,8 @@ int g_err_log_fd = STDERR_FILENO;
 
 int main ()
 {
+	_init_available_http_methods_versions();
+
 	std::string request = "GET toto HTTP/1.1\nfield1:value1\n\nthis is the body\nit shouldn't appear";
 
 	try

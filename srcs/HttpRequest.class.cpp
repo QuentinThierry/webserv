@@ -125,6 +125,8 @@ int g_err_log_fd = STDERR_FILENO;
 
 int main()
 {
+	_init_available_http_methods_versions();
+
 	std::string	request_str = "GET ./toto HTTP/0.9\nfield1:value1\nfield2:value2\nfield1: value3";
 	std::stringstream request_stream(request_str);
 

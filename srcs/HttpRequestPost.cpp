@@ -75,6 +75,8 @@ int g_err_log_fd = STDERR_FILENO;
 
 int main ()
 {
+	_init_available_http_methods_versions();
+
 	std::string request = "POST the_target/ HTTP/1.1\r\nfield1:value1\r\nField2:value1\r\n\r\nThis body is amazing\r\nDon't you think so?";
 
 	try

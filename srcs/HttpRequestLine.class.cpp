@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 20:02:08 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/14 18:21:42 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/15 17:01:55 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,6 +159,8 @@ int g_err_log_fd = STDERR_FILENO;
 
 int main()
 {
+	_init_available_http_methods_versions();
+
 	try
 	{
 		HttpRequestLine line("POST /toto HTTP/0.9");
