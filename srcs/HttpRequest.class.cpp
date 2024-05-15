@@ -11,7 +11,7 @@ HttpRequest::HttpRequest ( void ) : HttpRequestLine()
 }
 
 HttpRequest::HttpRequest ( HttpRequest const & model ) :
-	HttpRequestLine(model), _fields(model._fields), _body(model._body)
+	HttpRequestLine(model), _body(model._body), _fields(model._fields)
 {
 }
 
