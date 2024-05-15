@@ -6,7 +6,7 @@
 /*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 18:27:23 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/14 19:12:44 by jvigny           ###   ########.fr       */
+/*   Updated: 2024/05/15 17:04:55 by jvigny           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ class HttpRequest : public HttpRequestLine
 		virtual HttpRequest & operator=(HttpRequest const & model);
 		
 		virtual void					process_header( Socket const * const socket ) = 0;
-		virtual HttpResponse			generate_response( Socket const * const socket ) = 0;
+		virtual void					generate_response( Socket const * const socket, HttpResponse &response ) = 0;
 		virtual void					readBody(int fd, Socket const * const socket) = 0;
 		virtual bool					hasBody() const = 0;
 		

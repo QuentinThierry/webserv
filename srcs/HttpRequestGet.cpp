@@ -58,6 +58,7 @@ bool	handle_directory(std::string & uri, Location const & location, HttpResponse
 	int fd = open(uri.c_str(), O_DIRECTORY);
 	if (fd == -1)
 		return false;
+	std::cout << "is directory\n";
 	close(fd);
 	if (location.getHasAutoindex())
 	{
@@ -87,32 +88,40 @@ void	handle_file(std::string & uri, HttpResponse & response, Server const & serv
 	}
 }
 
-HttpResponse	HttpRequestGet::_initResponse( Socket const * const socket )
+void	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &response )
 {
-	HttpResponse response(getVersion());
+	response.setVersion(getVersion());
 
 	Location location = socket->getServer().searchLocation(getTarget());// get location path
 	//get location cgi if cgi
 	if (response.handle_redirect(location))
-		return response;
+	{
+		std::cout << "rediterion\n";
+		return ;
+	}
 	if (checkMethod(location) == false)
 	{
+		std::cout << "wrong method\n";
 		response.addAllowMethod(location.getMethods());
 		response.generateErrorResponse(HTTP_405, socket->getServer());//!send error to client with allow method
-		return response;
+		return ;
 	}
 	std::string uri = getUri(location.getRootPath(), getTarget());
 	if (handle_directory(uri, location, response, socket->getServer()))
-		return response;
+	{
+		std::cout << "return\n";
+		return ;
+	}
 	handle_file(uri, response, socket->getServer());
-	return response;
+	std::cout << "return file\n";
+	return ;
 }
 
-HttpResponse	HttpRequestGet::generate_response( Socket const * const socket )
+void	HttpRequestGet::generate_response( Socket const * const socket, HttpResponse &response )
 {
-	HttpResponse res = _initResponse(socket);
-	res.fillHeader();
-	return res;
+	_initResponse(socket, response);
+	response.fillHeader();
+	std::cout << "response\n";
 }
 
 void	HttpRequestGet::readBody(int fd, Socket const * const socket)

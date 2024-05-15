@@ -14,7 +14,7 @@ HttpExchange::HttpExchange(Socket const &socket): _socket(&socket), _response()
 	if (gettimeofday(&_accept_request_time, NULL) == -1)
 	{
 		protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
-				std::string("Error: ") + std::strerror(errno) + "at"));
+				std::string("Error: ") + std::strerror(errno) + " at"));
 		throw ExceptionHttpStatusCode(HTTP_500);
 	}
 	_buffer_read.clear();
@@ -65,7 +65,7 @@ HttpExchange & HttpExchange::operator=(HttpExchange const &assign)
 HttpExchange::~HttpExchange()
 {
 	if (_request != NULL)
-		free(_request);
+		delete(_request);
 }
 
 struct timeval const & HttpExchange::getAcceptRequestTime() const
@@ -158,7 +158,7 @@ void HttpExchange::_handleHeader(int fd, Cluster &cluster)
 	if (ret == -1)
 	{
 		protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
-					std::string("Error: read(): ") + std::strerror(errno) + "at"));
+					std::string("Error: read(): ") + std::strerror(errno) + " at"));
 		_handleError(fd, cluster, HTTP_500); //!send error to client
 		return;
 	}
@@ -182,7 +182,7 @@ void HttpExchange::_handleHeader(int fd, Cluster &cluster)
 			_request->process_header(_socket);
 			if (_request->hasBody() == false)
 			{
-				_request->generate_response(_socket);
+				_request->generate_response(_socket, _response);
 				cluster.switchHttpExchangeToWrite(fd);
 			}
 		}
@@ -195,7 +195,7 @@ void HttpExchange::_handleHeader(int fd, Cluster &cluster)
 		catch(std::exception &e)
 		{
 			protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
-					std::string("Error: ") + std::strerror(errno) + "at"));
+					std::string("Error: ") + std::strerror(errno) + " at"));
 			_handleError(fd, cluster, HTTP_500); //!send error to client
 			return ;
 		}

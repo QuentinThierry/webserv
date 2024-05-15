@@ -130,9 +130,9 @@ void HttpRequestPost::_setBodyReadType(uint64_t maxClientBody)
 	}
 }
 
-HttpResponse	HttpRequestPost::generate_response( Socket const * const socket )
+void	HttpRequestPost::generate_response( Socket const * const socket, HttpResponse &response )
 {
 	//TODO
 	(void)socket;
-	return HttpResponse();
+	(void)response;
 }

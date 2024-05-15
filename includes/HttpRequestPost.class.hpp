@@ -6,7 +6,7 @@
 /*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:23:29 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/14 19:13:34 by jvigny           ###   ########.fr       */
+/*   Updated: 2024/05/15 16:59:35 by jvigny           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ class HttpRequestPost : public HttpRequest
 		HttpRequestPost & operator= (HttpRequestPost const & model);
 		~HttpRequestPost( void );
 
-		HttpResponse	generate_response( Socket const * const socket );
+		void	generate_response( Socket const * const socket, HttpResponse &response );
 		void			process_header( Socket const * const socket );
 		void			readBody(int fd, Socket const * const socket);
 		bool			hasBody() const;

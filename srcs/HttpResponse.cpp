@@ -10,19 +10,25 @@ HttpResponse::HttpResponse( it_version const & version)
 {
 	_version = version;
 	_status_code = HTTP_200;
-	_fileOpen = false;
 	_fields.push_back(HttpField("Connection", "close"));
 	_fields.push_back(HttpField("Server", SERVER_NAME));
+	_fileOpen = false;
 }
 
+//! Can't copy open file(_bodyFile) during the operation
 HttpResponse & HttpResponse::operator=(HttpResponse const & model )
 {
 	if (this != &model)
 	{
+		std::cout <<"COPY RESPONSE WARNING\n";
 		_version = model._version;
 		_status_code = model._status_code;
 		_fields = model._fields;
+		_header = model._header;
+
 		_body = model._body;
+		// _bodyFile = model._bodyFile;
+		_fileOpen = false;
 	}
 	return *this;
 }
@@ -36,18 +42,20 @@ HttpResponse::HttpResponse( void )
 {
 	_version = --g_http_versions.end();
 	_status_code = HTTP_200;
-	_fileOpen = false;
 	_fields.push_back(HttpField("Connection", "close"));
 	_fields.push_back(HttpField("Server", SERVER_NAME));
+	_fileOpen = false;
 }
 
-
+void	HttpResponse::setVersion(it_version version)
+{
+	_version = version;
+}
 
 void	HttpResponse::setStatusCode(e_status_code code)
 {
 	_status_code = code;
 }
-
 
 bool	HttpResponse::handle_redirect(Location const & location)
 {
@@ -63,6 +71,8 @@ bool	HttpResponse::handle_redirect(Location const & location)
 void		HttpResponse::fillHeader()
 {
 	_header.clear();
+	std::cout <<  *_version << " " << statusCodeToInt() << " "
+			<< get_error_reason_phrase(_status_code) << "\r\n";
 	_header = *_version + " " + ft_itoa(statusCodeToInt()) + " "
 			+ get_error_reason_phrase(_status_code) + "\r\n";
 	for (unsigned int i = 0; i < _fields.size(); i++)
@@ -107,7 +117,6 @@ void	HttpResponse::addAllowMethod(std::vector<std::string> const &method)
 	_fields.push_back(res);
 }
 
-
 void HttpResponse::_removeField(std::string const &name)
 {
 	std::vector<HttpField>::iterator it;
@@ -148,7 +157,7 @@ void HttpResponse::writeResponse(int fd, Cluster &cluster)
 {
 	std::string buffer;
 
-	if (!_header.empty())
+	if (_header.empty() == false)
 	{
 		buffer = _header;
 		_header.clear();
@@ -188,6 +197,46 @@ uint32_t	HttpResponse::statusCodeToInt() const
 {
 	switch (_status_code)
 	{
+		case HTTP_100:
+			return 100;
+		case HTTP_101:
+			return 101;
+		case HTTP_102:
+			return 102;
+		case HTTP_103:
+			return 103;
+		case HTTP_200:
+			return 200;
+		case HTTP_201:
+			return 201;
+		case HTTP_202:
+			return 202;
+		case HTTP_203:
+			return 203;
+		case HTTP_204:
+			return 204;
+		case HTTP_205:
+			return 205;
+		case HTTP_206:
+			return 206;
+		case HTTP_207:
+			return 207;
+		case HTTP_208:
+			return 208;
+		case HTTP_226:
+			return 226;
+		case HTTP_300:
+			return 300;
+		case HTTP_301:
+			return 301;
+		case HTTP_302:
+			return 302;
+		case HTTP_303:
+			return 303;
+		case HTTP_304:
+			return 304;
+		case HTTP_305:
+			return 305;
 		case HTTP_307:
 			return 307;
 		case HTTP_308:
@@ -281,6 +330,46 @@ e_status_code	HttpResponse::intToStatusCode(uint16_t number) const
 {
 	switch (number)
 	{
+		case 100:
+			return HTTP_100;
+		case 101:
+			return HTTP_101;
+		case 102:
+			return HTTP_102;
+		case 103:
+			return HTTP_103;
+		case 200:
+			return HTTP_200;
+		case 201:
+			return HTTP_201;
+		case 202:
+			return HTTP_202;
+		case 203:
+			return HTTP_203;
+		case 204:
+			return HTTP_204;
+		case 205:
+			return HTTP_205;
+		case 206:
+			return HTTP_206;
+		case 207:
+			return HTTP_207;
+		case 208:
+			return HTTP_208;
+		case 226:
+			return HTTP_226;
+		case 300:
+			return HTTP_300;
+		case 301:
+			return HTTP_301;
+		case 302:
+			return HTTP_302;
+		case 303:
+			return HTTP_303;
+		case 304:
+			return HTTP_304;
+		case 305:
+			return HTTP_305;
 		case 307:
 			return HTTP_307;
 		case 308:

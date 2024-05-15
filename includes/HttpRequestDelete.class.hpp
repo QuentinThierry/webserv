@@ -30,7 +30,7 @@ class HttpRequestDelete : public HttpRequest
 		~HttpRequestDelete( void );
 
 		void				process_header( Socket const * const socket );
-		HttpResponse		generate_response( Socket const * const socket );
+		void		generate_response( Socket const * const socket, HttpResponse &response );
 		bool				hasBody() const;
 		void				readBody(int fd, Socket const * const socket);
 

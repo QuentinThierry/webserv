@@ -41,11 +41,12 @@ void			HttpRequestDelete::process_header( Socket const * const socket )
 	//TODO
 }
 
-HttpResponse	HttpRequestDelete::generate_response( Socket const * const socket )
+void	HttpRequestDelete::generate_response( Socket const * const socket, HttpResponse &response )
 {
 	//TODO
 	(void)socket;
-	return (HttpResponse());
+	(void)response;
+	return ;
 }
 
 bool	HttpRequestDelete::hasBody() const

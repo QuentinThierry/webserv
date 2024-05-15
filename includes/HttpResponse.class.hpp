@@ -22,9 +22,9 @@ class HttpResponse
 	public:
 		HttpResponse( HttpResponse const & model);
 		HttpResponse( it_version const & version);
-		HttpResponse & operator=(HttpResponse const & model );
 		~HttpResponse( void );
 		HttpResponse( void );
+		HttpResponse & operator=(HttpResponse const & model );
 
 		bool		handle_redirect(Location const &);
 		void		fillHeader();
@@ -33,6 +33,7 @@ class HttpResponse
 		e_status_code	intToStatusCode(uint16_t number) const;
 
 		void		setStatusCode(e_status_code code);
+		void		setVersion(it_version version);
 		void		addAllowMethod(std::vector<std::string> const &);
 		e_status	openFstream(std::string filename);
 		bool		checkFieldExistence(std::string const & field_name) const;
