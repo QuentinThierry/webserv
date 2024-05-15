@@ -1,5 +1,5 @@
-#include "../includes/HttpRequestPost.class.hpp"
-#include "../includes/HttpResponse.class.hpp"
+#include "HttpRequestPost.class.hpp"
+#include "HttpResponse.class.hpp"
 
 static void	_add_body_from_request_stream( std::string &request_body,
 				std::stringstream &stream_request )

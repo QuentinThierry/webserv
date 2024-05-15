@@ -1,5 +1,5 @@
-#include "../includes/HttpRequestGet.class.hpp"
-#include "../includes/HttpResponse.class.hpp"
+#include "HttpRequestGet.class.hpp"
+#include "HttpResponse.class.hpp"
 
 HttpRequestGet::HttpRequestGet (std::string const & str_request)
 	throw (ExceptionHttpStatusCode)
@@ -53,7 +53,7 @@ bool	HttpRequestGet::hasBody() const
 
 
 
-#if 1
+#if 0
 
 int g_err_log_fd = STDERR_FILENO;
 std::vector<std::string> g_http_methods;

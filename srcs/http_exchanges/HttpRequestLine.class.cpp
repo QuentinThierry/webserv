@@ -6,11 +6,11 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 20:02:08 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/15 17:22:07 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/15 21:02:36 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/HttpRequestLine.class.hpp"
+#include "HttpRequestLine.class.hpp"
 
 HttpRequestLine::HttpRequestLine( void )
 {

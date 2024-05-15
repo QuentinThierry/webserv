@@ -1,5 +1,5 @@
-#include "../includes/HttpRequestDelete.class.hpp"
-#include "../includes/HttpResponse.class.hpp"
+#include "HttpRequestDelete.class.hpp"
+#include "HttpResponse.class.hpp"
 
 HttpRequestDelete::HttpRequestDelete (std::string const & str_request)
 	throw (ExceptionHttpStatusCode)

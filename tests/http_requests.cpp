@@ -1,6 +1,6 @@
-# include "../includes/HttpRequestDelete.class.hpp"
-# include "../includes/HttpRequestPost.class.hpp"
-# include "../includes/HttpRequestGet.class.hpp"
+# include "HttpRequestDelete.class.hpp"
+# include "HttpRequestPost.class.hpp"
+# include "HttpRequestGet.class.hpp"
 
 static void check_field();
 

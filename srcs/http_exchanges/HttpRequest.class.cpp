@@ -1,4 +1,4 @@
-#include "../includes/HttpRequest.class.hpp"
+#include "HttpRequest.class.hpp"
 
 
 HttpRequest::HttpRequest ( void ) : HttpRequestLine()

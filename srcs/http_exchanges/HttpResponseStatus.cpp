@@ -6,11 +6,11 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 18:55:25 by acardona          #+#    #+#             */
-/*   Updated: 2024/04/11 20:08:28 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/15 21:02:36 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/HttpResponseStatus.hpp"
+#include "HttpResponseStatus.hpp"
 
 
 std::string get_error_reason_phrase(int error_code) throw( ExceptionUnknownStatusCode)

@@ -6,11 +6,11 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 15:52:09 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/15 18:06:43 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/15 21:02:13 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/HttpField.class.hpp"
+#include "HttpField.class.hpp"
 
 HttpField::HttpField ( void )
 {}

@@ -6,11 +6,11 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 19:47:57 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/15 18:03:06 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/15 21:02:36 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/HttpTools.hpp"
+#include "HttpTools.hpp"
 
 static void	_init_available_http_methods( void )
 {
