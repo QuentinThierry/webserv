@@ -61,7 +61,7 @@ int main ()
 {
 	_init_available_http_methods_versions();
 
-	std::string request = "DELETE toto HTTP/1.1\nfield1:value1\n\nthis is the body\nit shouldn't appear";
+	std::string request = "DELETE toto HTTP/1.1\r\nfield1:value1\r\n\r\nthis is the body\r\nit shouldn't appear";
 
 	try
 	{
