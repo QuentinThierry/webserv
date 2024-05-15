@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 15:07:56 by jvigny            #+#    #+#             */
-/*   Updated: 2024/04/11 20:16:20 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/15 17:10:56 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ typedef enum e_status
 
 # include <string>
 # include <iostream>
+#include <fstream>
 # include <exception>
 # include <unistd.h>
 
