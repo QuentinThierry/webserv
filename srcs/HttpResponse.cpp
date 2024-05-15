@@ -148,6 +148,8 @@ void	HttpResponse::generateErrorResponse(e_status_code status, Server const & se
 	}
 	_body.clear();
 	std::string path = server.getErrorPagePath(statusCodeToInt());
+	if (path.empty())
+		_fields.push_back(HttpField("Content-Length", "0"));
 	openFstream(path);
 	fillHeader();
 }
