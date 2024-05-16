@@ -1,7 +1,7 @@
 NAME			=	webserv
 
 CC				=	c++
-CFLAGS			=	 -g -std=c++98
+CFLAGS			=	-Wall -Werror -Wextra -g -std=c++98
 DEPSFLAG		=	-MMD
 
 INCLUDE_DIR		=	includes/
@@ -89,4 +89,4 @@ $(OBJ_DIR)/%.o : $(SRC_DIR)/%.cpp Makefile
 	@if [ ! -d "$(dir $@)" ]; then mkdir -p $(dir $@); fi
 	$(CC) $(CFLAGS) $(DEPSFLAG) $(INCLUDE_FLAG) -c $< -o $@
 
-.PHONY : all clean fclean re
+.PHONY : all clean fclean re run test
