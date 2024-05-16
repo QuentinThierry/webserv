@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 20:02:08 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/15 21:02:36 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/16 14:00:44 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,33 +151,3 @@ void	HttpRequestLine::display_request_line( void ) const
 {
 	std::cout << *_method << " " << _target << " " << *_version << std::endl;
 }
-
-
-/*
-
-int g_err_log_fd = STDERR_FILENO;
-std::vector<std::string> g_http_methods;
-std::vector<std::string> g_http_versions;
-
-int main()
-{
-	_init_available_http_methods_versions();
-
-	try
-	{
-		HttpRequestLine line("POST /toto HTTP/0.9");
-		std::cout << "Method: " << *line.getMethod() << std::endl;
-		std::cout << "Target: " << line.getTarget() << std::endl;
-		std::cout << "Version: " << *line.getVersion() << std::endl;
-	} catch (ExceptionHttpStatusCode & e)
-	{
-		std::cout << "Error " << e.get_status_code() << " "
-			<< get_error_reason_phrase(e.get_status_code()) << std::endl;
-	}
-	catch (std::exception & e)
-	{
-		std::cout << "Non http error: " << e.what() << std::endl;
-	}
-	return 0;
-}
-*/

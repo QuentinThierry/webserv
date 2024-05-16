@@ -29,9 +29,10 @@ class HttpRequestDelete : public HttpRequest
 		HttpRequestDelete & operator= (HttpRequestDelete const & model);
 		~HttpRequestDelete( void );
 
-		void			process_header( void );
-		HttpResponse	generate_response( void );
-		bool			hasBody() const;
+		void				process_header( Socket const * const socket );
+		void		generate_response( Socket const * const socket, HttpResponse &response );
+		bool				hasBody() const;
+		void				readBody(int fd, Socket const * const socket);
 
 	private:
 		HttpRequestDelete( void );

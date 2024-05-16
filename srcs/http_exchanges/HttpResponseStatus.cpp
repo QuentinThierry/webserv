@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 18:55:25 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/15 21:02:36 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/16 14:01:30 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,46 @@ std::string get_error_reason_phrase(int error_code) throw( ExceptionUnknownStatu
 {
 	switch (error_code)
 	{
+		case HTTP_100:
+			return ("Continue");
+		case HTTP_101:
+			return ("Switching Protocols");
+		case HTTP_102:
+			return ("Processing");
+		case HTTP_103:
+			return ("Early Hints");
+		case HTTP_200:
+			return ("OK");
+		case HTTP_201:
+			return ("Created");
+		case HTTP_202:
+			return ("Accepted");
+		case HTTP_203:
+			return ("Non-Authoritative Information");
+		case HTTP_204:
+			return ("No Content");
+		case HTTP_205:
+			return ("Reset Content");
+		case HTTP_206:
+			return ("Partial Content");
+		case HTTP_207:
+			return ("Multi-Status");
+		case HTTP_208:
+			return ("Already Reported");
+		case HTTP_226:
+			return ("IM Used");
+		case HTTP_300:
+			return ("Multiple Choices");
+		case HTTP_301:
+			return ("Moved Permanently");
+		case HTTP_302:
+			return ("Found");
+		case HTTP_303:
+			return ("See Other");
+		case HTTP_304:
+			return ("Not Modified");
+		case HTTP_305:
+			return ("Use Proxy ");
 		case HTTP_307:
 			return ("Temporary Redirect");
 		case HTTP_308:

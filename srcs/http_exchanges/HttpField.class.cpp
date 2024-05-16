@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 15:52:09 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/15 21:02:13 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/16 14:00:09 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,12 @@ HttpField::HttpField( std::string const & whole_line ) throw (ExceptionHttpStatu
 	else
 		this->_addNewValues(whole_line.substr(separator_position + 1));
 
+}
+
+HttpField::HttpField(std::string const & name, std::vector<std::string> const & values ) throw (ExceptionHttpStatusCode)
+{
+	_setName(name);
+	_addNewValues(values[0]);
 }
 
 HttpField::HttpField(std::string const & name, std::string const & values) throw (ExceptionHttpStatusCode)
@@ -207,249 +213,20 @@ void	HttpField::display_field ( void ) const
 	std::cout << std::endl;
 }
 
-
-/*
-
-//==============================================================
-
-// General tests in the dedicated file.
-
-// Individual functions tests:
-// requieres to set all the HttpField member functions to public.
-
-
-static void	_test__is_values_list_syntax_ok( void );
-static void	_test___is_one_value_syntax_ok( void );
-static void _test__add_one_value( void );
-static void _test__add_all_values( void );
-static void _test__addNewValues( void );
-static void _test__setName( void );
-static void _test_constructor( void );
-
-int g_err_log_fd = STDERR_FILENO;
-std::vector<std::string> g_http_methods;
-std::vector<std::string> g_http_versions;
-
-int main()
+std::string	HttpField::getFields( void ) const
 {
-	_init_available_http_methods_versions();
-	_test__is_values_list_syntax_ok();
-	_test___is_one_value_syntax_ok();
-	_test__add_one_value();
-	_test__add_all_values();
-	_test__addNewValues();
-	_test__setName();
-	_test_constructor();
-	return 0;
-
-}
-
-static void	_test__is_values_list_syntax_ok( void )
-{
-	std::vector<std::string>  fields;
-
-	fields.push_back("");
-	fields.push_back("thisiscorrect");
-	fields.push_back("wrong space");
-	fields.push_back("wrong\tspace");
-	fields.push_back("wrong\nreturn");
-
-	std::cout << "Test _is_values_list_syntax_ok : " << std::endl;
-
-	for (std::vector<std::string>::iterator it = fields.begin(); it != fields.end(); ++it)
-		std::cout << "- \""<< *it << "\" : " << _is_values_list_syntax_ok(*it) << std::endl;
-	
-	std::cout << std::endl;
-}
-
-static void	_test___is_one_value_syntax_ok( void )
-{
-	std::vector<std::string>  fields;
-
-	fields.push_back("thisiscorrect");
-	fields.push_back("thisis_correct");
-	fields.push_back("thisis;correct");
-	fields.push_back("thisis8correct");
-	fields.push_back("");
-	fields.push_back("wrong space");
-	fields.push_back("wrong\tspace");
-
-	std::cout << "Test __is_one_value_syntax_ok : " << std::endl;
-
-	for (std::vector<std::string>::iterator it = fields.begin(); it != fields.end(); ++it)
-		std::cout << "- \""<< *it << "\" : " << __is_one_value_syntax_ok(*it) << std::endl;
-
-	std::cout << std::endl;
-}
-
-static void _test__add_one_value( void )
-{
-	HttpField new_field;
-
-	std::vector<std::string>  fields;
-	fields.push_back("simple_correct");
-	fields.push_back("simple_correct, with_next");
-	fields.push_back("\"quoted_correct\"abc");
-	fields.push_back("\"quoted_correct\"continued");
-	fields.push_back("\"quoted_correct\", next");
-	fields.push_back("  simple_correct_space  ");
-	fields.push_back("simple_correct;q=1");
-	fields.push_back("incorrect space");
-
-	std::cout << "Test _add_one_value : " << std::endl;
-
-	for (std::vector<std::string>::iterator it = fields.begin(); it != fields.end(); ++it)
+	std::string res;
+	res = _name + ": ";
+	if (_values.size())
 	{
-		std::cout << "- \""<< *it << "\" (size = " << it->size() << "):" << std::endl;
-		try
+		res += _values[0];
+		for (std::vector<std::string>::const_iterator it = ++(_values.begin());
+			it != _values.end(); ++it)
 		{
-			size_t	end_value;
-
-			if (find_end_word(*it, 0, ",", end_value) == SUCCESS)
-			{
-				new_field._add_one_value(*it, 0, end_value);
-				std::cout << " -> success: \"" << new_field.getValues().at(new_field.getValues().size() - 1) << "\"";
-			}
-			else
-			{
-				std::cout << " -> wrong quoting, test ignored" << std::endl; 
-			}
-		}
-		catch (std::exception &e)
-		{
-			std::cout << " => not valid";
-		}
-		std::cout << std::endl;
-	}
-
-	std::cout << std::endl;
-}
-
-static void _test__add_all_values( void )
-{
-	HttpField new_field;
-	std::vector<std::string>  fields;
-	fields.push_back("correct, first, \"second\", \"third-with-quotes\"123  ,,  ,  \"fourth,coma\", ,");
-	fields.push_back("incorrect, forbidden space ");
-	fields.push_back("incorrect, forbidden\ttab ");
-
-	std::cout << "Test _add_all_values : " << std::endl;
-
-	for (std::vector<std::string>::iterator it = fields.begin(); it != fields.end(); ++it)
-	{
-		std::cout << "- \""<< *it << "\":" << std::endl;
-		try
-		{
-			new_field._add_all_values(*it);
-			std::cout << " -> success: " << std::endl;
-			for (std::vector<std::string>::const_iterator it = new_field.getValues().begin(); it != new_field.getValues().end(); ++it)
-				std::cout << "   - \"" << *it << "\"" << std::endl;
-		}
-		catch (std::exception &e)
-		{
-			std::cout << " => not valid" << std::endl;
+			res += ", " + *it;
 		}
 	}
-	std::cout << std::endl;
+	res += "\r\n";
+	return res;
 }
 
-static void _test__addNewValues( void )
-{
-	HttpField new_field;
-	std::vector<std::string>  fields;
-	fields.push_back(",  , ");
-	fields.push_back("");
-	fields.push_back("correct, first, \"second\", \"third-with-quotes\"123  ,,  ,  \"fourth,coma\", ,");
-	fields.push_back("incorrect, forbidden space ");
-	fields.push_back("incorrect, forbidden\ttab ");
-	fields.push_back("incorrect, forbidden\vchar ");
-
-	std::cout << "Test _addNewValues : " << std::endl;
-
-	for (std::vector<std::string>::iterator it = fields.begin(); it != fields.end(); ++it)
-	{
-		std::cout << "- \""<< *it << "\":" << std::endl;
-		try
-		{
-			new_field._addNewValues(*it);
-			std::cout << " -> success: " << std::endl;
-			for (std::vector<std::string>::const_iterator it = new_field.getValues().begin(); it != new_field.getValues().end(); ++it)
-				std::cout << "   - \"" << *it << "\"" << std::endl;
-		}
-		catch (std::exception &e)
-		{
-			std::cout << " => not valid" << std::endl;
-		}
-	}
-	std::cout << std::endl;
-}
-
-static void _test__setName( void )
-{
-	HttpField new_field;
-	std::vector<std::string>  fields;
-	fields.push_back("correct");
-	fields.push_back("cOrREct");
-	fields.push_back("correct-special");
-	fields.push_back("correct_special");
-	fields.push_back("correct1digit");
-	fields.push_back("incorrect.char");
-	fields.push_back("incorrect char");
-	fields.push_back("incorrectChar ");
-
-	std::cout << "Test _setName : " << std::endl;
-
-	for (std::vector<std::string>::iterator it = fields.begin(); it != fields.end(); ++it)
-	{
-		std::cout << "- \""<< *it << "\":" << std::endl;
-		try
-		{
-			new_field._setName(*it);
-			std::cout << " -> success: \"" << new_field.getName() << "\"" << std::endl;
-		}
-		catch (std::exception &e)
-		{
-			std::cout << " => not valid" << std::endl;
-		}
-	}
-	std::cout << std::endl;
-}
-
-static void _test_constructor( void )
-{
-	std::vector<std::string>  fields;
-	fields.push_back("correct_name:correct_value");
-	fields.push_back("correct_name: correct_value_spaces ");
-	fields.push_back("correct_name: correct_value_spaces , correct_value1");
-	fields.push_back("incorrect name: correct_value");
-	fields.push_back("name: correct value");
-	fields.push_back("name: incorrect  value");
-	fields.push_back("no_colon");
-	fields.push_back("no_colon correct_value");
-
-	std::cout << "Test _constructor : " << std::endl;
-
-	for (std::vector<std::string>::iterator it = fields.begin(); it != fields.end(); ++it)
-	{
-		std::cout << "- \""<< *it << "\":" << std::endl;
-		try
-		{
-			HttpField new_field(*it);
-			std::cout << " -> success: " << std::endl;
-			std::cout << "  - name: \"" << new_field.getName() << "\"" << std::endl;
-			std::cout << "  - values: ";
-			for (std::vector<std::string>::const_iterator it = new_field.getValues().begin(); it != new_field.getValues().end(); ++it)
-			{
-				std::cout << *it << ", ";
-			}
-			std::cout << std::endl;
-		}
-		catch (std::exception &e)
-		{
-			std::cout << " => not valid" << std::endl;
-		}
-	}
-	std::cout << std::endl;
-}
-
-*/

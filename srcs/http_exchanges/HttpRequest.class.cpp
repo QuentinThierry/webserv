@@ -1,5 +1,9 @@
 #include "HttpRequest.class.hpp"
 
+bool HttpRequest::checkMethod(Location const & location) const
+{
+	return (location.does_accept_method(*getMethod()));
+}
 
 HttpRequest::HttpRequest ( void ) : HttpRequestLine()
 {
@@ -108,7 +112,7 @@ void	HttpRequest::display_request( void ) const
 }
 
 
-std::string &	HttpRequest::getBody( void )
+std::string const &	HttpRequest::getBody( void ) const
 {
 	return (_body);
 }
@@ -117,39 +121,3 @@ void				HttpRequest::addStringToBody( std::string const & extra_body_content)
 {
 	_body += extra_body_content;
 }
-
-
-#if 0
-
-int g_err_log_fd = STDERR_FILENO;
-std::vector<std::string> g_http_methods;
-std::vector<std::string> g_http_versions;
-
-int main()
-{
-	_init_available_http_methods_versions();
-
-	std::string	request_str = "GET ./toto HTTP/0.9\nfield1:value1\nfield2:value2\nfield1: value3";
-	std::stringstream request_stream(request_str);
-
-	HttpRequest	request;
-	try
-	{
-		request.init(request_stream);
-		std::cout << "Success:" << std::endl;
-		request.display_request();
-	}
-	catch (ExceptionHttpStatusCode & e)
-	{
-		std::cout << "Error " << e.get_status_code() << " "
-			<< get_error_reason_phrase(e.get_status_code()) << std::endl;
-	}
-	catch (std::exception & e)
-	{
-		std::cout << "Non http error: " << e.what() << std::endl;
-	}
-
-	return 0;
-}
-
-#endif

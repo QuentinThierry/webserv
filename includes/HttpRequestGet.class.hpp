@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequestGet.class.hpp                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:23:29 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/06 17:56:01 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/15 17:03:48 by jvigny           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,11 +30,14 @@ class HttpRequestGet : public HttpRequest
 		~HttpRequestGet( void );
 		
 
-		void				process_header( void );
-		HttpResponse		generate_response( void );
-		bool				hasBody() const;
+		void			process_header( Socket const * const socket );
+		void			generate_response( Socket const * const socket, HttpResponse &response );
+		bool			hasBody() const;
+		void			readBody(int fd, Socket const * const socket);
 
 	private:
+		void	_initResponse( Socket const * const socket, HttpResponse &response );
+
 		HttpRequestGet( void );
 };
 
