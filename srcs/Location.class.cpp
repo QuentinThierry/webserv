@@ -22,6 +22,8 @@ Location::Location(Location const &ref)
 
 Location &Location::operator=(Location const &ref)
 {
+	if (ref == *this && ref._location_path == _location_path)
+		return *this;
 	_location_path = ref._location_path;
 	_accepted_methods = ref._accepted_methods;
 	_root_path = ref._root_path;
