@@ -22,15 +22,18 @@ Location::Location(Location const &ref)
 
 Location &Location::operator=(Location const &ref)
 {
-	_location_path = ref._location_path;
-	_accepted_methods = ref._accepted_methods;
-	_root_path = ref._root_path;
-	_has_redirect = ref._has_redirect;
-	_redirect = ref._redirect;
-	_default_dir_path = ref._default_dir_path;
-	_has_autoindex = ref._has_autoindex;
-	_can_upload = ref._can_upload;
-	_upload_path = ref._upload_path;
+	if (this != &ref)
+	{
+		_location_path = ref._location_path;
+		_accepted_methods = ref._accepted_methods;
+		_root_path = ref._root_path;
+		_has_redirect = ref._has_redirect;
+		_redirect = ref._redirect;
+		_default_dir_path = ref._default_dir_path;
+		_has_autoindex = ref._has_autoindex;
+		_can_upload = ref._can_upload;
+		_upload_path = ref._upload_path;
+	}
 	return *this;
 }
 
