@@ -17,13 +17,7 @@ void cltr_c(int sig)
 int main(int argc, char **argv)
 {
 	signal(SIGINT, cltr_c);
-	g_http_methods.push_back("GET");
-	g_http_methods.push_back("POST");
-	g_http_methods.push_back("DELETE");
-	g_http_versions.push_back("HTTP");
-	g_http_versions.push_back("HTTP/0.9");
-	g_http_versions.push_back("HTTP/1.0");
-	g_http_versions.push_back("HTTP/1.1");
+	_init_available_http_methods_versions();
 
 	if (argc != 2)
 		return 1;
