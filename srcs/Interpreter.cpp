@@ -154,13 +154,14 @@ Server	interpret_server_loop(std::queue<std::string> &tokens)
 	Server server;
 	Location default_location;
 	
-	default_location.addDefaultDirPath("index.html");
 	server.addLocations(default_location);
 
 	interpret_server_fields(server, tokens);
 	interpret_location_fields(server, tokens);
 	if (server.getHost().empty())
 		ThrowMisc("missing `listen` field");
+	if (server.getDefaultLocation().getDefaultDirPath().empty())
+		server.getDefaultLocation().addDefaultDirPath("index.html");
 	return server;
 }
 
