@@ -38,8 +38,6 @@ HttpRequestGet::~HttpRequestGet( void )
 void			HttpRequestGet::process_header( Socket const * const socket )
 {
 	(void)socket;
-
-	//TODO
 }
 
 bool	HttpRequestGet::hasBody() const
@@ -69,8 +67,12 @@ bool	handle_directory(std::string & uri, Location const & location, HttpResponse
 	std::vector<std::string> index = location.getDefaultDirPath();
 	for (unsigned int i = 0; i < index.size(); i++)
 	{
+		// std::cout << index.at(i) << std::endl;
 		if (access((uri + index.at(i)).c_str(), F_OK) != -1)
 		{
+			// std::cout << "match\n";
+			std::cout << uri <<std::endl;
+			std::cout << uri + index.at(i) << std::endl;
 			uri = uri + index.at(i);
 			return false;
 		}
@@ -81,9 +83,10 @@ bool	handle_directory(std::string & uri, Location const & location, HttpResponse
 
 e_status	handle_file(std::string & uri, HttpResponse & response, Server const & server)
 {
-	if (response.openFstream(uri) == FAILURE)
+	e_status_code error_code = response.openFstream(uri);
+	if (error_code != HTTP_200)
 	{
-		response.generateErrorResponse(HTTP_403, server); //! not sure
+		response.generateErrorResponse(error_code, server);
 		return FAILURE;
 	}
 	return SUCCESS;
@@ -100,7 +103,7 @@ e_status	HttpRequestGet::_initResponse( Socket const * const socket, HttpRespons
 	if (checkMethod(location) == false)
 	{
 		response.addAllowMethod(location.getMethods());
-		response.generateErrorResponse(HTTP_405, socket->getServer());//!send error to client with allow method
+		response.generateErrorResponse(HTTP_405, socket->getServer());
 		return FAILURE;
 	}
 	std::string uri = getUri(location.getRootPath(), getTarget());

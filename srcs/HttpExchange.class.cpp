@@ -162,12 +162,12 @@ void HttpExchange::_handleHeader(int fd, Cluster &cluster)
 	}
 	if (ret == 0)
 	{
+		std::cout << buffer;
 		protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
 					std::string("Error: Missing empty line at the end of the http request from")));
 		_handleError(fd, cluster, HTTP_400); //!send error to client
 		return;
 	}
-	std::cout << buffer << std::endl;
 	_buffer_read += buffer;
 	if (_buffer_read.find("\r\n\r\n") != std::string::npos)
 	{

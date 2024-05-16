@@ -80,12 +80,19 @@ void		HttpResponse::fillHeader()
 	_header += "\r\n";
 }
 
-e_status HttpResponse::openFstream(std::string filename)
+e_status_code HttpResponse::openFstream(std::string filename)
 {
+	if (access(filename.c_str(), F_OK) == -1)
+	{
+		if (errno == ENOENT)
+			return HTTP_404;
+		if (errno == EACCES)
+			return HTTP_403;
+	}
 	_bodyFile.open(filename.c_str());
 	if (_bodyFile.is_open() == false)
 	{
-		return FAILURE;
+		return HTTP_403;
 	}
 	_fileOpen = true;
 	struct stat buffer;
@@ -93,10 +100,10 @@ e_status HttpResponse::openFstream(std::string filename)
 	{
 		_fileOpen = false;
 		_bodyFile.close();
-		return FAILURE;
+		return HTTP_403;
 	}
 	_fields.push_back(HttpField("Content-Length", ft_itoa(buffer.st_size)));
-	return SUCCESS;
+	return HTTP_200;
 }
 
 bool	HttpResponse::checkFieldExistence(std::string const & field_name) const
