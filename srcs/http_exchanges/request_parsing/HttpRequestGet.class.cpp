@@ -38,8 +38,6 @@ HttpRequestGet::~HttpRequestGet( void )
 void			HttpRequestGet::process_header( Socket const * const socket )
 {
 	(void)socket;
-
-	//TODO
 }
 
 bool	HttpRequestGet::hasBody() const
@@ -58,19 +56,23 @@ bool	handle_directory(std::string & uri, Location const & location, HttpResponse
 	int fd = open(uri.c_str(), O_DIRECTORY);
 	if (fd == -1)
 		return false;
-	std::cout << "is directory\n";
 	close(fd);
 	if (location.getHasAutoindex())
 	{
 		//add content-length flags
 		//fill body auto index
+		response.fillHeader();
 		return true; //TODO
 	}
 	std::vector<std::string> index = location.getDefaultDirPath();
 	for (unsigned int i = 0; i < index.size(); i++)
 	{
+		// std::cout << index.at(i) << std::endl;
 		if (access((uri + index.at(i)).c_str(), F_OK) != -1)
 		{
+			// std::cout << "match\n";
+			std::cout << uri <<std::endl;
+			std::cout << uri + index.at(i) << std::endl;
 			uri = uri + index.at(i);
 			return false;
 		}
@@ -79,49 +81,41 @@ bool	handle_directory(std::string & uri, Location const & location, HttpResponse
 	return true;
 }
 
-void	handle_file(std::string & uri, HttpResponse & response, Server const & server)
+e_status	handle_file(std::string & uri, HttpResponse & response, Server const & server)
 {
-	if (response.openFstream(uri) == FAILURE)
+	e_status_code error_code = response.openFstream(uri);
+	if (error_code != HTTP_200)
 	{
-		response.generateErrorResponse(HTTP_403, server); //! not sure
-		return ;
+		response.generateErrorResponse(error_code, server);
+		return FAILURE;
 	}
+	return SUCCESS;
 }
 
-void	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &response )
+e_status	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &response )
 {
 	response.setVersion(getVersion());
 
 	Location location = socket->getServer().searchLocation(getTarget());// get location path
 	//get location cgi if cgi
 	if (response.handle_redirect(location))
-	{
-		std::cout << "redirection\n";
-		return ;
-	}
+		return SUCCESS;
 	if (checkMethod(location) == false)
 	{
-		std::cout << "wrong method\n";
 		response.addAllowMethod(location.getMethods());
-		response.generateErrorResponse(HTTP_405, socket->getServer());//!send error to client with allow method
-		return ;
+		response.generateErrorResponse(HTTP_405, socket->getServer());
+		return FAILURE;
 	}
 	std::string uri = getUri(location.getRootPath(), getTarget());
 	if (handle_directory(uri, location, response, socket->getServer()))
-	{
-		std::cout << "return\n";
-		return ;
-	}
-	handle_file(uri, response, socket->getServer());
-	std::cout << "return file\n";
-	return ;
+		return FAILURE;
+	return handle_file(uri, response, socket->getServer());
 }
 
 void	HttpRequestGet::generate_response( Socket const * const socket, HttpResponse &response )
 {
-	_initResponse(socket, response);
-	response.fillHeader();
-	std::cout << "response\n";
+	if (_initResponse(socket, response) == SUCCESS)
+		response.fillHeader();
 }
 
 void	HttpRequestGet::readBody(int fd, Socket const * const socket)

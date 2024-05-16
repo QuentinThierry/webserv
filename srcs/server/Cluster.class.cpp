@@ -139,14 +139,14 @@ void Cluster::runServer()
 		timeout.tv_sec = 3; // 0
 		timeout.tv_usec = 0;
 		_init_set_fds(&readfds, &writefds, &exceptfds);
-		_print_set(&readfds, "READ");
-		_print_set(&writefds, "WRITE");
-		_print_set(&exceptfds, "EXCEPT");
+		// _print_set(&readfds, "READ");
+		// _print_set(&writefds, "WRITE");
+		// _print_set(&exceptfds, "EXCEPT");
 		std::cout << " ----- SELECT() ---- " << std::endl;
 		int nb_fds = select(_max_fd + 1, &readfds, &writefds, &exceptfds, &timeout);
-		_print_set(&readfds, "READ");
-		_print_set(&writefds, "WRITE");
-		_print_set(&exceptfds, "EXCEPT");
+		// _print_set(&readfds, "READ");
+		// _print_set(&writefds, "WRITE");
+		// _print_set(&exceptfds, "EXCEPT");
 		if (nb_fds == -1)
 			return ; //??
 		if (nb_fds == 0)
@@ -188,7 +188,7 @@ void Cluster::runServer()
 			}
 		}
 		_check_timeout();
-		std::cout << " ----- fin ---- " << std::endl;
+		// std::cout << " ----- fin ---- " << std::endl;
 	}
 }
 
