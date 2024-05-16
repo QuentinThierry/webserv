@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequestPost.class.hpp                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
+/*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:23:29 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/15 16:59:35 by jvigny           ###   ########.fr       */
+/*   Updated: 2024/05/16 15:02:00 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ class HttpRequestPost : public HttpRequest
 		HttpRequestPost( void );
 		void			_setBodyReadType(uint64_t maxClientBody);
 		uint64_t		_getSizeToReadBody(uint64_t maxClientBody) const;
-		int		fd;
+		// int		fd;
 
 		uint64_t _content_length;
 		uint64_t _read_size;

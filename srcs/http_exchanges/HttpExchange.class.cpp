@@ -75,7 +75,7 @@ struct timeval const & HttpExchange::getAcceptRequestTime() const
 
 void HttpExchange::_setRightSocket(Cluster const &cluster)
 {
-	e_status error;
+	// e_status error;
 
 	if (_request->checkFieldExistence("Host") == false)
 	{

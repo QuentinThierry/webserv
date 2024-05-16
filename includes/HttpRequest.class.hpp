@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.class.hpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
+/*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 18:27:23 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/15 17:04:55 by jvigny           ###   ########.fr       */
+/*   Updated: 2024/05/16 14:53:31 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # include "Socket.class.hpp"
 # include "HttpResponseStatus.hpp"
 # include "HttpResponse.class.hpp"
+
 # include <vector>
 
 #define READ_SIZE 20
