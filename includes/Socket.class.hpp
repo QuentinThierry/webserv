@@ -23,10 +23,10 @@ class Socket{
 		Socket(Socket const &copy);
 		Socket &operator=(Socket const &copy);
 		~Socket();
-		int const & getFd() const;
-		struct sockaddr_in const & getAddresse() const;
-		socklen_t const & getSizeAddresse() const;
-		Server const & getServer() const;
+		int const & 				getFd() const;
+		struct sockaddr_in const &	getAddress() const;
+		socklen_t const &			getSizeAddress() const;
+		Server const &				getServer() const;
 	private:
 		Socket();
 		int						_fd;
