@@ -78,14 +78,14 @@ void HttpExchange::_setRightSocket(Cluster const &cluster)
 	if (_request->checkFieldExistence("Host") == false)
 	{
 		protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
-					std::string("Error: Missing 'Host' variable in the http request form")));
+					std::string("Error: Missing 'Host' variable in the http request from")));
 		throw ExceptionHttpStatusCode(HTTP_400); //!send error
 	}
 	std::vector<std::string> const &host_name = _request->getFieldValue("Host");
 	if (host_name.size() != 1)
 	{
 		protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
-					std::string("Error: Invalid format of 'Host' variable in the http request form")));
+					std::string("Error: Invalid format of 'Host' variable in the http request from")));
 		throw ExceptionHttpStatusCode(HTTP_400); //!send error
 	}
 	Socket const *socket = cluster.getMatchingSocket(_socket->getFd(), host_name.at(0));
@@ -128,7 +128,7 @@ void HttpExchange::_initRequest(e_http_method method)
 			break;
 		default:
 			protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
-				std::string("Error: Http method not implemented in request form")));
+				std::string("Error: Http method not implemented in request from")));
 			throw ExceptionHttpStatusCode(HTTP_501);
 	}
 }
@@ -164,7 +164,7 @@ void HttpExchange::_handleHeader(int fd, Cluster &cluster)
 	{
 		std::cout << buffer;
 		protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
-					std::string("Error: Missing empty line at the end of the http request form")));
+					std::string("Error: Missing empty line at the end of the http request from")));
 		_handleError(fd, cluster, HTTP_400); //!send error to client
 		return;
 	}
