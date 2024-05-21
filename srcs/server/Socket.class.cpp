@@ -13,9 +13,12 @@ Socket::~Socket(){};
 
 Socket &Socket::operator=(Socket const &copy)
 {
-	_fd = copy._fd;
-	_addr = copy._addr;
-	_sizeaddr = copy._sizeaddr;
+	if (this != &copy)
+	{
+		_fd = copy._fd;
+		_addr = copy._addr;
+		_sizeaddr = copy._sizeaddr;
+	}
 	return *this;
 }
 

@@ -10,11 +10,14 @@ Cluster::Cluster(Cluster const &copy)
 
 Cluster & Cluster::operator=(Cluster const &copy)
 {
-	_sockets = copy._sockets;
-	_map_sockets = copy._map_sockets;
-	_fd_write = copy._fd_write;
-	_max_fd = copy._max_fd;
-	_close_connection = copy._close_connection;
+	if (this != &copy)
+	{
+		_sockets = copy._sockets;
+		_map_sockets = copy._map_sockets;
+		_fd_write = copy._fd_write;
+		_max_fd = copy._max_fd;
+		_close_connection = copy._close_connection;
+	}
 	return *this;
 }
 
