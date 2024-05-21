@@ -58,9 +58,9 @@ void Cluster::_addServer(Server const &server)
 		Socket new_socket(server);
 		if (new_socket.getFd() == -1)
 			return ;
-		if (new_socket.getFd() > _max_fd)
+		if (new_socket.getFd() > _max_fd && _max_fd < FD_SETSIZE)
 			_max_fd = new_socket.getFd();
-		if (_max_fd >= FD_SETSIZE)
+		if (new_socket.getFd() >= FD_SETSIZE)
 		{
 			close(new_socket.getFd());
 			protected_write(g_err_log_fd, error_message_server(new_socket.getServer(),
@@ -197,21 +197,21 @@ void Cluster::runServer()
 
 void Cluster::_acceptNewConnection(Socket const & socket)
 {
-	int new_fd = accept(socket.getFd(), (sockaddr*)&socket.getAddresse(),
-			(socklen_t*)&socket.getSizeAddresse());
+	int new_fd = accept(socket.getFd(), (sockaddr*)&socket.getAddress(),
+			(socklen_t*)&socket.getSizeAddress());
 	if (new_fd == -1)
 	{
 		protected_write(g_err_log_fd, error_message_server(socket.getServer(),
 					std::string("Error: accept() new connection ") + std::strerror(errno)));
 		return;
 	}
-	if (new_fd > _max_fd)
+	if (new_fd > _max_fd && new_fd < FD_SETSIZE)
 		_max_fd = new_fd;
-	if (_max_fd >= FD_SETSIZE)
+	if (new_fd >= FD_SETSIZE)
 	{
 		close(new_fd);
 		protected_write(g_err_log_fd, error_message_server(socket.getServer(),
-					"Error: Too many servers, igonre new connection to"));
+					"Error: Too many servers, ignore new connection to"));
 		return ;
 	}
 	_map_sockets.push_back(std::make_pair(new_fd, HttpExchange(socket)));
