@@ -67,7 +67,7 @@ void HttpRequestPost::readBody(int fd, Socket const * const socket)
 	if (ret == -1)
 	{
 		protected_write(g_err_log_fd, error_message_server(socket->getServer(),
-					std::string("Error: read() ") + std::strerror(errno)));
+					std::string("Error: read() ") + std::strerror(errno) + "at"));
 		return; //!send error to client
 	}
 	// else if (ret == 0) //EOF
