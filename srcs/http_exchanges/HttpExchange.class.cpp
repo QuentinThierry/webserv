@@ -88,7 +88,7 @@ void HttpExchange::_setRightSocket(Cluster const &cluster)
 					std::string("Error: Invalid format of 'Host' variable in the http request from")));
 		throw ExceptionHttpStatusCode(HTTP_400); //!send error
 	}
-	Socket const *socket = cluster.get_matching_socket(_socket->getFd(), host_name.at(0));
+	Socket const *socket = cluster.getMatchingSocket(_socket->getFd(), host_name.at(0));
 	if (socket != NULL)
 		_socket = socket;
 }
