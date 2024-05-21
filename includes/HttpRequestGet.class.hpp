@@ -6,7 +6,7 @@
 /*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:23:29 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/15 17:03:48 by jvigny           ###   ########.fr       */
+/*   Updated: 2024/05/15 19:37:21 by jvigny           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ class HttpRequestGet : public HttpRequest
 		void			readBody(int fd, Socket const * const socket);
 
 	private:
-		void	_initResponse( Socket const * const socket, HttpResponse &response );
+		e_status	_initResponse( Socket const * const socket, HttpResponse &response );
 
 		HttpRequestGet( void );
 };

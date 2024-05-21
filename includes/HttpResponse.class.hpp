@@ -35,7 +35,7 @@ class HttpResponse
 		void		setStatusCode(e_status_code code);
 		void		setVersion(it_version version);
 		void		addAllowMethod(std::vector<std::string> const &);
-		e_status	openFstream(std::string filename);
+		e_status_code	openFstream(std::string filename);
 		bool		checkFieldExistence(std::string const & field_name) const;
 
 		void		generateErrorResponse(e_status_code status, Server const & server);
