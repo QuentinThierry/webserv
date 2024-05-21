@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpTools.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 19:47:57 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/16 14:01:36 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/21 12:53:29 by jvigny           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -220,4 +220,9 @@ void	throw_http_err_with_log(e_status_code error_code, std::string log_msg)
 {
 	protected_write(g_err_log_fd, log_msg);
 	throw(ExceptionHttpStatusCode(error_code));
+}
+
+std::string	getUri(std::string root, std::string target)
+{
+	return (root + target);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpTools.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 19:43:37 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/16 14:29:15 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/21 12:53:46 by jvigny           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,5 +55,7 @@ e_status	find_end_word(std::string const & str, size_t start_idx,
 				std::string delimiters, size_t &end_idx);
 
 void		throw_http_err_with_log(e_status_code error_code, std::string log_msg);
+
+std::string	getUri(std::string root, std::string target);
 
 #endif

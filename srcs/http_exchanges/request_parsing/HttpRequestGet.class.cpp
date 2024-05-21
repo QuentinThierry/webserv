@@ -45,11 +45,6 @@ bool	HttpRequestGet::hasBody() const
 	return (false);
 }
 
-std::string	getUri(std::string root, std::string target)
-{
-	return (root + target);
-}
-
 bool	handle_directory(std::string & uri, Location const & location, HttpResponse & response, Server const & server)
 {
 	//check if uri is a directory
