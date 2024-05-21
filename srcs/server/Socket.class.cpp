@@ -64,12 +64,12 @@ int const & Socket::getFd() const
 	return _fd;
 }
 
-struct sockaddr_in const & Socket::getAddresse() const
+struct sockaddr_in const & Socket::getAddress() const
 {
 	return _addr;
 }
 
-socklen_t const & Socket::getSizeAddresse() const
+socklen_t const & Socket::getSizeAddress() const
 {
 	return _sizeaddr;
 }

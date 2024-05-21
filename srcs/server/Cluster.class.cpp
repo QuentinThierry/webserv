@@ -39,7 +39,7 @@ Cluster::Cluster(std::vector<Server> servers)
 		_addServer(servers[i]);
 }
 
-Socket const * Cluster::_find_same_config_server(Server const &server) const
+Socket const * Cluster::_findSameConfigServer(Server const &server) const
 {
 	for (t_const_iter_sockets it = _sockets.begin(); it != _sockets.end(); it++)
 	{
@@ -52,19 +52,19 @@ Socket const * Cluster::_find_same_config_server(Server const &server) const
 
 void Cluster::_addServer(Server const &server)
 {
-	Socket const * same_config = _find_same_config_server(server);
+	Socket const * same_config = _findSameConfigServer(server);
 	if (same_config == NULL)
 	{
 		Socket new_socket(server);
 		if (new_socket.getFd() == -1)
 			return ;
-		if (new_socket.getFd() > _max_fd)
+		if (new_socket.getFd() > _max_fd && _max_fd < FD_SETSIZE)
 			_max_fd = new_socket.getFd();
-		if (_max_fd >= FD_SETSIZE)
+		if (new_socket.getFd() >= FD_SETSIZE)
 		{
 			close(new_socket.getFd());
 			protected_write(g_err_log_fd, error_message_server(new_socket.getServer(),
-					"Error: Too many servers, igonre"));
+					"Error: Too many servers, ignore"));
 			return ;
 		}
 		_sockets.push_back(new_socket);
@@ -76,7 +76,7 @@ void Cluster::_addServer(Server const &server)
 	}
 }
 
-void Cluster::_init_set_fds(fd_set *readfds, fd_set *writefds, fd_set *exceptfds) const
+void Cluster::_initSetFds(fd_set *readfds, fd_set *writefds, fd_set *exceptfds) const
 {
 	FD_ZERO(readfds);
 	FD_ZERO(writefds);
@@ -100,7 +100,7 @@ void Cluster::_init_set_fds(fd_set *readfds, fd_set *writefds, fd_set *exceptfds
 	}
 }
 
-void Cluster::_print_set(fd_set *fds, std::string str) const
+void Cluster::_printSet(fd_set *fds, std::string str) const
 {
 	std::cout << str << " SET :" << std::endl;
 	for (t_const_iter_sockets it = _sockets.begin(); it != _sockets.end(); it++)
@@ -116,7 +116,7 @@ void Cluster::_print_set(fd_set *fds, std::string str) const
 	std::cout << "END" << std::endl;
 }
 
-void Cluster::_check_timeout()
+void Cluster::_checkTimeout()
 {
 	struct timeval time;
 
@@ -141,15 +141,15 @@ void Cluster::runServer()
 	{
 		timeout.tv_sec = 3; // 0
 		timeout.tv_usec = 0;
-		_init_set_fds(&readfds, &writefds, &exceptfds);
-		// _print_set(&readfds, "READ");
-		// _print_set(&writefds, "WRITE");
-		// _print_set(&exceptfds, "EXCEPT");
+		_initSetFds(&readfds, &writefds, &exceptfds);
+		// _printSet(&readfds, "READ");
+		// _printSet(&writefds, "WRITE");
+		// _printSet(&exceptfds, "EXCEPT");
 		std::cout << " ----- SELECT() ---- " << std::endl;
 		int nb_fds = select(_max_fd + 1, &readfds, &writefds, &exceptfds, &timeout);
-		// _print_set(&readfds, "READ");
-		// _print_set(&writefds, "WRITE");
-		// _print_set(&exceptfds, "EXCEPT");
+		// _printSet(&readfds, "READ");
+		// _printSet(&writefds, "WRITE");
+		// _printSet(&exceptfds, "EXCEPT");
 		if (nb_fds == -1)
 			return ; //??
 		if (nb_fds == 0)
@@ -190,34 +190,34 @@ void Cluster::runServer()
 				break ;
 			}
 		}
-		_check_timeout();
+		_checkTimeout();
 		// std::cout << " ----- fin ---- " << std::endl;
 	}
 }
 
 void Cluster::_acceptNewConnection(Socket const & socket)
 {
-	int new_fd = accept(socket.getFd(), (sockaddr*)&socket.getAddresse(),
-			(socklen_t*)&socket.getSizeAddresse());
+	int new_fd = accept(socket.getFd(), (sockaddr*)&socket.getAddress(),
+			(socklen_t*)&socket.getSizeAddress());
 	if (new_fd == -1)
 	{
 		protected_write(g_err_log_fd, error_message_server(socket.getServer(),
 					std::string("Error: accept() new connection ") + std::strerror(errno)));
 		return;
 	}
-	if (new_fd > _max_fd)
+	if (new_fd > _max_fd && new_fd < FD_SETSIZE)
 		_max_fd = new_fd;
-	if (_max_fd >= FD_SETSIZE)
+	if (new_fd >= FD_SETSIZE)
 	{
 		close(new_fd);
 		protected_write(g_err_log_fd, error_message_server(socket.getServer(),
-					"Error: Too many servers, igonre new connection to"));
+					"Error: Too many servers, ignore new connection to"));
 		return ;
 	}
 	_map_sockets.push_back(std::make_pair(new_fd, HttpExchange(socket)));
 }
 
-Socket const *Cluster::get_matching_socket(int fd, std::string server_name) const
+Socket const *Cluster::getMatchingSocket(int fd, std::string server_name) const
 {
 	for (t_const_iter_sockets it = _sockets.begin(); it != _sockets.end(); it++)
 	{

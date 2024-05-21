@@ -13,9 +13,10 @@ class HttpExchange{
 		HttpExchange(HttpExchange const &);
 		HttpExchange & operator=(HttpExchange const &);
 		~HttpExchange();
-		void readSocket(int fd, Cluster &cluster);
-		void writeSocket(int fd, Cluster &cluster);
-		struct timeval const & getAcceptRequestTime() const;
+		void 					readSocket(int fd, Cluster &cluster);
+		void 					writeSocket(int fd, Cluster &cluster);
+		struct timeval const &	getAcceptRequestTime() const;
+		
 	private:
 		HttpExchange();
 		Socket const		*_socket;
@@ -24,12 +25,12 @@ class HttpExchange{
 		HttpResponse		_response;
 		struct timeval		_accept_request_time;
 
-		void _initRequest(e_http_method method);
-		void _copyRequest(e_http_method method, HttpRequest const * request);
-		e_http_method _findMethod(std::string const & cmp);
-		void _setRightSocket(Cluster const &cluster);
-		void _handleHeader(int fd, Cluster &cluster);
-		void _handleError(int fd, Cluster &cluster, e_status_code error);
+		void			_initRequest(e_http_method method);
+		void			_copyRequest(e_http_method method, HttpRequest const * request);
+		e_http_method	_findMethod(std::string const & cmp);
+		void			_setRightSocket(Cluster const &cluster);
+		void			_handleHeader(int fd, Cluster &cluster);
+		void			_handleError(int fd, Cluster &cluster, e_status_code error);
 };
 
 #endif
