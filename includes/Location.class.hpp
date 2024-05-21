@@ -19,17 +19,18 @@ class Location
 		Location &operator=(Location const &ref);
 		bool	operator==(Location const &rref) const;
 
-		std::string const &getLocationPath() const;
-		std::vector<std::string> const &getMethods() const;
-		std::vector<std::string> &getMethods();
-		std::string const &getRootPath() const;
-		bool const &getHasRedirect() const;
-		std::pair<t_http_code, std::string> const &getRedirect() const;
-		std::pair<t_http_code, std::string> &getRedirect();
-		std::vector<std::string> const &getDefaultDirPath() const;
-		bool const &getHasAutoindex() const;
-		bool const &getCanUpload() const;
-		std::string const &getUploadPath() const;
+		std::string const &							getLocationPath() const;
+		std::vector<std::string> const &			getMethods() const;
+		std::vector<std::string> &					getMethods();
+		
+		std::string const &							RootPath() const;
+		bool const &								HasRedirect() const;
+		std::pair<t_http_code, std::string> const &	Redirect() const;
+		std::pair<t_http_code, std::string> &		Redirect();
+		std::vector<std::string> const &			DefaultDirPath() const;
+		bool const &								HasAutoindex() const;
+		bool const &								CanUpload() const;
+		std::string const &							UploadPath() const;
 
 		void	setLocationPath(std::string location_path);
 		void	setMethods(std::vector<std::string> methods);
