@@ -31,6 +31,13 @@ Socket::Socket(Server const &server):_server(server)
 					std::string("Error: socket() ") + std::strerror(errno)));
 		return;
 	}
+	const int tmp = 1;
+	if (setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &tmp, sizeof(int)) < 0)
+	{
+		protected_write(g_err_log_fd, error_message_server(server,
+					std::string("Error: setsockopt() ") + std::strerror(errno)));
+		return;
+	}
 	_sizeaddr = sizeof(_addr);
 	memset(&_addr, 0, _sizeaddr);
 	// getsockname(_fd_listening, (sockaddr*)&addr, (socklen_t*)&sizeaddr);
