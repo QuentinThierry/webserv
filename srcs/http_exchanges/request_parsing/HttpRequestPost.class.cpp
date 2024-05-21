@@ -62,7 +62,7 @@ bool HttpRequestPost::hasBody() const
 void HttpRequestPost::readBody(int fd, Socket const * const socket)
 {
 	char buffer[READ_SIZE + 1] = {0};
-	int read_size = _getSizeToReadBody(socket->getServer().getClientmaxBodySize());
+	int read_size = _getSizeToReadBody(socket->getServer().getClientMaxBodySize());
 	int ret = read(fd, buffer, read_size);
 	if (ret == -1)
 	{
@@ -97,7 +97,7 @@ void	HttpRequestPost::process_header(Socket const * const socket)
 	//read body with client_max_body => write in file
 	//check method
 	//check location file to upload file
-	_setBodyReadType(socket->getServer().getClientmaxBodySize());
+	_setBodyReadType(socket->getServer().getClientMaxBodySize());
 	_read_size = getBody().size();
 	//open file to save data
 }

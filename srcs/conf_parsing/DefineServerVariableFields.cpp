@@ -103,10 +103,10 @@ void fill_listen(std::string &token, Server &server, Location *location, unsigne
 		ThrowBadFieldLocation("location", "listen");
 	if (arg_counter != 1)
 		ThrowBadArgumentNumber("listen", 1, arg_counter > 1);
-	if (server._gethasListen() == true)
+	if (server._getHasListen() == true)
 		ThrowMisc("Too much listen arguments");
 	_parse_listen_argument(token, server);
-	server._sethasListen(true);
+	server._setHasListen(true);
 }
 
 void fill_server_name(std::string &token, Server &server, Location *location, unsigned int arg_counter)
@@ -193,11 +193,11 @@ void	_parse_client_max_body_size_argument(std::string &token, Server &server)
 		ThrowMisc("client_max_body_size value is incorrect");
 	value = std::atol(token.c_str());
 	if (unit == 'b')
-		server.setClientmaxBodySize(value);
+		server.setClientMaxBodySize(value);
 	else if (unit == 'k')
-		server.setClientmaxBodySize(value * 1024);
+		server.setClientMaxBodySize(value * 1024);
 	else if (unit == 'm')
-		server.setClientmaxBodySize(value * 1024 * 1024);
+		server.setClientMaxBodySize(value * 1024 * 1024);
 }
 
 

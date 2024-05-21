@@ -73,7 +73,7 @@ void	print_server(Server &server)
 	for (std::map<t_http_code, std::string>::iterator it = server.getErrorPagePath().begin(); it != server.getErrorPagePath().end(); it++) {
 		std::cout << "\t" << it->first << " " << it->second << std::endl;
 	}
-	std::cout << "Client mbs : " << server.getClientmaxBodySize() << std::endl;
+	std::cout << "Client mbs : " << server.getClientMaxBodySize() << std::endl;
 
 	for (unsigned int i = 0; i < server.getLocations().size(); i++) {
 		Location const &loc = server.getLocations()[i];

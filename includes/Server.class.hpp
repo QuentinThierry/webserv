@@ -19,12 +19,12 @@ class Server
 		std::vector<std::string> &getServerName();
 		std::map<t_http_code, std::string> const &getErrorPagePath() const;
 		std::map<t_http_code, std::string> &getErrorPagePath();
-		uint64_t const &getClientmaxBodySize() const;
+		uint64_t const &getClientMaxBodySize() const;
 		std::vector<Location> const &getLocations() const;
 		std::vector<CgiLocation> const &getCgiLocations() const;
 		Location &getDefaultLocation();
 		Location const &getDefaultLocation() const;
-		bool const &_gethasListen() const;
+		bool const &_getHasListen() const;
 
 		void	setHost(std::string host);
 		void	setHostUint(uint32_t host_uint);
@@ -33,11 +33,11 @@ class Server
 		void	setPort(t_port port);
 		void	setErrorPagePath(std::map<t_http_code, std::string> error_page_path);
 		void	addErrorPagePath(t_http_code http_code, std::string path);
-		void	setClientmaxBodySize(uint64_t client_max_body_size);
+		void	setClientMaxBodySize(uint64_t client_max_body_size);
 		void	setLocations(std::vector<Location> locations);
 		void	addLocations(Location location);
 		void	addCgiLocation(CgiLocation cgi_loc);
-		void	_sethasListen(bool has_listen);
+		void	_setHasListen(bool has_listen);
 
 		bool	is_equal(Server const &ref) const;
 
