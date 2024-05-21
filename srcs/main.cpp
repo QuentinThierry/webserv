@@ -1,112 +1,54 @@
-#include "ConfParser.hpp"
-#include <arpa/inet.h>
-#include <signal.h>
-#include "Cluster.class.hpp"
-#include "HttpTools.hpp"
-void	print_server(Server &server);
+#include "Cgi.class.hpp"
 
-int const	g_err_log_fd = STDERR_FILENO;
-std::vector<std::string>	g_http_methods;
-std::vector<std::string>	g_http_versions;
+#define INFILE "infile"
+#define OUTFILE "outfile"
+#define COMMAND "./cgi.cgi"
+#define ARGS NULL
 
-void cltr_c(int sig)
+void	set_fds(fd_set *readfds, fd_set *writefds, fd_set *exceptfds, Cgi &cgi, int *max_fd)
 {
-	(void)sig;
+	FD_ZERO(readfds);
+	FD_ZERO(writefds);
+	FD_ZERO(exceptfds);
+	FD_SET(cgi.getReadPipe(), readfds);
+	FD_SET(cgi.getWritePipe(), writefds);
+
+	*max_fd = std::max(cgi.getWritePipe(), cgi.getReadPipe()) + 1;
 }
 
-int main(int argc, char **argv)
+int main()
 {
-	signal(SIGINT, cltr_c);
-	g_http_methods.push_back("GET");
-	g_http_methods.push_back("POST");
-	g_http_methods.push_back("DELETE");
-	g_http_versions.push_back("HTTP");
-	g_http_versions.push_back("HTTP/0.9");
-	g_http_versions.push_back("HTTP/1.0");
-	g_http_versions.push_back("HTTP/1.1");
+	std::ifstream stream;
 
-	if (argc != 2)
-		return 1;
+	stream.open("infile");
 
-	std::fstream s;
+	Cgi cgi(COMMAND, stream);
 
-	s.open(argv[1], std::ios::in);
-	if (!s.is_open())
+	fd_set readfds;
+	fd_set writefds;
+	fd_set exceptfds;
+	int test = 0;
+
+	while (true)
 	{
-		std::cout << "Failed to open '" << argv[1] << "'" << std::endl;
-		return 0;
-	}
-	try
-	{
-		std::queue<std::string> tokens;
-		tokenize_file(s, tokens);
-		s.close();
-		parse_tokens(tokens);
-		std::vector<Server> servers;
-		interpret_tokens(tokens, servers);
-		for (unsigned int i = 0; i < servers.size(); i++) {
-			print_server(servers[i]);
+		int max_fd;
+		struct timeval time = {1,0};
+		set_fds(&readfds, &writefds, &exceptfds, cgi, &max_fd);
+		int nb_fds = select(max_fd, &readfds, &writefds, NULL, &time);
+
+		if (nb_fds != 0)
+		{
+			if (FD_ISSET(cgi.getReadPipe(), &readfds))
+			{
+				cgi.read();
+			}
+			if (FD_ISSET(cgi.getWritePipe(), &writefds))
+			{
+				if (test == 1)
+					continue;
+				if (cgi.write() == 1)
+					test = 1;
+			}
 		}
-		Cluster web_server(servers);
-		web_server.runServer();
 	}
-	catch (std::exception &e)
-	{
-		std::cout << e.what() << std::endl;
-	}
-}
-
-void	_print_real_host_val(std::string const &host)
-{
-	struct sockaddr_in addr;
-
-	inet_aton(host.c_str(), &addr.sin_addr);
-
-	std::cout << " (should be " << ntohl(addr.sin_addr.s_addr) << ")" << std::endl;
-}
-
-void	print_server(Server &server)
-{
-	std::cout << "Host : " << server.getHost() << std::endl;
-	std::cout << "Host uint : " << server.getHostUint();
-	_print_real_host_val(server.getHost());
-	std::cout << "Port : " << server.getPort() << std::endl;
-	std::cout << "Server_names : " << std::endl;
-	for (unsigned int i = 0; i < server.getServerName().size(); i++) {
-		std::cout << "\t" << server.getServerName()[i] << std::endl;
-	}
-	std::cout << "Error path : " << std::endl;
-	for (std::map<t_http_code, std::string>::iterator it = server.getErrorPagePath().begin(); it != server.getErrorPagePath().end(); it++) {
-		std::cout << "\t" << it->first << " " << it->second << std::endl;
-	}
-	std::cout << "Client mbs : " << server.getClientmaxBodySize() << std::endl;
-
-	for (unsigned int i = 0; i < server.getLocations().size(); i++) {
-		Location const &loc = server.getLocations()[i];
-
-		std::cout << "Location path : " << loc.getLocationPath() << std::endl;
-		std::cout << "\tMethods : " << std::endl;
-		for (unsigned int j = 0; j < loc.getMethods().size(); j++) {
-			std::cout << "\t\t" << loc.getMethods()[j] << std::endl;
-		}
-		std::cout << "\tRoot path : " << loc.getRootPath() << std::endl;
-		std::cout << "\tHas redirect : " << loc.getHasRedirect() << std::endl;
-		std::cout << "\tRedirect path : " << loc.getRedirect().first << " " << loc.getRedirect().second << std::endl;
-		std::cout << "\tDefault dir path : " << std::endl;
-		for (unsigned int j = 0; j < loc.getDefaultDirPath().size(); j++) {
-			std::cout << "\t\t" << loc.getDefaultDirPath()[j] << std::endl;
-		}
-		std::cout << "\tHas autoindex : " << loc.getHasAutoindex() << std::endl;
-		std::cout << "\tCan upload ? : " << loc.getCanUpload() << std::endl;
-		std::cout << "\tUpload dir : " << loc.getUploadPath() << std::endl;
-	}
-
-	for (unsigned int i = 0; i < server.getCgiLocations().size(); i++)
-	{
-		std::cout << "CGI_location : " << std::endl;
-		CgiLocation const &cgi_loc = server.getCgiLocations()[i];
-		std::cout << "\tExtension : " << cgi_loc.getExtension() << std::endl;
-		std::cout << "\tExec path : " << cgi_loc.getExecPath() << std::endl;
-	}
-	std::cout << std::endl;
 }
