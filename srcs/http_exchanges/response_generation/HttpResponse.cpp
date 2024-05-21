@@ -57,6 +57,12 @@ void	HttpResponse::setStatusCode(e_status_code code)
 	_status_code = code;
 }
 
+void	HttpResponse::addField(std::string name, std::string value)
+{
+	HttpField tmp(name, value);
+	_fields.push_back(tmp);
+}
+
 bool	HttpResponse::handle_redirect(Location const & location)
 {
 	if (location.getHasRedirect())
@@ -190,12 +196,15 @@ void HttpResponse::writeResponse(int fd, Cluster &cluster)
 	int ret = write(fd, buffer.c_str(), buffer.size());
 	if (ret == -1 || ret == 0)
 	{
+		std::cout << "error\n";
 		if (_fileOpen == true)
 			_bodyFile.close();
 		cluster.closeConnection(fd);
+		return ;
 	}
 	if (_header.empty() && _body.empty() && _fileOpen == false)
 	{
+		std::cout << "end\n";
 		if (_fileOpen == true)
 			_bodyFile.close();
 		cluster.closeConnection(fd);

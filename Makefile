@@ -77,7 +77,7 @@ run : all
 	./$(NAME) $(ARGS)
 
 test : all
-	valgrind --show-leak-kinds=all --leak-check=full --track-origins=yes -s ./$(NAME) $(ARGS)
+	valgrind --show-leak-kinds=all --leak-check=full --track-origins=yes --track-fds=yes -s ./$(NAME) $(ARGS)
 
 -include $(DEPS)
 

@@ -38,9 +38,9 @@ int main(int argc, char **argv)
 		parse_tokens(tokens);
 		std::vector<Server> servers;
 		interpret_tokens(tokens, servers);
-		for (unsigned int i = 0; i < servers.size(); i++) {
-			print_server(servers[i]);
-		}
+		// for (unsigned int i = 0; i < servers.size(); i++) {
+		// 	print_server(servers[i]);
+		// }
 		Cluster web_server(servers);
 		web_server.runServer();
 	}
