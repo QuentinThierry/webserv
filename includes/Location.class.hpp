@@ -45,7 +45,7 @@ class Location
 
 		bool		isEmptyLocation(Location &default_location) const;
 		bool		doesAcceptMethod(std::string method) const;
-
+		e_status	updateUriToIndex(std::string & uri) const;
 
 	private:
 		std::string							_location_path;

@@ -1,6 +1,5 @@
 #include "HttpRequestGet.class.hpp"
 #include <sys/stat.h>
-#include <fcntl.h>
 
 HttpRequestGet::HttpRequestGet (std::string const & str_request)
 	throw (ExceptionHttpStatusCode)
@@ -47,11 +46,6 @@ bool	HttpRequestGet::hasBody() const
 
 bool	handle_directory(std::string & uri, Location const & location, HttpResponse & response, Server const & server)
 {
-	//check if uri is a directory
-	int fd = open(uri.c_str(), O_DIRECTORY);
-	if (fd == -1)
-		return false;
-	close(fd);
 	if (location.getHasAutoindex())
 	{
 		//add content-length flags
@@ -59,19 +53,8 @@ bool	handle_directory(std::string & uri, Location const & location, HttpResponse
 		response.fillHeader();
 		return true; //TODO
 	}
-	std::vector<std::string> index = location.getDefaultDirPath();
-	for (unsigned int i = 0; i < index.size(); i++)
-	{
-		// std::cout << index.at(i) << std::endl;
-		if (access((uri + index.at(i)).c_str(), F_OK) != -1)
-		{
-			// std::cout << "match\n";
-			std::cout << uri <<std::endl;
-			std::cout << uri + index.at(i) << std::endl;
-			uri = uri + index.at(i);
-			return false;
-		}
-	}
+	if (location.updateUriToIndex(uri) == SUCCESS)
+		return false;
 	response.generateErrorResponse(HTTP_403, server);
 	return true;
 }
@@ -95,15 +78,19 @@ e_status	HttpRequestGet::_initResponse( Socket const * const socket, HttpRespons
 	//get location cgi if cgi
 	if (response.handle_redirect(location))
 		return SUCCESS;
-	if (checkMethod(location) == false)
+	if (isAcceptedMethod(location) == false)
 	{
 		response.addAllowMethod(location.getMethods());
 		response.generateErrorResponse(HTTP_405, socket->getServer());
 		return FAILURE;
 	}
 	std::string uri = getUri(location.getRootPath(), getTarget());
-	if (handle_directory(uri, location, response, socket->getServer()))
-		return FAILURE;
+	if (is_accessible_directory(uri.c_str()))
+	{
+		if (handle_directory(uri, location, response, socket->getServer()))
+			return FAILURE;
+
+	}
 	return handle_file(uri, response, socket->getServer());
 }
 

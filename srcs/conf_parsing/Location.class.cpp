@@ -88,3 +88,22 @@ bool	Location::doesAcceptMethod(std::string method) const
 		return true;
 	return false;
 }
+
+e_status	Location::updateUriToIndex(std::string & uri) const
+{
+	std::vector<std::string> index = getDefaultDirPath();
+	for (unsigned int i = 0; i < index.size(); i++)
+	{
+		// std::cout << index.at(i) << std::endl;
+		if (access((uri + index.at(i)).c_str(), F_OK) != -1)
+		{
+			// std::cout << "match\n";
+			std::cout << uri <<std::endl;
+			std::cout << uri + index.at(i) << std::endl;
+			uri = uri + index.at(i);
+			return (SUCCESS);
+		}
+	}
+	return (FAILURE);
+}
+
