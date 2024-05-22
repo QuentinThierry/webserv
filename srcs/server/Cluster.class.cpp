@@ -1,5 +1,5 @@
 #include "Cluster.class.hpp"
-#include "util.hpp"
+#include "utils.hpp"
 
 Cluster::Cluster():_max_fd(0), _close_connection(false){};
 
@@ -162,6 +162,7 @@ void Cluster::runServer()
 			{
 				std::cout << "new connection" << std::endl;
 				_acceptNewConnection(*it);
+				break;
 			}
 		}
 		for (unsigned int i = 0; i < _map_sockets.size() + (_close_connection == true); i++)

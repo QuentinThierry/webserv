@@ -42,56 +42,53 @@ void			HttpRequestDelete::process_header( Socket const * const socket )
 	//TODO
 }
 
-bool	remove_directory(std::string & uri, HttpResponse & response, Server const & server)
+bool	remove_directory(std::string & uri)
 {
 	int fd = open(uri.c_str(), O_DIRECTORY);
 	if (fd == -1)
 		return false;
 	close(fd);
 	//remove dir
-	response.generateErrorResponse(HTTP_403, server);
+	throw ExceptionHttpStatusCode(HTTP_403);
 	return true;
 }
 
-e_status	remove_file(std::string & uri, HttpResponse & response, Server const & server)
+void	remove_file(std::string & uri)
 {
 	if (remove(uri.c_str()) != 0)
 	{
 		if (errno == ENOENT)
-			response.generateErrorResponse(HTTP_404, server);
+			throw ExceptionHttpStatusCode(HTTP_404);
 		else
-			response.generateErrorResponse(HTTP_403, server);
-		return FAILURE;
+			throw ExceptionHttpStatusCode(HTTP_403);
 	}
-	return SUCCESS;
 }
 
-e_status	HttpRequestDelete::_initResponse( Socket const * const socket, HttpResponse &response )
+void	HttpRequestDelete::_initResponse( Socket const * const socket, HttpResponse &response )
 {
 	response.setVersion(getVersion());
 	response.setStatusCode(HTTP_204);
 
 	Location location = socket->getServer().searchLocation(getTarget());// get location path
 	if (response.handle_redirect(location))
-		return SUCCESS;
+		return ;
 	if (checkMethod(location) == false)
 	{
 		response.addAllowMethod(location.getMethods());
-		response.generateErrorResponse(HTTP_405, socket->getServer());
-		return FAILURE;
+		throw ExceptionHttpStatusCode(HTTP_405);
+		return ;
 	}
 	std::string uri = getUri(location.getRootPath(), getTarget());
 	response.addField("Content-Length", "0");
-	// if (remove_directory(uri, response, socket->getServer()))
+	// if (remove_directory(uri))
 	// 	return FAILURE;
-	return remove_file(uri, response, socket->getServer());
+	remove_file(uri);
 }
 
 void	HttpRequestDelete::generate_response( Socket const * const socket, HttpResponse &response )
 {
-	if (_initResponse(socket, response) == SUCCESS)
-		response.fillHeader();
-	return ;
+	_initResponse(socket, response);
+	response.fillHeader();
 }
 
 bool	HttpRequestDelete::hasBody() const

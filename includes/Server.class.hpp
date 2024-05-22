@@ -12,19 +12,19 @@ class Server
 {
 	public:
 		Server();
-		std::string const &getHost() const;
-		uint32_t const &getHostUint() const;
-		t_port const &getPort() const;
-		std::vector<std::string> const &getServerName() const;
-		std::vector<std::string> &getServerName();
-		std::map<t_http_code, std::string> const &getErrorPagePath() const;
-		std::map<t_http_code, std::string> &getErrorPagePath();
-		uint64_t const &getClientMaxBodySize() const;
-		std::vector<Location> const &getLocations() const;
-		std::vector<CgiLocation> const &getCgiLocations() const;
-		Location &getDefaultLocation();
-		Location const &getDefaultLocation() const;
-		bool const &_getHasListen() const;
+		std::string const &							getHost() const;
+		uint32_t const &							getHostUint() const;
+		t_port const &								getPort() const;
+		std::vector<std::string> const &			getServerName() const;
+		std::vector<std::string> &					getServerName();
+		std::map<t_http_code, std::string> const &	getErrorPagePath() const;
+		std::map<t_http_code, std::string> &		getErrorPagePath();
+		uint64_t const &							getClientMaxBodySize() const;
+		std::vector<Location> const &				getLocations() const;
+		std::vector<CgiLocation> const &			getCgiLocations() const;
+		Location &									getDefaultLocation();
+		Location const &							getDefaultLocation() const;
+		bool const &								getHasListen() const;
 
 		void	setHost(std::string host);
 		void	setHostUint(uint32_t host_uint);
