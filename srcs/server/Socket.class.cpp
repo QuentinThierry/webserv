@@ -1,5 +1,5 @@
 #include "Socket.class.hpp"
-#include "util.hpp"
+#include "utils.hpp"
 
 Socket::Socket(): _fd(-1), _addr(), _sizeaddr(sizeof(_addr)), _server(){}
 

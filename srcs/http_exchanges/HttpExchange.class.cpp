@@ -5,7 +5,7 @@
 #include "HttpRequestDelete.class.hpp"
 
 #include "Cluster.class.hpp"
-#include "util.hpp"
+#include "utils.hpp"
 
 #include <cstdlib>
 
