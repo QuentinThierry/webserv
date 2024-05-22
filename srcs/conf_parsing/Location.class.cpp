@@ -98,8 +98,8 @@ e_status	Location::updateUriToIndex(std::string & uri) const
 		if (access((uri + index.at(i)).c_str(), F_OK) != -1)
 		{
 			// std::cout << "match\n";
-			std::cout << uri <<std::endl;
-			std::cout << uri + index.at(i) << std::endl;
+			// std::cout << uri <<std::endl;
+			// std::cout << uri + index.at(i) << std::endl;
 			uri = uri + index.at(i);
 			return (SUCCESS);
 		}

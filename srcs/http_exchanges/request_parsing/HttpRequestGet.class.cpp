@@ -44,7 +44,7 @@ bool	HttpRequestGet::hasBody() const
 	return (false);
 }
 
-bool	handle_directory(std::string & uri, Location const & location, HttpResponse & response, Server const & server)
+bool	handle_directory(std::string & uri, Location const & location, HttpResponse & response)
 {
 	if (location.getHasAutoindex())
 	{
@@ -55,49 +55,43 @@ bool	handle_directory(std::string & uri, Location const & location, HttpResponse
 	}
 	if (location.updateUriToIndex(uri) == SUCCESS)
 		return false;
-	response.generateErrorResponse(HTTP_403, server);
-	return true;
+	throw ExceptionHttpStatusCode(HTTP_403);
 }
 
-e_status	handle_file(std::string & uri, HttpResponse & response, Server const & server)
+void	handle_file(std::string & uri, HttpResponse & response)
 {
 	e_status_code error_code = response.openFstream(uri);
 	if (error_code != HTTP_200)
 	{
-		response.generateErrorResponse(error_code, server);
-		return FAILURE;
+		throw ExceptionHttpStatusCode(error_code);
 	}
-	return SUCCESS;
 }
 
-e_status	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &response )
+void	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &response )
 {
 	response.setVersion(getVersion());
 
 	Location location = socket->getServer().searchLocation(getTarget());// get location path
 	//get location cgi if cgi
 	if (response.handle_redirect(location))
-		return SUCCESS;
+		return ;
 	if (isAcceptedMethod(location) == false)
 	{
 		response.addAllowMethod(location.getMethods());
-		response.generateErrorResponse(HTTP_405, socket->getServer());
-		return FAILURE;
+		throw ExceptionHttpStatusCode(HTTP_405);
+		return ;
 	}
 	std::string uri = getUri(location.getRootPath(), getTarget());
 	if (is_accessible_directory(uri.c_str()))
-	{
-		if (handle_directory(uri, location, response, socket->getServer()))
-			return FAILURE;
-
-	}
-	return handle_file(uri, response, socket->getServer());
+		if (handle_directory(uri, location, response))
+			return ;
+	handle_file(uri, response);
 }
 
 void	HttpRequestGet::generate_response( Socket const * const socket, HttpResponse &response )
 {
-	if (_initResponse(socket, response) == SUCCESS)
-		response.fillHeader();
+	_initResponse(socket, response);
+	response.fillHeader();
 }
 
 void	HttpRequestGet::readBody(int fd, Socket const * const socket)
