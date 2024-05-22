@@ -27,27 +27,40 @@ HttpRequestPost::HttpRequestPost (std::string const & str_request)
 
 	_add_body_from_request_stream(_body, stream_request);
 
-
-
-	//TODO you can complete the body with socket read read here or using addStringToBody outside of the constructor
-
-
+	_content_length = 0;
+	_read_size = 0;
+	_chunk_body_flags = false;
+	_content_length_flags = false;
 }
 
 HttpRequestPost::HttpRequestPost ( HttpRequestPost const & model)
 	: HttpRequest(model)
 {
+	_content_length = 0;
+	_read_size = 0;
+	_chunk_body_flags = false;
+	_content_length_flags = false;
 }
 
 HttpRequestPost & HttpRequestPost::operator= (HttpRequestPost const & model)
 {
 	if (&model != this)
+	{
 		HttpRequest::operator=(model);
+		_content_length = model._content_length;
+		_read_size = model._read_size;
+		_chunk_body_flags = model._chunk_body_flags;
+		_content_length_flags = model._content_length_flags;
+	}
 	return (*this);
 }
 
 HttpRequestPost::HttpRequestPost( void ) //unused
 {
+	_content_length = 0;
+	_read_size = 0;
+	_chunk_body_flags = false;
+	_content_length_flags = false;
 }
 
 HttpRequestPost::~HttpRequestPost( void )
@@ -92,11 +105,17 @@ uint64_t HttpRequestPost::_getSizeToReadBody(uint64_t max_boby_client) const
 
 void	HttpRequestPost::process_header(Socket const * const socket)
 {
-	//check if method accept
-	//check location for cgi
-	//read body with client_max_body => write in file
-	//check method
-	//check location file to upload file
+	Location location = socket->getServer().searchLocation(getTarget());
+	// if (location.getHasRedirect())
+	// 	return ;
+	// if (checkMethod(location) == false)
+	// 	return ;
+	// if (!location.getCanUpload())
+	// 	return ;
+	std::string uri = getUri(location.getUploadPath(), getTarget()); //! ou root
+	std::cout << uri << std::endl;
+	if (access(uri.c_str(), F_OK) < 0 && errno != ENOENT)
+		throw ExceptionHttpStatusCode(HTTP_409); //!send response
 	_setBodyReadType(socket->getServer().getClientMaxBodySize());
 	_read_size = getBody().size();
 	//open file to save data
@@ -104,8 +123,6 @@ void	HttpRequestPost::process_header(Socket const * const socket)
 
 void HttpRequestPost::_setBodyReadType(uint64_t maxClientBody)
 {
-	_chunk_body_flags = false;
-	_content_length_flags = false;
 	if (checkFieldExistence("Transfer-Encoding") == true)
 	{
 		std::vector<std::string> const &encoding = getFieldValue("Transfer-Encoding");
@@ -114,7 +131,7 @@ void HttpRequestPost::_setBodyReadType(uint64_t maxClientBody)
 		_chunk_body_flags = true;
 		return ;
 	}
-	if (checkFieldExistence("Transfer-Encoding") == true)
+	if (checkFieldExistence("Content-Length") == true)
 	{
 		std::vector<std::string> const &content_length = getFieldValue("Content-Length");
 		if (content_length.size() != 1)
