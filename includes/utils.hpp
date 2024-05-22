@@ -1,5 +1,5 @@
-#ifndef UTIL_HPP
-# define UTIL_HPP
+#ifndef UTILS_HPP
+# define UTILS_HPP
 # include "Server.class.hpp"
 # include "Shared.hpp"
 # include <cstdio>

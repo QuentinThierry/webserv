@@ -1,5 +1,5 @@
 #include "Cluster.class.hpp"
-#include "util.hpp"
+#include "utils.hpp"
 
 Cluster::Cluster():_max_fd(0), _close_connection(false){};
 
