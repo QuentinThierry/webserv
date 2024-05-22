@@ -75,14 +75,14 @@ void	Location::setHasAutoindex(bool has_auto_index){this->_has_autoindex = has_a
 void	Location::setCanUpload(bool can_upload) {this->_can_upload = can_upload;}
 void	Location::setUploadPath(std::string upload_path) {this->_upload_path = upload_path;}
 
-bool	Location::is_empty_location(Location &default_location) const
+bool	Location::isEmptyLocation(Location &default_location) const
 {
 	if (*this == default_location)
 		return true;
 	return false;
 }
 
-bool	Location::does_accept_method(std::string method) const
+bool	Location::doesAcceptMethod(std::string method) const
 {
 	if (std::find(this->getMethods().begin(), this->getMethods().end(), method) != this->getMethods().end())
 		return true;

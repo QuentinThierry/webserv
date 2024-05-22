@@ -74,7 +74,7 @@ e_status	HttpRequestDelete::_initResponse( Socket const * const socket, HttpResp
 	Location location = socket->getServer().searchLocation(getTarget());// get location path
 	if (response.handle_redirect(location))
 		return SUCCESS;
-	if (checkMethod(location) == false)
+	if (isAcceptedMethod(location) == false)
 	{
 		response.addAllowMethod(location.getMethods());
 		response.generateErrorResponse(HTTP_405, socket->getServer());

@@ -3,18 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequestGet.class.hpp                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
+/*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:23:29 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/15 19:37:21 by jvigny           ###   ########.fr       */
+/*   Updated: 2024/05/22 15:23:33 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef HTTPREQUESTGET_CLASS_HPP
 # define HTTPREQUESTGET_CLASS_HPP
 
-# include "HttpTools.hpp"
 # include "HttpRequest.class.hpp"
+# include "HttpTools.hpp"
 
 # define MSG_ERR_HTTPGET_SSTREAM_FAIL "ERROR: internal: stringstream failure in the get request construction"
 # define MSG_ERR_HTTPGET_WRONG_METHOD "ERROR: internal: call to the wrong HTTP method constructor (GET)"
