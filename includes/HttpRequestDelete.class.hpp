@@ -35,7 +35,7 @@ class HttpRequestDelete : public HttpRequest
 		void				readBody(int fd, Socket const * const socket);
 
 	private:
-		e_status	_initResponse( Socket const * const socket, HttpResponse &response );
+		void	_initResponse( Socket const * const socket, HttpResponse &response );
 		HttpRequestDelete( void );
 };
 # endif
