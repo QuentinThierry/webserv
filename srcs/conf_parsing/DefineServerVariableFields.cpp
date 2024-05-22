@@ -103,7 +103,7 @@ void fill_listen(std::string &token, Server &server, Location *location, unsigne
 		ThrowBadFieldLocation("location", "listen");
 	if (arg_counter != 1)
 		ThrowBadArgumentNumber("listen", 1, arg_counter > 1);
-	if (server._getHasListen() == true)
+	if (server.getHasListen() == true)
 		ThrowMisc("Too much listen arguments");
 	_parse_listen_argument(token, server);
 	server._setHasListen(true);

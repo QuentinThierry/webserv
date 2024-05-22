@@ -36,7 +36,7 @@ Location 									&Server::getDefaultLocation()
 													{return this->_locations[0];}
 Location const 								&Server::getDefaultLocation() const
 													{return this->_locations[0];}
-bool const 									&Server::_getHasListen() const
+bool const 									&Server::getHasListen() const
 													{return this->__has_listen;}
 
 void	Server::setHost(std::string host)
