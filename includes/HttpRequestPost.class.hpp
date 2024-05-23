@@ -22,6 +22,7 @@ class HttpRequestPost : public HttpRequest
 
 	private:
 		HttpRequestPost( void );
+		void	_initResponse( Socket const * const socket, HttpResponse &response );
 		void			_setBodyReadType(uint64_t maxClientBody);
 		uint64_t		_getSizeToReadBody(uint64_t maxClientBody) const;
 		void			_openFile();

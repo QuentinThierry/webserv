@@ -145,7 +145,7 @@ void	HttpRequestPost::process_header(Socket const * const socket)
 	if (checkMethod(location) == false)
 		return ;
 	if (!location.getCanUpload())
-		return ;
+		throw ExceptionHttpStatusCode(HTTP_403); //!not sure
 	_filename = getUri(location.getUploadPath(), getTarget()); //! ou root
 	if (access(_filename.c_str(), F_OK) == 0)
 		throw ExceptionHttpStatusCode(HTTP_409);
@@ -185,25 +185,25 @@ void HttpRequestPost::_setBodyReadType(uint64_t maxClientBody)
 	}
 }
 
-// void	HttpRequestPost::_initResponse( Socket const * const socket, HttpResponse &response )
-// {
-// 	response.setVersion(getVersion());
+void	HttpRequestPost::_initResponse( Socket const * const socket, HttpResponse &response )
+{
+	response.setVersion(getVersion());
+	response.setStatusCode(HTTP_201);
 
-// 	Location location = socket->getServer().searchLocation(getTarget());// get location path
-// 	//get location cgi if cgi
-// 	if (response.handle_redirect(location))
-// 		return ;
-// 	if (checkMethod(location) == false)
-// 	{
-// 		response.addAllowMethod(location.getMethods());
-// 		throw ExceptionHttpStatusCode(HTTP_405);
-// 	}
-// }
+	Location location = socket->getServer().searchLocation(getTarget());
+	if (response.handle_redirect(location))
+		return ;
+	if (checkMethod(location) == false)
+	{
+		response.addAllowMethod(location.getMethods());
+		throw ExceptionHttpStatusCode(HTTP_405);
+	}
+	response.addField("Content-Length", "0");
+	//add location with uri;
+}
 
 void	HttpRequestPost::generate_response( Socket const * const socket, HttpResponse &response )
 {
-	(void)socket;
-	(void)response;
-	// _initResponse(socket, response);
-	// response.fillHeader();
+	_initResponse(socket, response);
+	response.fillHeader();
 }
