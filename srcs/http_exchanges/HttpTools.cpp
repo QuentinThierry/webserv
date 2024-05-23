@@ -6,7 +6,7 @@
 /*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 19:47:57 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/21 12:53:29 by jvigny           ###   ########.fr       */
+/*   Updated: 2024/05/23 14:03:59 by jvigny           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -224,5 +224,9 @@ void	throw_http_err_with_log(e_status_code error_code, std::string log_msg)
 
 std::string	getUri(std::string root, std::string target)
 {
-	return (root + target);
+	std::string uri = root + target;
+	size_t pos = uri.find_first_of('?');
+	if (pos != std::string::npos)
+		uri = uri.substr(0, pos);
+	return (uri);
 }

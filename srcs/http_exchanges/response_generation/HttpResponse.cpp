@@ -170,11 +170,10 @@ void	HttpResponse::generateErrorResponse(e_status_code status, Server const & se
 
 void HttpResponse::writeResponse(int fd, Cluster &cluster)
 {
-	std::string buffer;
-
+	int ret = 0;
 	if (_header.empty() == false)
 	{
-		buffer = _header;
+		ret = write(fd, _header.c_str(), _header.size());
 		_header.clear();
 	}
 	else if (_fileOpen)
@@ -186,14 +185,14 @@ void HttpResponse::writeResponse(int fd, Cluster &cluster)
 			_fileOpen = false;
 			_bodyFile.close();
 		}
-		buffer = tmp;
+		_bodyFile.gcount();
+		ret = write(fd, tmp, _bodyFile.gcount());
 	}
 	else
 	{
-		buffer = _body;
+		ret = write(fd, _body.c_str(), _body.size());
 		_body.clear();
 	}
-	int ret = write(fd, buffer.c_str(), buffer.size());
 	if (ret == -1 || ret == 0)
 	{
 		std::cout << "error\n";
