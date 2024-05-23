@@ -173,7 +173,7 @@ void HttpResponse::writeResponse(int fd, Cluster &cluster)
 	int ret = 0;
 	if (_header.empty() == false)
 	{
-		ret = write(fd, _header.c_str(), _header.size());
+		ret = send(fd, _header.c_str(), _header.size(), MSG_NOSIGNAL);
 		_header.clear();
 	}
 	else if (_fileOpen)
@@ -186,16 +186,16 @@ void HttpResponse::writeResponse(int fd, Cluster &cluster)
 			_bodyFile.close();
 		}
 		_bodyFile.gcount();
-		ret = write(fd, tmp, _bodyFile.gcount());
+		ret = send(fd, tmp, _bodyFile.gcount(), MSG_NOSIGNAL);
 	}
 	else
 	{
-		ret = write(fd, _body.c_str(), _body.size());
+		ret = send(fd, _body.c_str(), _body.size(), MSG_NOSIGNAL);
 		_body.clear();
 	}
 	if (ret == -1 || ret == 0)
 	{
-		std::cout << "error\n";
+		std::cout << "error" << strerror(errno) << std::endl;
 		if (_fileOpen == true)
 			_bodyFile.close();
 		cluster.closeConnection(fd);
