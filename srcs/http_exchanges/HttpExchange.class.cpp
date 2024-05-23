@@ -142,8 +142,16 @@ void HttpExchange::_handleError(int fd, Cluster &cluster, e_status_code error)
 
 void HttpExchange::readSocket(int fd, Cluster &cluster)
 {
+	bool end = false;
 	if (_request != NULL && _request->hasBody() == true)
-		_request->readBody(fd, _socket);
+	{
+		_request->readBody(fd, _socket, end);
+		if (end == true)
+		{
+			_request->generate_response(_socket, _response);
+			cluster.switchHttpExchangeToWrite(fd);
+		}
+	}
 	else
 		_handleHeader(fd, cluster);
 }
@@ -162,7 +170,6 @@ void HttpExchange::_handleHeader(int fd, Cluster &cluster)
 	}
 	if (ret == 0)
 	{
-		std::cout << buffer;
 		protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
 					std::string("Error: Missing empty line at the end of the http request from")));
 		_handleError(fd, cluster, HTTP_400); //!send error to client

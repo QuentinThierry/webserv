@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.class.hpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 18:27:23 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/16 14:53:31 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/23 19:00:24 by jvigny           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 
 # include <vector>
 
-#define READ_SIZE 20
+#define READ_SIZE 5
 
 typedef enum{
 	GET,
@@ -44,7 +44,7 @@ class HttpRequest : public HttpRequestLine
 		
 		virtual void					process_header( Socket const * const socket ) = 0;
 		virtual void					generate_response( Socket const * const socket, HttpResponse &response ) = 0;
-		virtual void					readBody(int fd, Socket const * const socket) = 0;
+		virtual void					readBody(int fd, Socket const * const socket, bool &end) = 0;
 		virtual bool					hasBody() const = 0;
 		
 		std::string	const &				getBody( void ) const;

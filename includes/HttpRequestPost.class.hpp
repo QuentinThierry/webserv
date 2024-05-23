@@ -17,20 +17,26 @@ class HttpRequestPost : public HttpRequest
 
 		void	generate_response( Socket const * const socket, HttpResponse &response );
 		void			process_header( Socket const * const socket );
-		void			readBody(int fd, Socket const * const socket);
+		void			readBody(int fd, Socket const * const socket, bool &end);
 		bool			hasBody() const;
 
 	private:
 		HttpRequestPost( void );
 		void			_setBodyReadType(uint64_t maxClientBody);
 		uint64_t		_getSizeToReadBody(uint64_t maxClientBody) const;
-		// int		fd;
+		void			_openFile();
+		void			_closeFile();
 
-		uint64_t _content_length;
-		uint64_t _read_size;
+		static std::vector<std::string> _busyFile;
 
-		bool _chunk_body_flags;
-		bool _content_length_flags;
+		std::string		_filename;
+		std::ofstream	_file;
+
+		uint64_t	_content_length;
+		uint64_t	_read_size;
+
+		bool		_chunk_body_flags;
+		bool		_content_length_flags;
 };
 
 #endif

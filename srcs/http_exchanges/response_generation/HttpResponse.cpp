@@ -196,7 +196,7 @@ void HttpResponse::writeResponse(int fd, Cluster &cluster)
 	int ret = write(fd, buffer.c_str(), buffer.size());
 	if (ret == -1 || ret == 0)
 	{
-		std::cout << "error\n";
+		std::cout << "error" <<"\n";
 		if (_fileOpen == true)
 			_bodyFile.close();
 		cluster.closeConnection(fd);

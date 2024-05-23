@@ -62,12 +62,8 @@ bool	handle_directory(std::string & uri, Location const & location, HttpResponse
 	std::vector<std::string> index = location.getDefaultDirPath();
 	for (unsigned int i = 0; i < index.size(); i++)
 	{
-		// std::cout << index.at(i) << std::endl;
 		if (access((uri + index.at(i)).c_str(), F_OK) != -1)
 		{
-			// std::cout << "match\n";
-			std::cout << uri <<std::endl;
-			std::cout << uri + index.at(i) << std::endl;
 			uri = uri + index.at(i);
 			return false;
 		}
@@ -113,8 +109,9 @@ void	HttpRequestGet::generate_response( Socket const * const socket, HttpRespons
 		response.fillHeader();
 }
 
-void	HttpRequestGet::readBody(int fd, Socket const * const socket)
+void	HttpRequestGet::readBody(int fd, Socket const * const socket, bool &end)
 {
 	(void)socket;
 	(void)fd;
+	end = true;
 }
