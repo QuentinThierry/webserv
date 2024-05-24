@@ -30,9 +30,6 @@ class HttpResponse
 		bool		handle_redirect(Location const &);
 		void		fillHeader();
 
-		uint32_t		statusCodeToInt() const;
-		e_status_code	intToStatusCode(uint16_t number) const;
-
 		void		setStatusCode(e_status_code code);
 		void		setVersion(it_version version);
 		void		addAllowMethod(std::vector<std::string> const &);
