@@ -86,29 +86,56 @@ void		HttpResponse::fillHeader()
 	_header += "\r\n";
 }
 
-e_status_code HttpResponse::openFstream(std::string filename)
+static void _close_body_file(std::ifstream &response_bodyFile, bool &response_fileOpen)
+{
+	response_fileOpen = false;
+	if (response_bodyFile.is_open())
+		response_bodyFile.close();
+}
+
+static e_status_code	_openFileStream(std::string & filename,
+	std::ifstream &dest, bool &open_status_flag)
 {
 	if (access(filename.c_str(), F_OK) == -1)
 	{
 		if (errno == ENOENT)
 			return HTTP_404;
-		if (errno == EACCES)
+		else if (errno == EACCES)
 			return HTTP_403;
+		else
+			return HTTP_500;
 	}
-	_bodyFile.open(filename.c_str());
-	if (_bodyFile.is_open() == false)
-	{
+	dest.open(filename.c_str());
+	if (dest.is_open() == false)
 		return HTTP_403;
-	}
-	_fileOpen = true;
+	open_status_flag = true;
+	return HTTP_200;
+}
+
+static e_status _set_content_length_field(std::string &filename,
+	std::vector<HttpField> &response_fields)
+{
 	struct stat buffer;
 	if (stat(filename.c_str(), &buffer) != 0)
+		return (FAILURE);
+	response_fields.push_back(HttpField("Content-Length", ft_itoa(buffer.st_size)));
+	return (SUCCESS);
+}
+
+e_status_code HttpResponse::openBodyFileStream(std::string filename)
+{
+	e_status_code status;
+
+	status = _openFileStream(filename, _bodyFile, _fileOpen);
+	if (status != HTTP_200)
+		return (status);
+
+	if (_set_content_length_field(filename, _fields) == FAILURE)
 	{
-		_fileOpen = false;
-		_bodyFile.close();
+		_close_body_file(_bodyFile, _fileOpen);
 		return HTTP_403;
 	}
-	_fields.push_back(HttpField("Content-Length", ft_itoa(buffer.st_size)));
+	
 	return HTTP_200;
 }
 
@@ -155,15 +182,12 @@ void	HttpResponse::generateErrorResponse(e_status_code status, Server const & se
 	if (checkFieldExistence("Content-Length"))
 		_removeField("Content-Length");
 	if (_fileOpen == true)
-	{
-		_fileOpen = false;
-		_bodyFile.close();
-	}
+		_close_body_file(_bodyFile, _fileOpen);
 	_body.clear();
 	std::string path = server.getErrorPagePath(statusCodeToInt());
 	if (path.empty())
 		_fields.push_back(HttpField("Content-Length", "0"));
-	openFstream(path);
+	openBodyFileStream(path);
 	fillHeader();
 }
 
@@ -182,10 +206,7 @@ void HttpResponse::writeResponse(int fd, Cluster &cluster)
 		char tmp[SIZE_WRITE + 1] = {0};
 		_bodyFile.read(tmp, SIZE_WRITE);
 		if (_bodyFile.eof() || _bodyFile.fail())
-		{
-			_fileOpen = false;
-			_bodyFile.close();
-		}
+			_close_body_file(_bodyFile, _fileOpen);
 		buffer = tmp;
 	}
 	else
@@ -198,14 +219,14 @@ void HttpResponse::writeResponse(int fd, Cluster &cluster)
 	{
 		std::cout << "error\n";
 		if (_fileOpen == true)
-			_bodyFile.close();
+			_close_body_file(_bodyFile, _fileOpen);
 		cluster.closeConnection(fd);
 		return ;
 	}
 	if (_header.empty() && _body.empty() && _fileOpen == false)
 	{
 		std::cout << "end\n";
-		if (_fileOpen == true)
+		if (_fileOpen == true) //pas possible 
 			_bodyFile.close();
 		cluster.closeConnection(fd);
 	}

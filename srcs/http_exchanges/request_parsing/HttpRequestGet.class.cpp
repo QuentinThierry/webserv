@@ -44,27 +44,44 @@ bool	HttpRequestGet::hasBody() const
 	return (false);
 }
 
-bool	handle_directory(std::string & uri, Location const & location, HttpResponse & response)
+static void	_handle_file(std::string & uri, HttpResponse & response)
 {
-	if (location.getHasAutoindex())
-	{
-		//add content-length flags
-		//fill body auto index
-		response.fillHeader();
-		return true; //TODO
-	}
-	if (location.updateUriToIndex(uri) == SUCCESS)
-		return false;
-	throw ExceptionHttpStatusCode(HTTP_403);
+	e_status_code error_code = response.openBodyFileStream(uri);
+	if (error_code != HTTP_200)
+		throw ExceptionHttpStatusCode(error_code);
 }
 
-void	handle_file(std::string & uri, HttpResponse & response)
+static void	_handle_Autoindex(std::string & uri, Location const & location,
+				HttpResponse & response)
 {
-	e_status_code error_code = response.openFstream(uri);
-	if (error_code != HTTP_200)
+		//add content-length flags
+		//fill body auto index
+		(void) uri;
+		(void) location;
+		response.fillHeader();
+		return; //TODO	
+}
+
+static e_status	_handle_index_file(std::string & uri, Location const & location,
+				HttpResponse & response)
+{
+	if (location.updateUriToIndex(uri) == SUCCESS)
 	{
-		throw ExceptionHttpStatusCode(error_code);
+		_handle_file(uri, response);
+		return (SUCCESS);
 	}
+	else
+		return (FAILURE);
+}
+
+static void	_handle_directory(std::string & uri, Location const & location, HttpResponse & response)
+{
+	if (location.getHasAutoindex())
+		_handle_Autoindex(uri, location, response);
+	else if (_handle_index_file(uri, location, response) == SUCCESS)
+		return ;
+	else
+		throw ExceptionHttpStatusCode(HTTP_403);
 }
 
 void	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &response )
@@ -81,11 +98,12 @@ void	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &r
 		throw ExceptionHttpStatusCode(HTTP_405);
 		return ;
 	}
+	
 	std::string uri = getUri(location.getRootPath(), getTarget());
 	if (is_accessible_directory(uri.c_str()))
-		if (handle_directory(uri, location, response))
-			return ;
-	handle_file(uri, response);
+		_handle_directory(uri, location, response);
+	else
+		_handle_file(uri, response);
 }
 
 void	HttpRequestGet::generate_response( Socket const * const socket, HttpResponse &response )
