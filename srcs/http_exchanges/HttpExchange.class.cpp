@@ -175,7 +175,8 @@ void HttpExchange::_handleHeader(int fd, Cluster &cluster)
 		_handleError(fd, cluster, HTTP_400); //!send error to client
 		return;
 	}
-	_buffer_read += buffer;
+	std::string tmp(buffer, ret);
+	_buffer_read += tmp;
 	if (_buffer_read.find("\r\n\r\n") != std::string::npos)
 	{
 		std::cout << _buffer_read;

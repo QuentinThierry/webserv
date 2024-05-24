@@ -27,6 +27,7 @@ class HttpRequestPost : public HttpRequest
 		uint64_t		_getSizeToReadBody(uint64_t maxClientBody) const;
 		void			_openFile();
 		void			_closeFile();
+		void			_processBody(bool &end);
 
 		static std::vector<std::string> _busyFile;
 
@@ -34,8 +35,10 @@ class HttpRequestPost : public HttpRequest
 		std::ofstream	_file;
 
 		uint64_t	_content_length;
+		uint64_t	_chunk_read_size;
 		uint64_t	_read_size;
 
+		bool		_has_size_chunk;
 		bool		_chunk_body_flags;
 		bool		_content_length_flags;
 };

@@ -88,7 +88,6 @@ void		HttpResponse::fillHeader()
 
 e_status_code HttpResponse::openFstream(std::string filename)
 {
-	std::cout<< "open :" << filename << std::endl;
 	if (access(filename.c_str(), F_OK) == -1)
 	{
 		if (errno == ENOENT)
