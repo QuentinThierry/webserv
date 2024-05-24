@@ -51,17 +51,6 @@ static void	_handle_file(std::string & uri, HttpResponse & response)
 		throw ExceptionHttpStatusCode(error_code);
 }
 
-static void	_handle_Autoindex(std::string & uri, Location const & location,
-				HttpResponse & response)
-{
-		//add content-length flags
-		//fill body auto index
-		(void) uri;
-		(void) location;
-		response.fillHeader();
-		return; //TODO	
-}
-
 static e_status	_handle_index_file(std::string & uri, Location const & location,
 				HttpResponse & response)
 {
@@ -72,6 +61,20 @@ static e_status	_handle_index_file(std::string & uri, Location const & location,
 	}
 	else
 		return (FAILURE);
+}
+
+static void	_handle_Autoindex(std::string & uri, Location const & location,
+				HttpResponse & response)
+{
+		//add content-length flags
+		//fill body auto index
+		std::string autoindex_content;
+		
+
+		(void) uri;
+		(void) location;
+		response.fillHeader();
+		return; //TODO	
 }
 
 static void	_handle_directory(std::string & uri, Location const & location, HttpResponse & response)
