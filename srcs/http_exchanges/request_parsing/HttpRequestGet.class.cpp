@@ -1,6 +1,5 @@
 #include "HttpRequestGet.class.hpp"
 #include <sys/stat.h>
-#include <fcntl.h>
 
 HttpRequestGet::HttpRequestGet (std::string const & str_request)
 	throw (ExceptionHttpStatusCode)
@@ -35,7 +34,7 @@ HttpRequestGet::~HttpRequestGet( void )
 {
 }
 
-void			HttpRequestGet::process_header( Socket const * const socket )
+void			HttpRequestGet::processHeader( Socket const * const socket )
 {
 	(void)socket;
 }
@@ -45,72 +44,72 @@ bool	HttpRequestGet::hasBody() const
 	return (false);
 }
 
-bool	handle_directory(std::string & uri, Location const & location, HttpResponse & response, Server const & server)
+static void	_handle_file(std::string & uri, HttpResponse & response)
 {
-	//check if uri is a directory
-	int fd = open(uri.c_str(), O_DIRECTORY);
-	if (fd == -1)
-		return false;
-	close(fd);
-	if (location.getHasAutoindex())
-	{
+	e_status_code error_code = response.openBodyFileStream(uri);
+	if (error_code != HTTP_200)
+		throw ExceptionHttpStatusCode(error_code);
+}
+
+static void	_handle_Autoindex(std::string & uri, Location const & location,
+				HttpResponse & response)
+{
 		//add content-length flags
 		//fill body auto index
+		(void) uri;
+		(void) location;
 		response.fillHeader();
-		return true; //TODO
-	}
-	std::vector<std::string> index = location.getDefaultDirPath();
-	for (unsigned int i = 0; i < index.size(); i++)
-	{
-		// std::cout << index.at(i) << std::endl;
-		if (access((uri + index.at(i)).c_str(), F_OK) != -1)
-		{
-			// std::cout << "match\n";
-			std::cout << uri <<std::endl;
-			std::cout << uri + index.at(i) << std::endl;
-			uri = uri + index.at(i);
-			return false;
-		}
-	}
-	response.generateErrorResponse(HTTP_403, server);
-	return true;
+		return; //TODO	
 }
 
-e_status	handle_file(std::string & uri, HttpResponse & response, Server const & server)
+static e_status	_handle_index_file(std::string & uri, Location const & location,
+				HttpResponse & response)
 {
-	e_status_code error_code = response.openFstream(uri);
-	if (error_code != HTTP_200)
+	if (location.updateUriToIndex(uri) == SUCCESS)
 	{
-		response.generateErrorResponse(error_code, server);
-		return FAILURE;
+		_handle_file(uri, response);
+		return (SUCCESS);
 	}
-	return SUCCESS;
+	else
+		return (FAILURE);
 }
 
-e_status	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &response )
+static void	_handle_directory(std::string & uri, Location const & location, HttpResponse & response)
+{
+	if (location.getHasAutoindex())
+		_handle_Autoindex(uri, location, response);
+	else if (_handle_index_file(uri, location, response) == SUCCESS)
+		return ;
+	else
+		throw ExceptionHttpStatusCode(HTTP_403);
+}
+
+void	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &response )
 {
 	response.setVersion(getVersion());
 
 	Location location = socket->getServer().searchLocation(getTarget());// get location path
 	//get location cgi if cgi
 	if (response.handle_redirect(location))
-		return SUCCESS;
-	if (checkMethod(location) == false)
+		return ;
+	if (isAcceptedMethod(location) == false)
 	{
 		response.addAllowMethod(location.getMethods());
-		response.generateErrorResponse(HTTP_405, socket->getServer());
-		return FAILURE;
+		throw ExceptionHttpStatusCode(HTTP_405);
+		return ;
 	}
+	
 	std::string uri = getUri(location.getRootPath(), getTarget());
-	if (handle_directory(uri, location, response, socket->getServer()))
-		return FAILURE;
-	return handle_file(uri, response, socket->getServer());
+	if (is_accessible_directory(uri.c_str()))
+		_handle_directory(uri, location, response);
+	else
+		_handle_file(uri, response);
 }
 
-void	HttpRequestGet::generate_response( Socket const * const socket, HttpResponse &response )
+void	HttpRequestGet::generateResponse( Socket const * const socket, HttpResponse &response )
 {
-	if (_initResponse(socket, response) == SUCCESS)
-		response.fillHeader();
+	_initResponse(socket, response);
+	response.fillHeader();
 }
 
 void	HttpRequestGet::readBody(int fd, Socket const * const socket)

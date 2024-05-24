@@ -177,10 +177,10 @@ void HttpExchange::_handleHeader(int fd, Cluster &cluster)
 			_initRequest(_findMethod(_buffer_read));
 			_setRightSocket(cluster);
 			_buffer_read.clear();
-			_request->process_header(_socket);
+			_request->processHeader(_socket);
 			if (_request->hasBody() == false)
 			{
-				_request->generate_response(_socket, _response);
+				_request->generateResponse(_socket, _response);
 				cluster.switchHttpExchangeToWrite(fd);
 			}
 		}

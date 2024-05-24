@@ -36,7 +36,7 @@ HttpRequestDelete::~HttpRequestDelete( void )
 {
 }
 
-void			HttpRequestDelete::process_header( Socket const * const socket )
+void			HttpRequestDelete::processHeader( Socket const * const socket )
 {
 	(void)socket;
 	//TODO
@@ -72,7 +72,7 @@ void	HttpRequestDelete::_initResponse( Socket const * const socket, HttpResponse
 	Location location = socket->getServer().searchLocation(getTarget());// get location path
 	if (response.handle_redirect(location))
 		return ;
-	if (checkMethod(location) == false)
+	if (isAcceptedMethod(location) == false)
 	{
 		response.addAllowMethod(location.getMethods());
 		throw ExceptionHttpStatusCode(HTTP_405);
@@ -85,7 +85,7 @@ void	HttpRequestDelete::_initResponse( Socket const * const socket, HttpResponse
 	remove_file(uri);
 }
 
-void	HttpRequestDelete::generate_response( Socket const * const socket, HttpResponse &response )
+void	HttpRequestDelete::generateResponse( Socket const * const socket, HttpResponse &response )
 {
 	_initResponse(socket, response);
 	response.fillHeader();

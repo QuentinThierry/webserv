@@ -1,10 +1,10 @@
 #ifndef LOCATION_HPP
 #define LOCATION_HPP
 
-#include <string>
+# include "Shared.hpp"
+
 #include <vector>
 #include <utility>
-#include <stdint.h>
 #include <algorithm>
 
 typedef uint16_t t_http_code;
@@ -43,9 +43,9 @@ class Location
 		void	setCanUpload(bool can_upload);
 		void	setUploadPath(std::string upload_path);
 
-		bool	is_empty_location(Location &default_location) const;
-		bool	does_accept_method(std::string method) const;
-
+		bool		isEmptyLocation(Location &default_location) const;
+		bool		doesAcceptMethod(std::string method) const;
+		e_status	updateUriToIndex(std::string & uri) const;
 
 	private:
 		std::string							_location_path;

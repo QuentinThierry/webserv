@@ -1,5 +1,4 @@
-#include "Shared.hpp"
-#include <sstream>
+#include "utils.hpp"
 
 uint64_t ft_atoi(std::string nb, e_status &error)
 {
@@ -26,4 +25,13 @@ std::string ft_itoa( uint64_t number )
 	std::ostringstream ss;
 	ss << number;
 	return ss.str();
+}
+
+bool	is_accessible_directory(char const *name)
+{
+	int fd = open(name, O_DIRECTORY);
+	if (fd == -1)
+		return false;
+	close(fd);
+	return (true);
 }

@@ -15,8 +15,8 @@ class HttpRequestPost : public HttpRequest
 		HttpRequestPost & operator= (HttpRequestPost const & model);
 		~HttpRequestPost( void );
 
-		void	generate_response( Socket const * const socket, HttpResponse &response );
-		void			process_header( Socket const * const socket );
+		void	generateResponse( Socket const * const socket, HttpResponse &response );
+		void			processHeader( Socket const * const socket );
 		void			readBody(int fd, Socket const * const socket);
 		bool			hasBody() const;
 

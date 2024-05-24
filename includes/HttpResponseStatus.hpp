@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 17:47:33 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/05 18:57:15 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/24 14:34:49 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,6 +107,8 @@ class ExceptionHttpStatusCode : public std::exception
 		e_status_code	_status_code;
 };
 
+e_status_code	int_to_status_code(uint16_t number);
+uint32_t		status_code_to_int(e_status_code status_code);
 
 
 #endif
