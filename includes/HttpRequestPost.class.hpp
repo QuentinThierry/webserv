@@ -19,7 +19,7 @@ class HttpRequestPost : public HttpRequest
 		void			process_header( Socket const * const socket );
 		void			readBody(int fd, Socket const * const socket, bool &end);
 		bool			hasBody() const;
-
+		static bool		isBusyFile(std::string filename);
 	private:
 		HttpRequestPost( void );
 		void	_initResponse( Socket const * const socket, HttpResponse &response );

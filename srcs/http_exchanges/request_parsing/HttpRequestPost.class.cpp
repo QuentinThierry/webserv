@@ -4,6 +4,38 @@
 
 std::vector<std::string> HttpRequestPost::_busyFile = std::vector<std::string>();
 
+static void trim_filename(std::string & filename)
+{
+	bool has_slash = false;
+
+	for (std::string::iterator it = filename.begin(); it != filename.end(); it++)
+	{
+		if (*it == '/')
+		{
+			if (has_slash)
+			{
+				it = filename.erase(it);
+				it--;
+			}
+			else
+				has_slash = true;
+		}
+		else if (has_slash)
+			has_slash = false;
+	}
+}
+
+bool	HttpRequestPost::isBusyFile(std::string filename)
+{
+	trim_filename(filename);
+	for (std::vector<std::string>::iterator it = _busyFile.begin(); it != _busyFile.end(); it++)
+	{
+		if (filename == *it)
+			return true;
+	}
+	return false;
+}
+
 static void	_add_body_from_request_stream( std::string &request_body,
 				std::stringstream &stream_request )
 {
@@ -124,6 +156,7 @@ void HttpRequestPost::_openFile()
 	_file.open(_filename.c_str());
 	if (!_file.is_open())
 		throw ExceptionHttpStatusCode(HTTP_500);
+	trim_filename(_filename);
 	_busyFile.push_back(_filename);
 }
 
