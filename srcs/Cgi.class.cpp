@@ -110,7 +110,8 @@ int Cgi::_exec(std::string cgi_path, char const *file_name, std::string root_pat
 	}
 	else if (this->_pid == 0) // child
 	{
-		// chdir(root_path.c_str()); // protect
+		chdir(root_path.c_str()); // protect
+		close(this->_fd_file_in);
 		dup2(this->_pipe_input[READ], 0); // protect
 		dup2(this->_pipe_output[WRITE], 1); // protect
 		close(this->_pipe_input[READ]);
