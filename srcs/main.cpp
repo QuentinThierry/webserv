@@ -1,20 +1,60 @@
 #include "ConfParser.hpp"
+#include <arpa/inet.h>
+#include <signal.h>
+#include "Cluster.class.hpp"
+#include "HttpTools.hpp"
+void	print_server(Server &server);
 
-// returns false on eof
-bool	wrap_getline_throw(std::fstream &s, std::string &buffer)
+int const	g_err_log_fd = STDERR_FILENO;
+std::vector<std::string>	g_http_methods;
+std::vector<std::string>	g_http_versions;
+
+void cltr_c(int sig)
 {
-	getline(s, buffer);
-	if (s.eof())
-	{
-		if (buffer.empty())
-			return false;
-	}
-	else if (s.fail())
-		ThrowMisc("Failed to read conf file");
-	return true;
+	(void)sig;
 }
 
-#include <arpa/inet.h>
+int main(int argc, char **argv)
+{
+	signal(SIGINT, cltr_c);
+	g_http_methods.push_back("GET");
+	g_http_methods.push_back("POST");
+	g_http_methods.push_back("DELETE");
+	g_http_versions.push_back("HTTP");
+	g_http_versions.push_back("HTTP/0.9");
+	g_http_versions.push_back("HTTP/1.0");
+	g_http_versions.push_back("HTTP/1.1");
+
+	if (argc != 2)
+		return 1;
+
+	std::fstream s;
+
+	s.open(argv[1], std::ios::in);
+	if (!s.is_open())
+	{
+		std::cout << "Failed to open '" << argv[1] << "'" << std::endl;
+		return 0;
+	}
+	try
+	{
+		std::queue<std::string> tokens;
+		tokenize_file(s, tokens);
+		s.close();
+		parse_tokens(tokens);
+		std::vector<Server> servers;
+		interpret_tokens(tokens, servers);
+		for (unsigned int i = 0; i < servers.size(); i++) {
+			print_server(servers[i]);
+		}
+		Cluster web_server(servers);
+		web_server.runServer();
+	}
+	catch (std::exception &e)
+	{
+		std::cout << e.what() << std::endl;
+	}
+}
 
 void	_print_real_host_val(std::string const &host)
 {
@@ -69,36 +109,4 @@ void	print_server(Server &server)
 		std::cout << "\tExec path : " << cgi_loc.getExecPath() << std::endl;
 	}
 	std::cout << std::endl;
-}
-
-int	main(int argc, char **argv)
-{
-	if (argc != 2)
-		return 1;
-
-	std::fstream s;
-
-	s.open(argv[1], std::ios::in);
-	if (!s.is_open())
-	{
-		std::cout << "Failed to open '" << argv[1] << "'" << std::endl;
-		return 0;
-	}
-	try
-	{
-		std::queue<std::string> tokens;
-		tokenize_file(s, tokens);
-		s.close();
-		parse_tokens(tokens);
-		std::vector<Server> servers;
-		interpret_tokens(tokens, servers);
-		for (unsigned int i = 0; i < servers.size(); i++) {
-			print_server(servers[i]);
-		}
-	}
-	catch (std::exception &e)
-	{
-		std::cout << e.what() << std::endl;
-	}
-	std::cout << "OK" << std::endl;
 }

@@ -64,3 +64,16 @@ void	tokenize_file(std::fstream &s, std::queue<std::string> &tokens)
 	}
 }
 
+// returns false on eof
+bool	wrap_getline_throw(std::fstream &s, std::string &buffer)
+{
+	getline(s, buffer);
+	if (s.eof())
+	{
+		if (buffer.empty())
+			return false;
+	}
+	else if (s.fail())
+		ThrowMisc("Failed to read conf file");
+	return true;
+}
