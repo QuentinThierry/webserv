@@ -34,7 +34,7 @@ HttpRequestGet::~HttpRequestGet( void )
 {
 }
 
-void			HttpRequestGet::process_header( Socket const * const socket )
+void			HttpRequestGet::processHeader( Socket const * const socket )
 {
 	(void)socket;
 }
@@ -106,7 +106,7 @@ void	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &r
 		_handle_file(uri, response);
 }
 
-void	HttpRequestGet::generate_response( Socket const * const socket, HttpResponse &response )
+void	HttpRequestGet::generateResponse( Socket const * const socket, HttpResponse &response )
 {
 	_initResponse(socket, response);
 	response.fillHeader();

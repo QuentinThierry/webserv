@@ -36,7 +36,7 @@ HttpRequestDelete::~HttpRequestDelete( void )
 {
 }
 
-void			HttpRequestDelete::process_header( Socket const * const socket )
+void			HttpRequestDelete::processHeader( Socket const * const socket )
 {
 	(void)socket;
 	//TODO
@@ -87,7 +87,7 @@ e_status	HttpRequestDelete::_initResponse( Socket const * const socket, HttpResp
 	return remove_file(uri, response, socket->getServer());
 }
 
-void	HttpRequestDelete::generate_response( Socket const * const socket, HttpResponse &response )
+void	HttpRequestDelete::generateResponse( Socket const * const socket, HttpResponse &response )
 {
 	if (_initResponse(socket, response) == SUCCESS)
 		response.fillHeader();

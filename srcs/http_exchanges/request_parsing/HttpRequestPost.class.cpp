@@ -90,7 +90,7 @@ uint64_t HttpRequestPost::_getSizeToReadBody(uint64_t max_boby_client) const
 		return READ_SIZE;
 }
 
-void	HttpRequestPost::process_header(Socket const * const socket)
+void	HttpRequestPost::processHeader(Socket const * const socket)
 {
 	//check if method accept
 	//check location for cgi
@@ -130,7 +130,7 @@ void HttpRequestPost::_setBodyReadType(uint64_t maxClientBody)
 	}
 }
 
-void	HttpRequestPost::generate_response( Socket const * const socket, HttpResponse &response )
+void	HttpRequestPost::generateResponse( Socket const * const socket, HttpResponse &response )
 {
 	//TODO
 	(void)socket;

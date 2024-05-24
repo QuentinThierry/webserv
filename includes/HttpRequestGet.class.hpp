@@ -6,7 +6,7 @@
 /*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 19:23:29 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/24 13:30:40 by acardona         ###   ########.fr       */
+/*   Updated: 2024/05/24 14:42:44 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,8 @@ class HttpRequestGet : public HttpRequest
 		~HttpRequestGet( void );
 		
 
-		void	process_header( Socket const * const socket );
-		void	generate_response( Socket const * const socket, HttpResponse &response );
+		void	processHeader( Socket const * const socket );
+		void	generateResponse( Socket const * const socket, HttpResponse &response );
 		bool	hasBody() const;
 		void	readBody(int fd, Socket const * const socket);
 
