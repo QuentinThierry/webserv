@@ -17,13 +17,7 @@ void cltr_c(int sig)
 int main(int argc, char **argv)
 {
 	signal(SIGINT, cltr_c);
-	g_http_methods.push_back("GET");
-	g_http_methods.push_back("POST");
-	g_http_methods.push_back("DELETE");
-	g_http_versions.push_back("HTTP");
-	g_http_versions.push_back("HTTP/0.9");
-	g_http_versions.push_back("HTTP/1.0");
-	g_http_versions.push_back("HTTP/1.1");
+	_init_available_http_methods_versions();
 
 	if (argc != 2)
 		return 1;
@@ -44,9 +38,9 @@ int main(int argc, char **argv)
 		parse_tokens(tokens);
 		std::vector<Server> servers;
 		interpret_tokens(tokens, servers);
-		for (unsigned int i = 0; i < servers.size(); i++) {
-			print_server(servers[i]);
-		}
+		// for (unsigned int i = 0; i < servers.size(); i++) {
+		// 	print_server(servers[i]);
+		// }
 		Cluster web_server(servers);
 		web_server.runServer();
 	}
@@ -79,7 +73,7 @@ void	print_server(Server &server)
 	for (std::map<t_http_code, std::string>::iterator it = server.getErrorPagePath().begin(); it != server.getErrorPagePath().end(); it++) {
 		std::cout << "\t" << it->first << " " << it->second << std::endl;
 	}
-	std::cout << "Client mbs : " << server.getClientmaxBodySize() << std::endl;
+	std::cout << "Client mbs : " << server.getClientMaxBodySize() << std::endl;
 
 	for (unsigned int i = 0; i < server.getLocations().size(); i++) {
 		Location const &loc = server.getLocations()[i];

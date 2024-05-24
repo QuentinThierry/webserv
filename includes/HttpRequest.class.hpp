@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.class.hpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
+/*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 18:27:23 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/15 17:04:55 by jvigny           ###   ########.fr       */
+/*   Updated: 2024/05/24 14:42:44 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@
 # include "Socket.class.hpp"
 # include "HttpResponseStatus.hpp"
 # include "HttpResponse.class.hpp"
+# include "utils.hpp"
+
 # include <vector>
 
 #define READ_SIZE 20
@@ -41,8 +43,8 @@ class HttpRequest : public HttpRequestLine
 		HttpRequest ( HttpRequest const & model );
 		virtual HttpRequest & operator=(HttpRequest const & model);
 		
-		virtual void					process_header( Socket const * const socket ) = 0;
-		virtual void					generate_response( Socket const * const socket, HttpResponse &response ) = 0;
+		virtual void					processHeader( Socket const * const socket ) = 0;
+		virtual void					generateResponse( Socket const * const socket, HttpResponse &response ) = 0;
 		virtual void					readBody(int fd, Socket const * const socket) = 0;
 		virtual bool					hasBody() const = 0;
 		
@@ -53,8 +55,8 @@ class HttpRequest : public HttpRequestLine
 		bool							checkFieldExistence(std::string const & field_name) const;
 		const std::vector<std::string>	&getFieldValue(std::string const & field_name) const throw(ExceptionHttpStatusCode);
 
-		bool							checkMethod(Location const & location) const;
-		virtual void					display_request( void ) const;
+		bool							isAcceptedMethod(Location const & location) const;
+		virtual void					displayRequest( void ) const;
 	protected:
 		std::string	_body;
 	private:

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Shared.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
+/*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 15:07:56 by jvigny            #+#    #+#             */
-/*   Updated: 2024/05/15 18:14:03 by jvigny           ###   ########.fr       */
+/*   Updated: 2024/05/16 13:58:54 by acardona         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ typedef enum e_status
 
 # include <string>
 # include <iostream>
-#include <fstream>
+# include <fstream>
 # include <exception>
 # include <unistd.h>
 # include <stdint.h>

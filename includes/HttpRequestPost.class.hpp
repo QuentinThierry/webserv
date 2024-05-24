@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   HttpRequestPost.class.hpp                          :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/12 19:23:29 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/15 16:59:35 by jvigny           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef HTTPREQUESTPOST_CLASS_HPP
 # define HTTPREQUESTPOST_CLASS_HPP
 
@@ -27,8 +15,8 @@ class HttpRequestPost : public HttpRequest
 		HttpRequestPost & operator= (HttpRequestPost const & model);
 		~HttpRequestPost( void );
 
-		void	generate_response( Socket const * const socket, HttpResponse &response );
-		void			process_header( Socket const * const socket );
+		void	generateResponse( Socket const * const socket, HttpResponse &response );
+		void			processHeader( Socket const * const socket );
 		void			readBody(int fd, Socket const * const socket);
 		bool			hasBody() const;
 
@@ -36,7 +24,7 @@ class HttpRequestPost : public HttpRequest
 		HttpRequestPost( void );
 		void			_setBodyReadType(uint64_t maxClientBody);
 		uint64_t		_getSizeToReadBody(uint64_t maxClientBody) const;
-		int		fd;
+		// int		fd;
 
 		uint64_t _content_length;
 		uint64_t _read_size;

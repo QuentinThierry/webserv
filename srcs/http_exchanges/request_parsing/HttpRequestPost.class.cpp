@@ -1,15 +1,21 @@
 #include "HttpExchange.class.hpp"
 #include "HttpRequestPost.class.hpp"
-#include "util.hpp"
+#include "utils.hpp"
 
 
 
 static void	_add_body_from_request_stream( std::string &request_body,
 				std::stringstream &stream_request )
-{
-	if (!stream_request.eof() && stream_request.peek() != EOF
-			&& !std::getline(stream_request, request_body, '\0'))
-		throw_http_err_with_log(HTTP_500, MSG_ERR_HTTPPOST_SSTREAM_FAIL);
+{	
+	std::string body_content;
+	while (!stream_request.eof() && stream_request.peek() != EOF)
+	{
+		if (!std::getline(stream_request, body_content))
+			throw_http_err_with_log(HTTP_500, MSG_ERR_HTTPPOST_SSTREAM_FAIL);
+		request_body += body_content;
+		if (!stream_request.eof())
+			body_content += "\n";
+	}
 }
 
 HttpRequestPost::HttpRequestPost (std::string const & str_request)
@@ -62,12 +68,12 @@ bool HttpRequestPost::hasBody() const
 void HttpRequestPost::readBody(int fd, Socket const * const socket)
 {
 	char buffer[READ_SIZE + 1] = {0};
-	int read_size = _getSizeToReadBody(socket->getServer().getClientmaxBodySize());
+	int read_size = _getSizeToReadBody(socket->getServer().getClientMaxBodySize());
 	int ret = read(fd, buffer, read_size);
 	if (ret == -1)
 	{
 		protected_write(g_err_log_fd, error_message_server(socket->getServer(),
-					std::string("Error: read() ") + std::strerror(errno)));
+					std::string("Error: read() ") + std::strerror(errno) + "at"));
 		return; //!send error to client
 	}
 	// else if (ret == 0) //EOF
@@ -90,14 +96,14 @@ uint64_t HttpRequestPost::_getSizeToReadBody(uint64_t max_boby_client) const
 		return READ_SIZE;
 }
 
-void	HttpRequestPost::process_header(Socket const * const socket)
+void	HttpRequestPost::processHeader(Socket const * const socket)
 {
 	//check if method accept
 	//check location for cgi
 	//read body with client_max_body => write in file
 	//check method
 	//check location file to upload file
-	_setBodyReadType(socket->getServer().getClientmaxBodySize());
+	_setBodyReadType(socket->getServer().getClientMaxBodySize());
 	_read_size = getBody().size();
 	//open file to save data
 }
@@ -130,7 +136,7 @@ void HttpRequestPost::_setBodyReadType(uint64_t maxClientBody)
 	}
 }
 
-void	HttpRequestPost::generate_response( Socket const * const socket, HttpResponse &response )
+void	HttpRequestPost::generateResponse( Socket const * const socket, HttpResponse &response )
 {
 	//TODO
 	(void)socket;

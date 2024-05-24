@@ -88,7 +88,7 @@ void	interpret_location_loop(std::queue<std::string> &tokens, Server &server)
 		{
 			if (is_cgi_loc && !cgi_loc.is_empty_cgi_location())
 				server.addCgiLocation(cgi_loc);
-			else if (!is_cgi_loc && !location.is_empty_location(server.getDefaultLocation()))
+			else if (!is_cgi_loc && !location.isEmptyLocation(server.getDefaultLocation()))
 			{
 				if (location.getDefaultDirPath().empty())
 					location.addDefaultDirPath("index.html");

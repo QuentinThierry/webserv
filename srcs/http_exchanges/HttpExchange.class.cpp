@@ -5,7 +5,7 @@
 #include "HttpRequestDelete.class.hpp"
 
 #include "Cluster.class.hpp"
-#include "util.hpp"
+#include "utils.hpp"
 
 #include <cstdlib>
 
@@ -75,8 +75,6 @@ struct timeval const & HttpExchange::getAcceptRequestTime() const
 
 void HttpExchange::_setRightSocket(Cluster const &cluster)
 {
-	e_status error;
-
 	if (_request->checkFieldExistence("Host") == false)
 	{
 		protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
@@ -90,7 +88,7 @@ void HttpExchange::_setRightSocket(Cluster const &cluster)
 					std::string("Error: Invalid format of 'Host' variable in the http request from")));
 		throw ExceptionHttpStatusCode(HTTP_400); //!send error
 	}
-	Socket const *socket = cluster.get_matching_socket(_socket->getFd(), host_name.at(0));
+	Socket const *socket = cluster.getMatchingSocket(_socket->getFd(), host_name.at(0));
 	if (socket != NULL)
 		_socket = socket;
 }
@@ -164,12 +162,12 @@ void HttpExchange::_handleHeader(int fd, Cluster &cluster)
 	}
 	if (ret == 0)
 	{
+		std::cout << buffer;
 		protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
 					std::string("Error: Missing empty line at the end of the http request from")));
 		_handleError(fd, cluster, HTTP_400); //!send error to client
 		return;
 	}
-	std::cout << buffer << std::endl;
 	_buffer_read += buffer;
 	if (_buffer_read.find("\r\n\r\n") != std::string::npos)
 	{
@@ -179,10 +177,10 @@ void HttpExchange::_handleHeader(int fd, Cluster &cluster)
 			_initRequest(_findMethod(_buffer_read));
 			_setRightSocket(cluster);
 			_buffer_read.clear();
-			_request->process_header(_socket);
+			_request->processHeader(_socket);
 			if (_request->hasBody() == false)
 			{
-				_request->generate_response(_socket, _response);
+				_request->generateResponse(_socket, _response);
 				cluster.switchHttpExchangeToWrite(fd);
 			}
 		}

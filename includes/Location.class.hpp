@@ -1,10 +1,10 @@
 #ifndef LOCATION_HPP
 #define LOCATION_HPP
 
-#include <string>
+# include "Shared.hpp"
+
 #include <vector>
 #include <utility>
-#include <stdint.h>
 #include <algorithm>
 
 typedef uint16_t t_http_code;
@@ -19,17 +19,17 @@ class Location
 		Location &operator=(Location const &ref);
 		bool	operator==(Location const &rref) const;
 
-		std::string const &getLocationPath() const;
-		std::vector<std::string> const &getMethods() const;
-		std::vector<std::string> &getMethods();
-		std::string const &getRootPath() const;
-		bool const &getHasRedirect() const;
-		std::pair<t_http_code, std::string> const &getRedirect() const;
-		std::pair<t_http_code, std::string> &getRedirect();
-		std::vector<std::string> const &getDefaultDirPath() const;
-		bool const &getHasAutoindex() const;
-		bool const &getCanUpload() const;
-		std::string const &getUploadPath() const;
+		std::string const &							getLocationPath() const;
+		std::vector<std::string> const &			getMethods() const;
+		std::vector<std::string> &					getMethods();
+		std::string const &							getRootPath() const;
+		bool const &								getHasRedirect() const;
+		std::pair<t_http_code, std::string> const &	getRedirect() const;
+		std::pair<t_http_code, std::string> &		getRedirect();
+		std::vector<std::string> const &			getDefaultDirPath() const;
+		bool const &								getHasAutoindex() const;
+		bool const &								getCanUpload() const;
+		std::string const &							getUploadPath() const;
 
 		void	setLocationPath(std::string location_path);
 		void	setMethods(std::vector<std::string> methods);
@@ -43,9 +43,9 @@ class Location
 		void	setCanUpload(bool can_upload);
 		void	setUploadPath(std::string upload_path);
 
-		bool	is_empty_location(Location &default_location) const;
-		bool	does_accept_method(std::string method) const;
-
+		bool		isEmptyLocation(Location &default_location) const;
+		bool		doesAcceptMethod(std::string method) const;
+		e_status	updateUriToIndex(std::string & uri) const;
 
 	private:
 		std::string							_location_path;

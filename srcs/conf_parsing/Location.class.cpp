@@ -51,17 +51,17 @@ bool	Location::operator==(Location const &rref) const
 	return false;
 }
 
-std::string const &Location::getLocationPath() const {return this->_location_path;}
-std::vector<std::string> const &Location::getMethods() const {return this->_accepted_methods;}
-std::vector<std::string> &Location::getMethods() {return this->_accepted_methods;}
-std::string const &Location::getRootPath() const {return this->_root_path;}
-bool const &Location::getHasRedirect() const {return this->_has_redirect;}
-std::pair<t_http_code, std::string> const &Location::getRedirect() const {return this->_redirect;}
-std::pair<t_http_code, std::string> &Location::getRedirect() {return this->_redirect;}
-std::vector<std::string> const &Location::getDefaultDirPath() const {return this->_default_dir_path;}
-bool const &Location::getHasAutoindex() const {return this->_has_autoindex;}
-std::string const &Location::getUploadPath() const {return this->_upload_path;}
-bool const &Location::getCanUpload() const {return this->_can_upload;}
+std::string const &							Location::getLocationPath() const {return this->_location_path;}
+std::vector<std::string> const &			Location::getMethods() const {return this->_accepted_methods;}
+std::vector<std::string> &					Location::getMethods() {return this->_accepted_methods;}
+std::string const &							Location::getRootPath() const {return this->_root_path;}
+bool const &								Location::getHasRedirect() const {return this->_has_redirect;}
+std::pair<t_http_code, std::string> const &	Location::getRedirect() const {return this->_redirect;}
+std::pair<t_http_code, std::string> &		Location::getRedirect() {return this->_redirect;}
+std::vector<std::string> const &			Location::getDefaultDirPath() const {return this->_default_dir_path;}
+bool const &								Location::getHasAutoindex() const {return this->_has_autoindex;}
+std::string const &							Location::getUploadPath() const {return this->_upload_path;}
+bool const &								Location::getCanUpload() const {return this->_can_upload;}
 
 void	Location::setLocationPath(std::string location_path) {this->_location_path = location_path;}
 void	Location::setMethods(std::vector<std::string> methods) {this->_accepted_methods = methods;}
@@ -75,16 +75,35 @@ void	Location::setHasAutoindex(bool has_auto_index){this->_has_autoindex = has_a
 void	Location::setCanUpload(bool can_upload) {this->_can_upload = can_upload;}
 void	Location::setUploadPath(std::string upload_path) {this->_upload_path = upload_path;}
 
-bool	Location::is_empty_location(Location &default_location) const
+bool	Location::isEmptyLocation(Location &default_location) const
 {
 	if (*this == default_location)
 		return true;
 	return false;
 }
 
-bool	Location::does_accept_method(std::string method) const
+bool	Location::doesAcceptMethod(std::string method) const
 {
 	if (std::find(this->getMethods().begin(), this->getMethods().end(), method) != this->getMethods().end())
 		return true;
 	return false;
 }
+
+e_status	Location::updateUriToIndex(std::string & uri) const
+{
+	std::vector<std::string> index = getDefaultDirPath();
+	for (unsigned int i = 0; i < index.size(); i++)
+	{
+		// std::cout << index.at(i) << std::endl;
+		if (access((uri + index.at(i)).c_str(), F_OK) != -1)
+		{
+			// std::cout << "match\n";
+			// std::cout << uri <<std::endl;
+			// std::cout << uri + index.at(i) << std::endl;
+			uri = uri + index.at(i);
+			return (SUCCESS);
+		}
+	}
+	return (FAILURE);
+}
+
