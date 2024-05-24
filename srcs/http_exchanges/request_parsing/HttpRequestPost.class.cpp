@@ -6,10 +6,16 @@
 
 static void	_add_body_from_request_stream( std::string &request_body,
 				std::stringstream &stream_request )
-{
-	if (!stream_request.eof() && stream_request.peek() != EOF
-			&& !std::getline(stream_request, request_body, '\0'))
-		throw_http_err_with_log(HTTP_500, MSG_ERR_HTTPPOST_SSTREAM_FAIL);
+{	
+	std::string body_content;
+	while (!stream_request.eof() && stream_request.peek() != EOF)
+	{
+		if (!std::getline(stream_request, body_content))
+			throw_http_err_with_log(HTTP_500, MSG_ERR_HTTPPOST_SSTREAM_FAIL);
+		request_body += body_content;
+		if (!stream_request.eof())
+			body_content += "\n";
+	}
 }
 
 HttpRequestPost::HttpRequestPost (std::string const & str_request)
