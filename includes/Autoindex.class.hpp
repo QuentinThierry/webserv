@@ -9,6 +9,7 @@
 # include <sys/types.h>
 # include <dirent.h>
 # include <sys/stat.h>
+# include <ctime>
 
 #define HAS_READ_RIGHT(mode) (((mode) & (1 << 8)) != 0)
 
@@ -32,7 +33,8 @@ class Autoindex
 {
 	public:
 		Autoindex( std::string uri )  throw (ExceptionHttpStatusCode);
-		void	generateAutoIndexBody(std::string &response_body);
+
+		std::string	generateAutoIndexBody( void );
 
 		std::vector<s_document_data>	& GetDocumentsData();//
 

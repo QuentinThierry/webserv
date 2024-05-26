@@ -30,7 +30,7 @@ FILES_HTTP_EXCHANGES	=	$(addprefix http_exchanges/, \
 								) \
 								$(addprefix response_generation/, \
 									HttpResponse \
-									HttpAutoindex \
+									Autoindex.class \
 								) \
 								HttpExchange.class \
 								HttpField.class \

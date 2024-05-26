@@ -63,24 +63,38 @@ static e_status	_handle_index_file(std::string & uri, Location const & location,
 		return (FAILURE);
 }
 
-static void	_handle_Autoindex(std::string & uri, Location const & location,
-				HttpResponse & response)
+static void	_add_autoindex_body(HttpResponse & response, Autoindex & index)
 {
-		//add content-length flags
-		//fill body auto index
-		std::string autoindex_content;
-		
+	std::string body_content;
 
-		(void) uri;
-		(void) location;
+	body_content = index.generateAutoIndexBody();
+	response.setBody(body_content);
+}
+
+static void _add_content_length_field(HttpResponse & response)
+{
+	std::string	field_name;
+	std::string length;
+
+	field_name = "Content-Length";
+	length = ft_itoa(response.getBody().length());
+	response.addField(field_name, length);
+}
+
+static void	_handle_Autoindex(std::string & uri, HttpResponse & response)
+{
+		Autoindex index(uri);
+
+		_add_autoindex_body(response, index);
+		_add_content_length_field(response);		
+
 		response.fillHeader();
-		return; //TODO	
 }
 
 static void	_handle_directory(std::string & uri, Location const & location, HttpResponse & response)
 {
 	if (location.getHasAutoindex())
-		_handle_Autoindex(uri, location, response);
+		_handle_Autoindex(uri, response);
 	else if (_handle_index_file(uri, location, response) == SUCCESS)
 		return ;
 	else

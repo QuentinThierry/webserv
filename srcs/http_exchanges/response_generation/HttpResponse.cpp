@@ -122,6 +122,12 @@ static e_status _set_content_length_field(std::string &filename,
 	return (SUCCESS);
 }
 
+void		HttpResponse::setBody(std::string &body_content)
+{
+	_body = body_content;
+}
+
+
 e_status_code HttpResponse::openBodyFileStream(std::string filename)
 {
 	e_status_code status;
@@ -138,6 +144,12 @@ e_status_code HttpResponse::openBodyFileStream(std::string filename)
 
 	return HTTP_200;
 }
+
+std::string const &HttpResponse::getBody(void) const
+{
+	return (_body);
+}
+
 
 bool	HttpResponse::checkFieldExistence(std::string const & field_name) const
 {

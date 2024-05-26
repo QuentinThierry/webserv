@@ -117,31 +117,22 @@ static std::string _generate_table_line(std::string col0, std::string col1, std:
 {
 	std::string line;
 
-	line = _new_line(std::string("<tr style=\"width:100%; ; font-size: 100%;\">"));
-	line += _new_line(std::string("<td style=\"text-align: left;width: 1em;\">") + col0 + "</td>");
-	line += _new_line(std::string("<td style=\"text-align: left; font-weight: bold; padding-left:5px\">") + col1 + "</td>");
-	line += _new_line(std::string("<td style=\"text-align: left; width:20em\">") + col2 + "</td>");
-	line += _new_line(std::string("<td style=\"text-align: left; width:10em\">") + col3 + "</td>");
+	line = _new_line(std::string("<tr style=\"width:100%; text-align: left; font-size: 100%;\">"));
+	line += _new_line(std::string("<td style=\"width: 1em;\">") + col0 + "</td>");
+	line += _new_line(std::string("<td style=\"width: 40em; font-weight: bold; padding-left:5px\">") + col1 + "</td>");
+	line += _new_line(std::string("<td style=\" width:20em\">") + col2 + "</td>");
+	line += _new_line(std::string("<td style=\" width:10em\">") + col3 + "</td>");
 	line += _new_line(std::string("</tr>"));
 	return (line);
 }
 
 static std::string _get_last_modified(time_t &date)
 {
-	std::string date_str;
-
-	//TOTO
-	(void) date;
-	date_str += "DATE_TO_DO";
+	std::tm * ptm = std::localtime(&date);
+	char date_str[32];
+	// Format: 15.06.2009 20:20:00
+	std::strftime(date_str, 32, "%d.%m.%Y %H:%M:%S", ptm);
 	return (date_str);
-}
-
-static std::string _get_size(size_t &size)
-{
-	std::ostringstream	stream;
-
-	stream << size;
-	return (stream.str());
 }
 
 static std::string _generate_add_parent_link_line(std::vector<s_document_data> &_documents_data, std::string &uri_root)
@@ -165,7 +156,7 @@ static std::string _generate_add_one_document_link_line(s_document_data &documen
 	symbol = (document_data.type == IS_DIRECTORY) ? "📁" : "🗎";
 	link = _generate_link(document_data.name, uri_root + "/" + document_data.name);
 	last_modified = _get_last_modified(document_data.last_modified);
-	size = _get_size(document_data.size);
+	size = ft_itoa(document_data.size);
 
 	return (_generate_table_line(symbol, link, last_modified, size));
 }
@@ -202,13 +193,14 @@ std::string Autoindex::_generate_html_body(std::string &uri)
 	return (html_body);
 }
 
-void	Autoindex::generateAutoIndexBody( std::string &response_body)
+std::string	Autoindex::generateAutoIndexBody( void )
 {
 	std::string line;
 
-	response_body = "<!DOCTYPE html>\r\n";
-	response_body += "<html>\r\n";
-	response_body += _generate_html_header();
-	response_body += _generate_html_body(_uri_root);
-	response_body += "</html>";
+	line = "<!DOCTYPE html>\r\n";
+	line += "<html>\r\n";
+	line += _generate_html_header();
+	line += _generate_html_body(_uri_root);
+	line += "</html>";
+	return (line);
 }

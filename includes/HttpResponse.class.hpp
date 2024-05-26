@@ -33,8 +33,10 @@ class HttpResponse
 		void		setVersion(it_version version);
 		void		addAllowMethod(std::vector<std::string> const &);
 		void		addField(std::string name, std::string value);
-
+		void		setBody(std::string &body_content);
 		e_status_code	openBodyFileStream(std::string filename);
+
+		std::string const &getBody(void) const;
 		bool			checkFieldExistence(std::string const & field_name) const;
 
 		void		generateErrorResponse(e_status_code status, Server const & server);
