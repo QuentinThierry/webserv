@@ -142,10 +142,35 @@ void HttpExchange::_handleError(int fd, Cluster &cluster, e_status_code error)
 
 void HttpExchange::readSocket(int fd, Cluster &cluster)
 {
-	if (_request != NULL && _request->hasBody() == true)
-		_request->readBody(fd, _socket);
-	else
-		_handleHeader(fd, cluster);
+	try
+	{
+		bool end = false;
+		if (_request != NULL && _request->hasBody() == true)
+		{
+			_request->readBody(fd, _socket, end);
+			if (end == true)
+			{
+				_request->generateResponse(_socket, _response);
+				cluster.switchHttpExchangeToWrite(fd);
+			}
+		}
+		else
+			_handleHeader(fd, cluster);
+	}
+	catch(ExceptionHttpStatusCode &e)
+	{
+		e.display_error();
+		_handleError(fd, cluster, e.get_status_code());
+		return ;
+	}
+	catch(std::exception &e)
+	{
+		protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
+				std::string("Error: ") + std::strerror(errno) + " at"));
+		_handleError(fd, cluster, HTTP_500);
+		return ;
+	}
+	
 }
 
 void HttpExchange::_handleHeader(int fd, Cluster &cluster)
@@ -162,40 +187,24 @@ void HttpExchange::_handleHeader(int fd, Cluster &cluster)
 	}
 	if (ret == 0)
 	{
-		std::cout << buffer;
 		protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
 					std::string("Error: Missing empty line at the end of the http request from")));
 		_handleError(fd, cluster, HTTP_400); //!send error to client
 		return;
 	}
-	_buffer_read += buffer;
+	std::string tmp(buffer, ret);
+	_buffer_read += tmp;
 	if (_buffer_read.find("\r\n\r\n") != std::string::npos)
 	{
 		std::cout << _buffer_read;
-		try
+		_initRequest(_findMethod(_buffer_read));
+		_setRightSocket(cluster);
+		_buffer_read.clear();
+		_request->processHeader(_socket);
+		if (_request->hasBody() == false)
 		{
-			_initRequest(_findMethod(_buffer_read));
-			_setRightSocket(cluster);
-			_buffer_read.clear();
-			_request->processHeader(_socket);
-			if (_request->hasBody() == false)
-			{
-				_request->generateResponse(_socket, _response);
-				cluster.switchHttpExchangeToWrite(fd);
-			}
-		}
-		catch(ExceptionHttpStatusCode &e)
-		{
-			e.display_error();
-			_handleError(fd, cluster, e.get_status_code()); //!send error to client
-			return ;
-		}
-		catch(std::exception &e)
-		{
-			protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
-					std::string("Error: ") + std::strerror(errno) + " at"));
-			_handleError(fd, cluster, HTTP_500); //!send error to client
-			return ;
+			_request->generateResponse(_socket, _response);
+			cluster.switchHttpExchangeToWrite(fd);
 		}
 	}
 }

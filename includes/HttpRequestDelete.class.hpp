@@ -32,7 +32,7 @@ class HttpRequestDelete : public HttpRequest
 		void				processHeader( Socket const * const socket );
 		void				generateResponse( Socket const * const socket, HttpResponse &response );
 		bool				hasBody() const;
-		void				readBody(int fd, Socket const * const socket);
+		void				readBody(int fd, Socket const * const socket, bool &end);
 
 	private:
 		void	_initResponse( Socket const * const socket, HttpResponse &response );

@@ -11,7 +11,7 @@
 # include <sys/types.h>
 # include <sys/stat.h>
 
-#define SIZE_WRITE 50
+#define SIZE_WRITE 100
 
 class Cluster;
 

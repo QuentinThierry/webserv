@@ -112,8 +112,9 @@ void	HttpRequestGet::generateResponse( Socket const * const socket, HttpResponse
 	response.fillHeader();
 }
 
-void	HttpRequestGet::readBody(int fd, Socket const * const socket)
+void	HttpRequestGet::readBody(int fd, Socket const * const socket, bool &end)
 {
 	(void)socket;
 	(void)fd;
+	end = true;
 }

@@ -55,13 +55,14 @@ bool	remove_directory(std::string & uri)
 
 void	remove_file(std::string & uri)
 {
-	if (remove(uri.c_str()) != 0)
-	{
-		if (errno == ENOENT)
-			throw ExceptionHttpStatusCode(HTTP_404);
-		else
-			throw ExceptionHttpStatusCode(HTTP_403);
-	}
+	(void)uri;
+	// if (remove(uri.c_str()) != 0)
+	// {
+	// 	if (errno == ENOENT)
+	// 		throw ExceptionHttpStatusCode(HTTP_404);
+	// 	else
+	// 		throw ExceptionHttpStatusCode(HTTP_403);
+	// }
 }
 
 void	HttpRequestDelete::_initResponse( Socket const * const socket, HttpResponse &response )
@@ -96,8 +97,9 @@ bool	HttpRequestDelete::hasBody() const
 	return (false);
 }
 
-void	HttpRequestDelete::readBody(int fd, Socket const * const socket)
+void	HttpRequestDelete::readBody(int fd, Socket const * const socket, bool &end)
 {
 	(void)fd;
 	(void)socket;
+	end = true;
 }
