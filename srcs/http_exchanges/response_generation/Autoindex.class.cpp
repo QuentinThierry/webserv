@@ -37,10 +37,10 @@ static s_document_data _get_document_data(struct dirent * document)
 
 static bool	_compare_file_data_name(s_document_data const &doc_data1, s_document_data const &doc_data2)
 {
+	if (doc_data1.name == "..")
+		return (true);
 	if (doc_data1.type != doc_data2.type)
 		return (doc_data1.type == IS_DIRECTORY);
-	if (doc_data2.name == ".." || (doc_data2.name.at(0) == '.' && doc_data1.name.at(0) != '.'))
-		return (false);
 	return (doc_data1.name.compare(doc_data2.name) < 0);
 }
 
