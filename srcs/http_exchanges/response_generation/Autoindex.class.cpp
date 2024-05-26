@@ -37,6 +37,8 @@ static s_document_data _get_document_data(struct dirent * document)
 
 static bool	_compare_file_data_name(s_document_data const &doc_data1, s_document_data const &doc_data2)
 {
+	if (doc_data1.type != doc_data2.type)
+		return (doc_data1.type == IS_DIRECTORY);
 	if (doc_data2.name == ".." || (doc_data2.name.at(0) == '.' && doc_data1.name.at(0) != '.'))
 		return (false);
 	return (doc_data1.name.compare(doc_data2.name) < 0);
@@ -108,7 +110,7 @@ static std::string _generate_table_header(void)
 	header_line += _new_line("<td></td>");
 	header_line += _new_line("<td>Name</td>");
 	header_line += _new_line("<td style=\"width:20em\">Last modification</td>");
-	header_line += _new_line("<td style=\"width:10em\">Size</td>");
+	header_line += _new_line("<td style=\"width:10em\">Size (o)</td>");
 	header_line += _new_line("</tr>");
 	return (header_line);
 }
@@ -153,10 +155,18 @@ static std::string _generate_add_one_document_link_line(s_document_data &documen
 	std::string last_modified; 
 	std::string size;
 
-	symbol = (document_data.type == IS_DIRECTORY) ? "📁" : "🗎";
+	if (document_data.type == IS_DIRECTORY)
+	{
+		symbol ="📁";
+		size = "";
+	}
+	else
+	{
+		symbol = "🗎";
+		size = ft_itoa(document_data.size);
+	}
 	link = _generate_link(document_data.name, uri_root + "/" + document_data.name);
 	last_modified = _get_last_modified(document_data.last_modified);
-	size = ft_itoa(document_data.size);
 
 	return (_generate_table_line(symbol, link, last_modified, size));
 }
