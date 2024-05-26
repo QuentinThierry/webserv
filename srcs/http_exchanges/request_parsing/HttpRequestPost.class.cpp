@@ -236,6 +236,10 @@ void HttpRequestPost::readBody(int fd, Socket const * const socket, bool &end)
 	end = false;
 	char buffer[READ_SIZE + 1] = {0};
 	int read_size = _getSizeToReadBody(socket->getServer().getClientMaxBodySize());
+	std::cout << "body size: " << _read_size <<std::endl;
+	std::cout << read_size <<std::endl;
+	if (read_size <= 0)
+		throw ExceptionHttpStatusCode(HTTP_413);
 	int ret = read(fd, buffer, read_size);
 	if (ret == -1 || ret == 0)
 	{
