@@ -72,14 +72,29 @@ static e_status	_handle_index_file(std::string & uri, Location const & location,
 		return (FAILURE);
 }
 
-static void	_handle_directory(std::string & uri, Location const & location, HttpResponse & response)
+void HttpRequestGet::_redirectDirectory(HttpResponse & response)
 {
-	if (location.getHasAutoindex())
-		_handle_Autoindex(uri, location);
-	else if (_handle_index_file(uri, location, response) == SUCCESS)
+	std::string location = "http://";
+	location += getFieldValue("Host")[0];
+	location += getTarget();
+	location += "/";
+	response.addField("Location", location);
+	throw ExceptionHttpStatusCode(HTTP_301);
+}
+
+void	HttpRequestGet::_handleDirectory(std::string & uri, Location const & location,
+				HttpResponse & response)
+{
+	if (*(uri.end() - 1) != '/')
+		_redirectDirectory(response);
+	if (_handle_index_file(uri, location, response) == SUCCESS)
 		return ;
-	else
-		throw ExceptionHttpStatusCode(HTTP_403);
+	if (location.getHasAutoindex())
+	{
+		_handle_Autoindex(uri, location);
+		return ;
+	}
+	throw ExceptionHttpStatusCode(HTTP_403);
 }
 
 void	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &response )
@@ -99,7 +114,7 @@ void	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &r
 	
 	std::string uri = getUri(location.getRootPath(), getTarget());
 	if (is_accessible_directory(uri.c_str()))
-		_handle_directory(uri, location, response);
+		_handleDirectory(uri, location, response);
 	else
 		_handle_file(uri, response);
 }

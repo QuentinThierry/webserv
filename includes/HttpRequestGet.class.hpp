@@ -25,6 +25,8 @@ class HttpRequestGet : public HttpRequest
 
 	private:
 		void	_initResponse( Socket const * const socket, HttpResponse &response );
+		void	_handleDirectory(std::string & uri, Location const & location, HttpResponse & response);
+		void	_redirectDirectory(HttpResponse & response);
 
 		HttpRequestGet( void );
 };

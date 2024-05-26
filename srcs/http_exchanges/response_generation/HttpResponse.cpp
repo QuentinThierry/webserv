@@ -100,12 +100,11 @@ static e_status_code	_openFileStream(std::string & filename,
 {
 	if (access(filename.c_str(), F_OK) == -1)
 	{
-		if (errno == ENOENT)
+		if (errno == ENOENT || errno == ENOTDIR)
 			return HTTP_404;
 		else if (errno == EACCES)
 			return HTTP_403;
-		else
-			return HTTP_500;//!not sure
+		return HTTP_500; //! not sure
 	}
 	if (HttpRequestPost::isBusyFile(filename))
 		return HTTP_404;
