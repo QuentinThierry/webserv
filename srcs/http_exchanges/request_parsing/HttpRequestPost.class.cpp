@@ -127,7 +127,7 @@ HttpRequestPost::~HttpRequestPost( void )
 		if (_file.is_open())
 		{
 			_file.close();
-			// remove(_filename.c_str());
+			remove(_filename.c_str());
 		}
 		_busyFile.erase(pos);
 	}
