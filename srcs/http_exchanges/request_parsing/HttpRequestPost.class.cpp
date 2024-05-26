@@ -28,7 +28,8 @@ static void trim_filename(std::string & filename)
 bool	HttpRequestPost::isBusyFile(std::string filename)
 {
 	trim_filename(filename);
-	for (std::vector<std::string>::iterator it = _busyFile.begin(); it != _busyFile.end(); it++)
+	for (std::vector<std::string>::iterator it = _busyFile.begin();
+			it != _busyFile.end(); it++)
 	{
 		if (filename == *it)
 			return true;
@@ -119,7 +120,8 @@ HttpRequestPost::HttpRequestPost( void ) //unused
 
 HttpRequestPost::~HttpRequestPost( void )
 {
-	std::vector<std::string>::iterator pos = find(_busyFile.begin(), _busyFile.end(), _filename);
+	std::vector<std::string>::iterator pos = find(_busyFile.begin(),
+				_busyFile.end(), _filename);
 	if (pos != _busyFile.end())
 	{
 		if (_file.is_open())
@@ -136,55 +138,84 @@ bool HttpRequestPost::hasBody() const
 	return (_chunk_body_flags == true || _content_length_flags == true);
 }
 
+
+void HttpRequestPost::_processBodyContentLength(bool &end)
+{
+	_file.write(_body.c_str(), _body.size());
+	if (!_file.good())
+		throw ExceptionHttpStatusCode(HTTP_500); //!not sure
+	if (_read_size == _content_length)
+	{
+		_closeFile();
+		end = true;
+	}
+	_body.clear();
+}
+
+void HttpRequestPost::_parseChunkSize()
+{
+	_content_length = 0;
+	for (unsigned int i = 0; i < _body.size(); i++)
+	{
+		if (std::isdigit(_body[i]) == 0)
+		{
+			if (i + 1 >= _body.size())
+				return ;
+			if (!(_body[i] == '\r' && _body[i + 1] == '\n'))
+				throw ExceptionHttpStatusCode(HTTP_400);
+			_has_size_chunk = true;
+			_body = _body.substr(i + 2, _body.size() - (i + 2));
+			break ;
+		}
+		if (_content_length > (UINT64_MAX - (_body[i] - '0')) / 10)
+			throw ExceptionHttpStatusCode(HTTP_413);
+		_content_length = _content_length * 10 + (_body[i] - '0');
+	}
+}
+
+bool HttpRequestPost::_parseChunkBody()
+{
+	uint64_t write_size = _body.size();
+
+	if (_chunk_read_size + _body.size() > _content_length)
+		write_size = _content_length - _chunk_read_size;
+	_file.write(_body.c_str(), write_size);
+	if (!_file.good())
+		throw ExceptionHttpStatusCode(HTTP_500); //!not sure
+	_chunk_read_size += write_size;
+	if (write_size == _body.size())
+		_body.clear();
+	else
+		_body = _body.substr(write_size, _body.size() - (write_size));
+	if (_body.size() < 2)
+		return false;
+	if (_body[0] == '\r' && _body[1] == '\n')
+	{
+		_body = _body.substr(2, _body.size() - 2);
+		_has_size_chunk = false;
+		_chunk_read_size = 0;
+	}
+	else
+	{
+		std::cout << _body.size() << _body << std::endl;
+		throw ExceptionHttpStatusCode(HTTP_400);
+	}
+	return true;
+}
+
 void HttpRequestPost::_processBody(bool &end)
 {
 	if (_content_length_flags)
-	{
-		_file.write(_body.c_str(), _body.size());
-		if (!_file.good())
-			throw ExceptionHttpStatusCode(HTTP_500); //!not sure
-		std::cout << "size : "<<_read_size<<std::endl;
-		if (_read_size == _content_length)
-		{
-			std::cout << "finish read \n";
-			_closeFile();
-			end = true;
-		}
-		_body.clear();
-	}
+		_processBodyContentLength(end);
 	else if (_chunk_body_flags && !_body.empty())
 	{
-		std::cout << "chunk\n";
 		if (!_has_size_chunk)
 		{
-			_content_length = 0;
-			for (unsigned int i = 0; i < _body.size(); i++)
-			{
-				std::cout << "char :" << _body[i] <<std::endl;
-				if (std::isdigit(_body[i]) == 0)
-				{
-					if (i + 1 < _body.size())
-					{
-						if (_body[i] == '\r' && _body[i + 1] == '\n')
-						{
-							_has_size_chunk = true;
-							_body = _body.substr(i + 2, _body.size() - (i + 2));
-							std::cout << "chunk size: " <<_content_length <<std::endl;
-							break ;
-						}
-						throw ExceptionHttpStatusCode(HTTP_400);
-					}
-					return ;
-				}
-				if (_content_length > (UINT64_MAX - (_body[i] - '0')) / 10)
-					throw ExceptionHttpStatusCode(HTTP_413);
-				_content_length = _content_length * 10 + (_body[i] - '0');
-				if (i + 1 == _body.size())
-					return ;
-			}
+			_parseChunkSize();
+			if (_has_size_chunk == false)
+				return;
 			if (_content_length == 0)
 			{
-				std::cout << "finish read chunk\n";
 				_closeFile();
 				end = true;
 				return ;
@@ -192,32 +223,7 @@ void HttpRequestPost::_processBody(bool &end)
 		}
 		if (_has_size_chunk)
 		{
-			uint64_t write_size = _body.size();
-			if (_chunk_read_size + _body.size() > _content_length)
-				write_size = _content_length - _chunk_read_size;
-			_file.write(_body.c_str(), write_size);
-			if (!_file.good())
-				throw ExceptionHttpStatusCode(HTTP_500); //!not sure
-			_chunk_read_size += write_size;
-			if (write_size == _body.size())
-				_body.clear();
-			else
-				_body = _body.substr(write_size, _body.size() - (write_size));
-			if (_body.size() > 2)
-			{
-				if (_body[0] == '\r' && _body[1] == '\n')
-				{
-					_body = _body.substr(2, _body.size() - 2);
-					_has_size_chunk = false;
-					_chunk_read_size = 0;
-				}
-				else
-				{
-					std::cout << _body.size() << _body << std::endl;
-					throw ExceptionHttpStatusCode(HTTP_400);
-				}
-			}
-			else
+			if (!_parseChunkBody())
 				return ;
 		}
 		if (!_body.empty() && !end)
@@ -230,14 +236,12 @@ void HttpRequestPost::readBody(int fd, Socket const * const socket, bool &end)
 	end = false;
 	char buffer[READ_SIZE + 1] = {0};
 	int read_size = _getSizeToReadBody(socket->getServer().getClientMaxBodySize());
-	std::cout << "read :" << read_size << std::endl;
 	int ret = read(fd, buffer, read_size);
-	std::cout << "ret :" << ret << std::endl;
 	if (ret == -1 || ret == 0)
 	{
 		if (ret == -1)
 			protected_write(g_err_log_fd, error_message_server(socket->getServer(),
-						std::string("Error: read() ") + std::strerror(errno) + "at"));
+					std::string("Error: read() ") + std::strerror(errno) + "at"));
 		else
 			protected_write(g_err_log_fd, error_message_server(socket->getServer(),
 				std::string("Error: read() end of file before the end of the body at")));
@@ -251,7 +255,8 @@ void HttpRequestPost::readBody(int fd, Socket const * const socket, bool &end)
 void HttpRequestPost::_closeFile()
 {
 	_file.close();
-	std::vector<std::string>::iterator pos = find(_busyFile.begin(), _busyFile.end(), _filename);
+	std::vector<std::string>::iterator pos = find(_busyFile.begin(),
+			_busyFile.end(), _filename);
 	if (pos != _busyFile.end())
 		_busyFile.erase(pos);
 }
@@ -290,10 +295,9 @@ void	HttpRequestPost::process_header(Socket const * const socket)
 	else if (errno == EACCES)
 		throw ExceptionHttpStatusCode(HTTP_403);
 	_setBodyReadType(socket->getServer().getClientMaxBodySize());
-	_chunk_body_flags = true;
+	// _chunk_body_flags = true;//!for test
 	_openFile();
 	bool end = false;
-	std::cout << std::endl << _read_size << "body:" << _body << std::endl;
 	_processBody(end);
 	if (end)
 	{
@@ -328,7 +332,8 @@ void HttpRequestPost::_setBodyReadType(uint64_t maxClientBody)
 	}
 }
 
-void	HttpRequestPost::_initResponse( Socket const * const socket, HttpResponse &response )
+void	HttpRequestPost::_initResponse( Socket const * const socket,
+				HttpResponse &response )
 {
 	response.setVersion(getVersion());
 	response.setStatusCode(HTTP_201);
@@ -345,7 +350,8 @@ void	HttpRequestPost::_initResponse( Socket const * const socket, HttpResponse &
 	//add location with uri;
 }
 
-void	HttpRequestPost::generate_response( Socket const * const socket, HttpResponse &response )
+void	HttpRequestPost::generate_response( Socket const * const socket,
+				HttpResponse &response )
 {
 	_initResponse(socket, response);
 	response.fillHeader();

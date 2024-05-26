@@ -28,7 +28,9 @@ class HttpRequestPost : public HttpRequest
 		void			_openFile();
 		void			_closeFile();
 		void			_processBody(bool &end);
-
+		void			_processBodyContentLength(bool &end);
+		bool			_parseChunkBody();
+		void			_parseChunkSize();
 		static std::vector<std::string> _busyFile;
 
 		std::string		_filename;

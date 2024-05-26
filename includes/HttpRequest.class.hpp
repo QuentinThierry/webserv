@@ -6,7 +6,7 @@
 /*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/12 18:27:23 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/24 19:07:41 by jvigny           ###   ########.fr       */
+/*   Updated: 2024/05/26 12:45:24 by jvigny           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 
 # include <vector>
 
-#define READ_SIZE 77
+#define READ_SIZE 100
 typedef enum{
 	GET,
 	POST,
