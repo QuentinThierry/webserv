@@ -1,4 +1,5 @@
 #include "HttpResponse.class.hpp"
+#include "HttpRequestPost.class.hpp"
 #include "Cluster.class.hpp"
 
 HttpResponse::HttpResponse( HttpResponse const & model)
@@ -35,7 +36,8 @@ HttpResponse & HttpResponse::operator=(HttpResponse const & model )
 
 HttpResponse::~HttpResponse( void )
 {
-	//TODO
+	if (_bodyFile.is_open())
+		_bodyFile.close();
 }
 
 HttpResponse::HttpResponse( void )
@@ -103,8 +105,10 @@ static e_status_code	_openFileStream(std::string & filename,
 		else if (errno == EACCES)
 			return HTTP_403;
 		else
-			return HTTP_500;
+			return HTTP_500;//!not sure
 	}
+	if (HttpRequestPost::isBusyFile(filename))
+		return HTTP_404;
 	dest.open(filename.c_str());
 	if (dest.is_open() == false)
 		return HTTP_403;
@@ -225,8 +229,6 @@ void HttpResponse::writeResponse(int fd, Cluster &cluster)
 	if (_header.empty() && _body.empty() && _fileOpen == false)
 	{
 		std::cout << "end\n";
-		if (_fileOpen == true) //pas possible 
-			_bodyFile.close();
 		cluster.closeConnection(fd);
 	}
 }
