@@ -160,3 +160,18 @@ void	parse_tokens(std::queue<std::string> tokens)
 	}
 }
 
+std::vector<Server>	parse_config(char const *filename)
+{
+	std::fstream s;
+
+	s.open(filename, std::ios::in);
+	if (!s.is_open())
+		ThrowMisc("Failed to open '" + std::string(filename) + "'");
+	std::queue<std::string> tokens;
+	tokenize_file(s, tokens);
+	s.close();
+	parse_tokens(tokens);
+	std::vector<Server> servers;
+	interpret_tokens(tokens, servers);
+	return servers;
+}
