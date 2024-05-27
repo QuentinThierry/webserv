@@ -101,29 +101,52 @@ static std::string _generate_link(std::string link_text, std::string link_dest)
 	return (link);
 }
 
+static std::string _generate_table_cell(e_cell_type cell_type, std::string style_parameters, std::string content)
+{
+	std::string type_tag;
+
+	type_tag = cell_type == CELL_NORMAL ? "td ":"th ";
+	return (std::string ("<") + type_tag + " style=\"" + style_parameters + "\">" + content + "</" + type_tag +">");
+}
+
+static std::string _style_padding(const char *padding)
+{
+	return (std::string("padding-left: ") + padding + "; ");
+}
+
+static std::string _style_width(const char *width)
+{
+	return (std::string("max-width: ") + width + "; ");
+}
+
 static std::string _generate_table_header(void)
 {
 	std::string header_line;
 
-	header_line = _new_line("<thead>");
-	header_line += _new_line("<tr style=\"text-align: left; text-decoration: underline; font-weight: bold\">");
-	header_line += _new_line("<td></td>");
-	header_line += _new_line("<td>Name</td>");
-	header_line += _new_line("<td style=\"width:20em\">Last modification</td>");
-	header_line += _new_line("<td style=\"width:10em\">Size (o)</td>");
-	header_line += _new_line("</tr>");
+	header_line = _new_line(std::string("<thead>"));
+	header_line += _new_line(std::string("<tr style=\"text-align: left; text-decoration: underline; font-weight: bold\">"));
+	header_line += _new_line(std::string("<td></td>"));
+	header_line += _new_line(_generate_table_cell(CELL_HEADER, _style_width(MAX_WIDTH_NAME)
+		+ _style_padding(PADDING_LEFT_NAME), "Name"));
+	header_line += _new_line(_generate_table_cell(CELL_HEADER, _style_width(MAX_WIDTH_SIZE)
+		+ _style_padding(PADDING_LEFT_SIZE), "Size (o)"));
+	header_line += _new_line(_generate_table_cell(CELL_HEADER, _style_width(MAX_WIDTH_DATE)
+		+ _style_padding(PADDING_LEFT_DATE) + "text-align: center;", "Last modification"));
+	header_line += _new_line(std::string("</tr>"));
+	header_line += _new_line(std::string("</thead>"));
 	return (header_line);
 }
 
-static std::string _generate_table_line(std::string col0, std::string col1, std::string col2, std::string col3)
+static std::string _generate_table_line(std::string symbol, std::string name, std::string size, std::string date)
 {
 	std::string line;
 
-	line = _new_line(std::string("<tr style=\"width:100%; text-align: left; font-size: 100%;\">"));
-	line += _new_line(std::string("<td style=\"width: 1em;\">") + col0 + "</td>");
-	line += _new_line(std::string("<td style=\"width: 40em; font-weight: bold; padding-left:5px\">") + col1 + "</td>");
-	line += _new_line(std::string("<td style=\" width:20em\">") + col2 + "</td>");
-	line += _new_line(std::string("<td style=\" width:10em\">") + col3 + "</td>");
+	line = _new_line(std::string("<tr style=\"max-width:100%; text-align: left; font-size: 100%\">"));
+	line += _new_line(_generate_table_cell(CELL_HEADER, _style_width("1em"), symbol));
+	line += _new_line(_generate_table_cell(CELL_NORMAL, _style_width(MAX_WIDTH_NAME) 
+		+ _style_padding(PADDING_LEFT_NAME) + "; font-weight: bold; overflow-wrap: break-word;", name));
+	line += _new_line(_generate_table_cell(CELL_NORMAL, _style_width(MAX_WIDTH_SIZE) + _style_padding(PADDING_LEFT_SIZE), size));
+	line += _new_line(_generate_table_cell(CELL_NORMAL, _style_width(MAX_WIDTH_DATE) + _style_padding(PADDING_LEFT_DATE), date));
 	line += _new_line(std::string("</tr>"));
 	return (line);
 }
@@ -133,7 +156,7 @@ static std::string _get_last_modified(time_t &date)
 	std::tm * ptm = std::localtime(&date);
 	char date_str[32];
 	// Format: 15.06.2009 20:20:00
-	std::strftime(date_str, 32, "%d.%m.%Y %H:%M:%S", ptm);
+	std::strftime(date_str, 32, "%d.%m.%Y  %H:%M:%S", ptm);
 	return (date_str);
 }
 
@@ -168,14 +191,14 @@ static std::string _generate_add_one_document_link_line(s_document_data &documen
 	link = _generate_link(document_data.name, uri_root + "/" + document_data.name);
 	last_modified = _get_last_modified(document_data.last_modified);
 
-	return (_generate_table_line(symbol, link, last_modified, size));
+	return (_generate_table_line(symbol, link, size, last_modified));
 }
 
 static std::string _generate_add_all_documents_link_lines(std::vector<s_document_data> &documents_data, std::string &uri_root)
 {
 	std::string	all_documents_links;
 
-	all_documents_links += _new_line("<tbody style=\"width:100%\">");
+	all_documents_links += _new_line("<tbody style=\"max-width:100vw\">");
 	all_documents_links += _generate_add_parent_link_line(documents_data, uri_root);
 	for (std::vector<s_document_data>::iterator it = documents_data.begin(); it != documents_data.end(); ++it)
 	{
@@ -185,19 +208,27 @@ static std::string _generate_add_all_documents_link_lines(std::vector<s_document
 	return (all_documents_links);
 }
 
+static std::string _generate_index_table(std::vector<s_document_data> &documents_data, std::string &uri_root)
+{
+	std::string html_index_table;
+	
+	html_index_table += _new_line("<table style=\"margin:2 2vw 2 2vw; padding:0.5em 0.5em 0.5em 0.5em ;  border: solid; border-radius: 0.5em; border-width:2px; max-width: 90vw\">");
+	html_index_table += _generate_table_header();
+	html_index_table += _generate_add_all_documents_link_lines(documents_data, uri_root);
+	html_index_table += _new_line("</table>");
+	return (html_index_table);
+}
+
 std::string Autoindex::_generate_html_body(std::string &uri)
 {
 	std::string html_body;
 
-	html_body = _new_line("<body style=\"font-family:sans-serif; padding-left:2%\">");
+	html_body = _new_line("<body style=\"font-family:sans-serif; padding-left:1%\">");
 
 	html_body += _new_line(std::string("<h1> Index of ") + uri + "</h1>");
 	html_body += _new_line("");
 
-	html_body += _new_line("<table style=\"padding:0 5% 0 5%; width: 90%\">");
-	html_body += _generate_table_header();
-	html_body += _generate_add_all_documents_link_lines(_documents_data, _uri_root);
-	html_body += _new_line("</table>");
+	html_body += _generate_index_table(_documents_data, _uri_root);
 
 	html_body += _new_line("</body>");
 	return (html_body);

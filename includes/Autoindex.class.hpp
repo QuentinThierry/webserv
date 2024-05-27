@@ -13,11 +13,25 @@
 
 #define HAS_READ_RIGHT(mode) (((mode) & (1 << 8)) != 0)
 
+#define MAX_WIDTH_NAME "40vw"
+#define MAX_WIDTH_SIZE "20vw"
+#define MAX_WIDTH_DATE "20vw"
+
+#define PADDING_LEFT_NAME "1vw"
+#define PADDING_LEFT_SIZE "3vw"
+#define PADDING_LEFT_DATE "3vw"
+
 typedef enum
 {
 	IS_DIRECTORY,
 	IS_FILE
 }	document_type;
+
+typedef enum
+{
+	CELL_HEADER,
+	CELL_NORMAL
+}	e_cell_type;
 
 typedef struct 
 {
