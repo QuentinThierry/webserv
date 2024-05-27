@@ -87,6 +87,11 @@ std::string Autoindex::_generate_html_header( void )
 		<head>\r\n\
 		<meta charset=\"UTF-8\">\r\n\
 		<title>Index</title>\r\n\
+			<style>\r\n\
+			table tbody tr:hover {\r\n\
+				box-shadow: inset 1px 1px 5px #d4d4d4;\r\n\
+			}\r\n\
+			</style>\r\n\
 		</head>\r\n";
 	return (html_header);
 }
@@ -143,7 +148,7 @@ static std::string _generate_table_line(std::string symbol, std::string name, st
 {
 	std::string line;
 
-	line = _new_line(std::string("<tr style=\"max-width:100%; text-align: left; font-size: 100%\" hover{style=\"font-size=10em\"}>"));
+	line = _new_line(std::string("<tr style=\"max-width:100%; text-align: left; font-size: 100%; margin: 5px 0 0 5px\"}>"));
 	line += _new_line(_generate_table_cell(CELL_HEADER, _style_width("1em"), symbol));
 	line += _new_line(_generate_table_cell(CELL_NORMAL, _style_width(MAX_WIDTH_NAME) 
 		+ _style_padding(PADDING_LEFT_NAME) + "; font-weight: bold; overflow-wrap: break-word;", name));
