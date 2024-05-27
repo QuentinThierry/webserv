@@ -1,16 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   HttpField.class.cpp                                :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/04 15:52:09 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/15 18:15:01 by jvigny           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#include "../includes/HttpField.class.hpp"
+#include "HttpField.class.hpp"
 
 HttpField::HttpField ( void )
 {}
@@ -30,10 +18,10 @@ HttpField::HttpField( std::string const & whole_line ) throw (ExceptionHttpStatu
 
 }
 
-HttpField::HttpField(std::string const & name, std::vector<std::string> const & values ) throw (ExceptionHttpStatusCode)
+HttpField::HttpField(std::string const & name, std::vector<std::string> const & values )
 {
-	_setName(name);
-	_addNewValues(values[0]);
+	_name = name;
+	_values = values;
 }
 
 HttpField::HttpField(std::string const & name, std::string const & values) throw (ExceptionHttpStatusCode)

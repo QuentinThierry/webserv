@@ -1,16 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   HttpTools.cpp                                      :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/04 19:47:57 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/15 18:16:19 by jvigny           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#include "../includes/HttpTools.hpp"
+#include "HttpTools.hpp"
 
 static void	_init_available_http_methods( void )
 {
@@ -220,4 +208,13 @@ void	throw_http_err_with_log(e_status_code error_code, std::string log_msg)
 {
 	protected_write(g_err_log_fd, log_msg);
 	throw(ExceptionHttpStatusCode(error_code));
+}
+
+std::string	getUri(std::string root, std::string target)
+{
+	std::string uri = root + target;
+	size_t pos = uri.find_first_of('?');
+	if (pos != std::string::npos)
+		uri = uri.substr(0, pos);
+	return (uri);
 }

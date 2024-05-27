@@ -1,17 +1,17 @@
 #ifndef HTTPREPONSE_CLASS_HPP
 # define HTTPREPONSE_CLASS_HPP
+
 # include "Shared.hpp"
+# include "utils.hpp"
 # include "Socket.class.hpp"
 # include "HttpResponseStatus.hpp"
 # include "HttpField.class.hpp"
-# include "util.hpp"
+
 # include <vector>
-# include <fstream>
 # include <sys/types.h>
 # include <sys/stat.h>
-# include <unistd.h>
 
-#define SIZE_WRITE 50
+#define SIZE_WRITE 100
 
 class Cluster;
 
@@ -29,18 +29,18 @@ class HttpResponse
 		bool		handle_redirect(Location const &);
 		void		fillHeader();
 
-		uint32_t	statusCodeToInt() const;
-		e_status_code	intToStatusCode(uint16_t number) const;
-
 		void		setStatusCode(e_status_code code);
 		void		setVersion(it_version version);
 		void		addAllowMethod(std::vector<std::string> const &);
-		e_status	openFstream(std::string filename);
-		bool		checkFieldExistence(std::string const & field_name) const;
+		void		addField(std::string name, std::string value);
+
+		e_status_code	openBodyFileStream(std::string filename);
+		bool			checkFieldExistence(std::string const & field_name) const;
 
 		void		generateErrorResponse(e_status_code status, Server const & server);
 
 		void		writeResponse(int fd, Cluster &cluster);
+
 	private:
 		void		_removeField(std::string const &);
 

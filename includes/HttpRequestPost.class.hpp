@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   HttpRequestPost.class.hpp                          :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/12 19:23:29 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/15 16:59:35 by jvigny           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef HTTPREQUESTPOST_CLASS_HPP
 # define HTTPREQUESTPOST_CLASS_HPP
 
@@ -27,22 +15,34 @@ class HttpRequestPost : public HttpRequest
 		HttpRequestPost & operator= (HttpRequestPost const & model);
 		~HttpRequestPost( void );
 
-		void	generate_response( Socket const * const socket, HttpResponse &response );
-		void			process_header( Socket const * const socket );
-		void			readBody(int fd, Socket const * const socket);
+		void			processHeader( Socket const * const socket );
+		void			generateResponse( Socket const * const socket, HttpResponse &response );
 		bool			hasBody() const;
-
+		void			readBody(int fd, Socket const * const socket, bool &end);
+		static bool		isBusyFile(std::string filename);
 	private:
 		HttpRequestPost( void );
+		void	_initResponse( Socket const * const socket, HttpResponse &response );
 		void			_setBodyReadType(uint64_t maxClientBody);
 		uint64_t		_getSizeToReadBody(uint64_t maxClientBody) const;
-		int		fd;
+		void			_openFile();
+		void			_closeFile();
+		void			_processBody(bool &end);
+		void			_processBodyContentLength(bool &end);
+		bool			_parseChunkBody();
+		void			_parseChunkSize();
+		static std::vector<std::string> _busyFile;
 
-		uint64_t _content_length;
-		uint64_t _read_size;
+		std::string		_filename;
+		std::ofstream	_file;
 
-		bool _chunk_body_flags;
-		bool _content_length_flags;
+		uint64_t	_content_length;
+		uint64_t	_chunk_read_size;
+		uint64_t	_read_size;
+
+		bool		_has_size_chunk;
+		bool		_chunk_body_flags;
+		bool		_content_length_flags;
 };
 
 #endif

@@ -1,5 +1,5 @@
 #include "Socket.class.hpp"
-#include "util.hpp"
+#include "utils.hpp"
 
 Socket::Socket(): _fd(-1), _addr(), _sizeaddr(sizeof(_addr)), _server(){}
 
@@ -13,9 +13,12 @@ Socket::~Socket(){};
 
 Socket &Socket::operator=(Socket const &copy)
 {
-	_fd = copy._fd;
-	_addr = copy._addr;
-	_sizeaddr = copy._sizeaddr;
+	if (this != &copy)
+	{
+		_fd = copy._fd;
+		_addr = copy._addr;
+		_sizeaddr = copy._sizeaddr;
+	}
 	return *this;
 }
 
@@ -26,6 +29,13 @@ Socket::Socket(Server const &server):_server(server)
 	{
 		protected_write(g_err_log_fd, error_message_server(server,
 					std::string("Error: socket() ") + std::strerror(errno)));
+		return;
+	}
+	const int tmp = 1;
+	if (setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &tmp, sizeof(int)) < 0)
+	{
+		protected_write(g_err_log_fd, error_message_server(server,
+					std::string("Error: setsockopt() ") + std::strerror(errno)));
 		return;
 	}
 	_sizeaddr = sizeof(_addr);
@@ -61,12 +71,12 @@ int const & Socket::getFd() const
 	return _fd;
 }
 
-struct sockaddr_in const & Socket::getAddresse() const
+struct sockaddr_in const & Socket::getAddress() const
 {
 	return _addr;
 }
 
-socklen_t const & Socket::getSizeAddresse() const
+socklen_t const & Socket::getSizeAddress() const
 {
 	return _sizeaddr;
 }

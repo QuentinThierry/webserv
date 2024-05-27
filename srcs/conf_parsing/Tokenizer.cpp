@@ -23,9 +23,10 @@ std::string	_get_token(std::string &buffer, unsigned int &i)
 		i++;
 		return ";";
 	}
+
 	int start_pos = i;
 	while (i < buffer.size() && buffer[i] != '{' && buffer[i] != '}'
-			&& buffer[i] != ';' && buffer[i] != ' ' && buffer[i] != '\t')
+			&& buffer[i] != ';' && buffer[i] != ' ' && buffer[i] != '\t' && buffer[i] != '#')
 		i++;
 	return buffer.substr(start_pos, i - start_pos);
 }
@@ -36,6 +37,8 @@ void	_fill_line_tokens(std::string &buffer, std::queue<std::string> &tokens)
 	while (i < buffer.size())
 	{
 		_skip_white_spaces(buffer, i);
+		if (buffer[i] == '#')
+			buffer.clear();
 		if (i >= buffer.size())
 			break;
 		tokens.push(_get_token(buffer, i));

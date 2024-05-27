@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   HttpTools.hpp                                      :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/04 19:43:37 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/15 18:13:52 by jvigny           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef HTTPTOOLS_HPP
 # define HTTPTOOLS_HPP
 
@@ -34,7 +22,7 @@ void		_init_available_http_methods_versions( void );
 bool		str_contains_a_colon(std::string const & str,
 				size_t first_colon_pos = std::string::npos);
 bool		str_contains_one_single_colon(std::string const & str,
-				size_t first_colon_pos);
+				size_t first_colon_pos = std::string::npos);
 bool		is_line_properly_ended(std::stringstream & stream, std::string & line);
 
 bool		is_ascii(unsigned char const &c);
@@ -55,5 +43,7 @@ e_status	find_end_word(std::string const & str, size_t start_idx,
 				std::string delimiters, size_t &end_idx);
 
 void		throw_http_err_with_log(e_status_code error_code, std::string log_msg);
+
+std::string	getUri(std::string root, std::string target);
 
 #endif

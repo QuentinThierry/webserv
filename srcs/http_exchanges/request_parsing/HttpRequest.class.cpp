@@ -1,8 +1,8 @@
 #include "HttpRequest.class.hpp"
 
-bool HttpRequest::checkMethod(Location const & location) const
+bool HttpRequest::isAcceptedMethod(Location const & location) const
 {
-	return (location.does_accept_method(*getMethod()));
+	return (location.doesAcceptMethod(*getMethod()));
 }
 
 HttpRequest::HttpRequest ( void ) : HttpRequestLine()
@@ -11,7 +11,7 @@ HttpRequest::HttpRequest ( void ) : HttpRequestLine()
 }
 
 HttpRequest::HttpRequest ( HttpRequest const & model ) :
-	HttpRequestLine(model), _fields(model._fields), _body(model._body)
+	HttpRequestLine(model), _body(model._body), _fields(model._fields)
 {
 }
 
@@ -99,9 +99,9 @@ void	HttpRequest::_fill_fields( std::stringstream &request_stream)
 	}
 }
 
-void	HttpRequest::display_request( void ) const
+void	HttpRequest::displayRequest( void ) const
 {
-	display_request_line();
+	displayRequest_line();
 	for (std::vector<HttpField>::const_iterator it = _fields.begin();
 			it != _fields.end(); ++it)
 	{

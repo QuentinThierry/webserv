@@ -1,16 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   HttpRequestLine.class.cpp                          :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/12 20:02:08 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/15 18:15:47 by jvigny           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#include "../includes/HttpRequestLine.class.hpp"
+#include "HttpRequestLine.class.hpp"
 
 HttpRequestLine::HttpRequestLine( void )
 {
@@ -147,7 +135,7 @@ void	HttpRequestLine::_fill_request_line_with_stream( std::stringstream & reques
 	_fill_request_line(first_line);
 }
 
-void	HttpRequestLine::display_request_line( void ) const
+void	HttpRequestLine::displayRequest_line( void ) const
 {
 	std::cout << *_method << " " << _target << " " << *_version << std::endl;
 }
