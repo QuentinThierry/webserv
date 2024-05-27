@@ -15,13 +15,15 @@ Autoindex & Autoindex::operator=(Autoindex const & model)
 	return (*this);
 }
 
-static s_document_data _get_document_data(struct dirent * document)
+static s_document_data _get_document_data(std::string &uri_root, struct dirent * document)
 {
 	s_document_data	doc_data = {};
 	struct stat		doc_stat;
+	std::string		file_name;
 
-	if (stat(document->d_name, &doc_stat))
-		throw (ExceptionHttpStatusCode(HTTP_500));
+	file_name = uri_root + "/" +  document->d_name;
+	if (stat(file_name.c_str(), &doc_stat))
+ 		throw (ExceptionHttpStatusCode(HTTP_500));
 	if (HAS_READ_RIGHT(doc_stat.st_mode))
 	{
 		doc_data.is_reachable = true;
@@ -50,7 +52,7 @@ Autoindex::Autoindex( std::string uri )  throw (ExceptionHttpStatusCode)
 	struct dirent *	document;
 	s_document_data	doc_data;
 
-	_uri_root = uri;
+	_uri_root = uri + (uri[uri.size() - 1] != '/' ? "/":"");
 	directory = opendir(uri.c_str());
 	if (!directory)
 		throw (ExceptionHttpStatusCode(HTTP_500));
@@ -58,7 +60,7 @@ Autoindex::Autoindex( std::string uri )  throw (ExceptionHttpStatusCode)
 	document = readdir(directory);
 	while (document)
 	{
-		doc_data = _get_document_data(document);
+		doc_data = _get_document_data(uri, document);
 		if (doc_data.is_reachable && doc_data.name != ".")
 			_documents_data.push_back(doc_data);
 		document = readdir(directory);
@@ -141,7 +143,7 @@ static std::string _generate_table_line(std::string symbol, std::string name, st
 {
 	std::string line;
 
-	line = _new_line(std::string("<tr style=\"max-width:100%; text-align: left; font-size: 100%\">"));
+	line = _new_line(std::string("<tr style=\"max-width:100%; text-align: left; font-size: 100%\" hover{style=\"font-size=10em\"}>"));
 	line += _new_line(_generate_table_cell(CELL_HEADER, _style_width("1em"), symbol));
 	line += _new_line(_generate_table_cell(CELL_NORMAL, _style_width(MAX_WIDTH_NAME) 
 		+ _style_padding(PADDING_LEFT_NAME) + "; font-weight: bold; overflow-wrap: break-word;", name));
@@ -164,8 +166,8 @@ static std::string _generate_add_parent_link_line(std::vector<s_document_data> &
 {
 	if (_documents_data.at(0).name == std::string(".."))
 	{
-		_documents_data.erase(_documents_data.begin());
-		return (_generate_table_line("📁", _generate_link("..", uri_root + "/" + ".."), "", ""));
+ 		_documents_data.erase(_documents_data.begin());
+		return (_generate_table_line("📁", _generate_link("..", uri_root + ".."), "", ""));
 	}
 	else
 		return (_generate_table_line("", "<p>parent unreachable</p>", "", ""));
@@ -188,7 +190,7 @@ static std::string _generate_add_one_document_link_line(s_document_data &documen
 		symbol = "🗎";
 		size = ft_itoa(document_data.size);
 	}
-	link = _generate_link(document_data.name, uri_root + "/" + document_data.name);
+	link = _generate_link(document_data.name, uri_root + document_data.name);
 	last_modified = _get_last_modified(document_data.last_modified);
 
 	return (_generate_table_line(symbol, link, size, last_modified));
