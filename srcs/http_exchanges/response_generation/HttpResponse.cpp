@@ -154,6 +154,19 @@ bool	HttpResponse::checkFieldExistence(std::string const & field_name) const
 	return (false);
 }
 
+const std::vector<std::string>	&HttpResponse::getFieldValue(
+	std::string const & field_name) const throw(ExceptionHttpStatusCode)
+{
+	std::vector<HttpField>::const_iterator it;
+
+	for (it = _fields.begin(); it != _fields.end(); ++it)
+	{
+		if (it->getName() == field_name)
+			return (it->getValues());
+	}
+	throw(ExceptionHttpStatusCode(HTTP_500));
+}
+
 void	HttpResponse::addAllowMethod(std::vector<std::string> const &method)
 {
 	HttpField res("Allow", method);
