@@ -48,12 +48,17 @@ FILES_HTTP_SHARED		=	$(addprefix shared/, \
 								utils \
 							)
 
+FILES_CGI				=	$(addprefix cgi/, \
+								Cgi.class \
+							)
+
 
 FILES_NAMES				=	\
 							$(FILES_CONF_PARSING) \
 							$(FILES_HTTP_EXCHANGES) \
 							$(FILES_SERVER) \
 							$(FILES_HTTP_SHARED) \
+							$(FILES_CGI) \
 							main
 
 SRC_DIR			=	srcs

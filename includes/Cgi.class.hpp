@@ -7,9 +7,11 @@
 #include <fcntl.h>
 #include <cstdlib>
 #include <sys/wait.h>
+#include "HttpExchange.class.hpp"
 
 #define READ 0
 #define WRITE 1
+#define NB_ENV_VARIABLE 19
 
 class Cgi
 {
@@ -23,16 +25,15 @@ class Cgi
 		int write() const;
 		int write(std::string to_write) const;
 		ssize_t read(std::string &buffer) const;
-		int execGet(std::string cgi_path, std::string file_name, std::string root_path);
-		int execPost(std::string cgi_path, std::string root_path);
+		int execGet(std::string cgi_path, std::string file_name, std::string root_path, HttpExchange const &httpExchange);
+		int	execPost(std::string cgi_path, std::string root_path, HttpExchange const &httpExchange);
 		bool isAlive() const;
 
 		~Cgi();
 
 	private:
-		int _exec(std::string cgi_path, char const * file_name, std::string root_path);
+		int _exec(std::string cgi_path, char const * file_name, std::string root_path, HttpExchange const &httpExchange);
 
-		int				_fd_file_in;
 		int				_pipe_input[2];
 		int				_pipe_output[2];
 		pid_t			_pid;
