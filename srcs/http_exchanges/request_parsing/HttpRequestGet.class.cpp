@@ -51,9 +51,12 @@ static void	_handle_file(std::string & uri, HttpResponse & response)
 		throw ExceptionHttpStatusCode(error_code);
 }
 
-static e_status	_handle_index_file(std::string & uri, Location const & location,
+static e_status	_handle_index_file(std::string const & target, Location const & location,
 				HttpResponse & response)
 {
+	std::string	uri;
+
+	uri = getUri(location.getRootPath(), target);
 	if (location.updateUriToIndex(uri) == SUCCESS)
 	{
 		_handle_file(uri, response);
@@ -81,9 +84,10 @@ static void _add_content_length_field(HttpResponse & response)
 	response.addField(field_name, length);
 }
 
-static void	_handle_Autoindex(std::string & uri, HttpResponse & response)
+static void	_handle_Autoindex(std::string const & location_root,
+				std::string const & target, HttpResponse & response)
 {
-		Autoindex index(uri);
+		Autoindex index(location_root, target);
 
 		_add_autoindex_body(response, index);
 		_add_content_length_field(response);		
@@ -91,11 +95,12 @@ static void	_handle_Autoindex(std::string & uri, HttpResponse & response)
 		response.fillHeader();
 }
 
-static void	_handle_directory(std::string & uri, Location const & location, HttpResponse & response)
+static void	_handle_directory(std::string const & target,
+				Location const & location, HttpResponse & response)
 {
 	if (location.getHasAutoindex())
-		_handle_Autoindex(uri, response);
-	else if (_handle_index_file(uri, location, response) == SUCCESS)
+		_handle_Autoindex(location.getRootPath(), target, response);
+	else if (_handle_index_file(target, location, response) == SUCCESS)
 		return ;
 	else
 		throw ExceptionHttpStatusCode(HTTP_403);
@@ -113,12 +118,11 @@ void	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &r
 	{
 		response.addAllowMethod(location.getMethods());
 		throw ExceptionHttpStatusCode(HTTP_405);
-		return ;
 	}
 	
 	std::string uri = getUri(location.getRootPath(), getTarget());
 	if (is_accessible_directory(uri.c_str()))
-		_handle_directory(uri, location, response);
+		_handle_directory(getTarget(), location, response);
 	else
 		_handle_file(uri, response);
 }

@@ -46,23 +46,26 @@ typedef struct
 class Autoindex
 {
 	public:
-		Autoindex( std::string uri )  throw (ExceptionHttpStatusCode);
+		Autoindex( std::string const & location_root, std::string const & target )  throw (ExceptionHttpStatusCode);
 
 		std::string	generateAutoIndexBody( void );
 
 		std::vector<s_document_data>	& GetDocumentsData();//
 
-	private:
+	// private:
 		Autoindex(void);
 		Autoindex(Autoindex const &model);
 		Autoindex & operator=(Autoindex const & model);
 
 		std::vector<s_document_data>	_documents_data;
-		std::string 					_uri_root;
+		std::string const				_location_root;
+		std::string 					_target;
+		std::string 					_uri_target;
+
 
 		e_status	addDocument(dirent *doc);
-		std::string	_generate_html_header( void );
-		std::string	_generate_html_body(std::string &uri);
+		std::string	_generate_html_header( void ) ;
+		std::string	_generate_html_body( void );
 
 };
 

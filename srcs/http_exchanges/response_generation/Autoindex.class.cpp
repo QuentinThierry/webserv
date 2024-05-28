@@ -1,10 +1,10 @@
 #include "Autoindex.class.hpp"
 #include "HttpResponse.class.hpp"
 
-Autoindex::Autoindex(void)
+Autoindex::Autoindex(void) : _location_root("")
 {}
 
-Autoindex::Autoindex(Autoindex const &model)
+Autoindex::Autoindex(Autoindex const &model) : _location_root("")
 {
 	(void)model;
 }
@@ -15,13 +15,14 @@ Autoindex & Autoindex::operator=(Autoindex const & model)
 	return (*this);
 }
 
-static s_document_data _get_document_data(std::string &uri_root, struct dirent * document)
+static s_document_data _get_document_data(std::string &uri_target, struct dirent * document)
 {
 	s_document_data	doc_data = {};
 	struct stat		doc_stat;
 	std::string		file_name;
 
-	file_name = uri_root + "/" +  document->d_name;
+	file_name = uri_target +  document->d_name;
+	
 	if (stat(file_name.c_str(), &doc_stat))
  		throw (ExceptionHttpStatusCode(HTTP_500));
 	if (HAS_READ_RIGHT(doc_stat.st_mode))
@@ -30,7 +31,7 @@ static s_document_data _get_document_data(std::string &uri_root, struct dirent *
 		doc_data.name = document->d_name;
 		doc_data.size = doc_stat.st_size;
 		doc_data.type = ((doc_stat.st_mode & S_IFMT) == S_IFDIR) ? IS_DIRECTORY : IS_FILE;
-		doc_data.last_modified = doc_stat.st_mtim.tv_nsec;
+		doc_data.last_modified = doc_stat.st_mtim.tv_sec;
 	}
 	else
 		doc_data.is_reachable = false;
@@ -46,21 +47,25 @@ static bool	_compare_file_data_name(s_document_data const &doc_data1, s_document
 	return (doc_data1.name.compare(doc_data2.name) < 0);
 }
 
-Autoindex::Autoindex( std::string uri )  throw (ExceptionHttpStatusCode)
+Autoindex::Autoindex( std::string const & location_root, std::string const & target ) 
+	throw (ExceptionHttpStatusCode)
+	: _location_root(location_root + (location_root[location_root.size() - 1] != '/' ? "/":""))
 {
 	DIR *			directory;
 	struct dirent *	document;
 	s_document_data	doc_data;
 
-	_uri_root = uri + (uri[uri.size() - 1] != '/' ? "/":"");
-	directory = opendir(uri.c_str());
+	_target = target + (target[target.size() - 1] != '/' ? "/":"");
+	_uri_target = _location_root + _target;
+
+	directory = opendir(_uri_target.c_str());
 	if (!directory)
 		throw (ExceptionHttpStatusCode(HTTP_500));
 	
 	document = readdir(directory);
 	while (document)
 	{
-		doc_data = _get_document_data(uri, document);
+		doc_data = _get_document_data(_uri_target, document);
 		if (doc_data.is_reachable && doc_data.name != ".")
 			_documents_data.push_back(doc_data);
 		document = readdir(directory);
@@ -96,12 +101,12 @@ std::string Autoindex::_generate_html_header( void )
 	return (html_header);
 }
 
-static std::string _generate_link(std::string link_text, std::string link_dest)
+static std::string _generate_link(std::string link_text, std::string target_dest)
 {
 	std::string link;
 
 	link = "<a href=\"";
-	link += link_dest;
+	link += target_dest;
 	link += "\"> ";
 	link += link_text;
 	link += "</a>";
@@ -167,18 +172,33 @@ static std::string _get_last_modified(time_t &date)
 	return (date_str);
 }
 
-static std::string _generate_add_parent_link_line(std::vector<s_document_data> &_documents_data, std::string &uri_root)
+static	std::string _get_target_parent(std::string const &target)
 {
-	if (_documents_data.at(0).name == std::string(".."))
+std::string	target_parent;
+	size_t		idx;
+
+	target_parent = target;
+	target_parent.erase(target_parent.end() -1);
+	idx = target_parent.find_last_of("/");
+	target_parent = target.substr(0, idx + 1);
+	if (target_parent.empty())
+		target_parent = "/";
+	return 	(target_parent);
+}
+
+static std::string _generate_add_parent_link_line(std::vector<s_document_data> &_documents_data, std::string const &target)
+{
+	if (_documents_data.at(0).name == std::string("..") )
 	{
- 		_documents_data.erase(_documents_data.begin());
-		return (_generate_table_line("📁", _generate_link("..", uri_root + ".."), "", ""));
+		return (_generate_table_line("📁", _generate_link("..", _get_target_parent(target)), "", ""));
 	}
 	else
 		return (_generate_table_line("", "<p>parent unreachable</p>", "", ""));
 }
 
-static std::string _generate_add_one_document_link_line(s_document_data &document_data, std::string &uri_root)
+static std::string _generate_add_one_document_link_line(
+	s_document_data &document_data,
+	std::string const &target)
 {
 	std::string symbol;
 	std::string link;
@@ -195,47 +215,55 @@ static std::string _generate_add_one_document_link_line(s_document_data &documen
 		symbol = "🗎";
 		size = ft_itoa(document_data.size);
 	}
-	link = _generate_link(document_data.name, uri_root + document_data.name);
+	link = _generate_link(document_data.name, target + document_data.name);
 	last_modified = _get_last_modified(document_data.last_modified);
 
 	return (_generate_table_line(symbol, link, size, last_modified));
 }
 
-static std::string _generate_add_all_documents_link_lines(std::vector<s_document_data> &documents_data, std::string &uri_root)
+static std::string _generate_add_all_documents_link_lines(
+	std::vector<s_document_data> &documents_data,
+	std::string const &target)
 {
-	std::string	all_documents_links;
+	std::string								all_documents_links;
+	std::vector<s_document_data>::iterator	it;
 
 	all_documents_links += _new_line("<tbody style=\"max-width:100vw\">");
-	all_documents_links += _generate_add_parent_link_line(documents_data, uri_root);
-	for (std::vector<s_document_data>::iterator it = documents_data.begin(); it != documents_data.end(); ++it)
+	if (target != "/")
+		all_documents_links += _generate_add_parent_link_line(documents_data, target);
+	it = documents_data.begin();
+	it += (it != documents_data.end() && it->name == "..");
+	while (it != documents_data.end())
 	{
-		all_documents_links += _generate_add_one_document_link_line(*it, uri_root);
+		all_documents_links += _generate_add_one_document_link_line(*it, target);
+		++it;
 	}
 	all_documents_links += _new_line("</tbody>");
 	return (all_documents_links);
 }
 
-static std::string _generate_index_table(std::vector<s_document_data> &documents_data, std::string &uri_root)
+static std::string _generate_index_table(std::vector<s_document_data> &documents_data,
+	std::string const &_target)
 {
 	std::string html_index_table;
 	
-	html_index_table += _new_line("<table style=\"margin:2 2vw 2 2vw; padding:0.5em 0.5em 0.5em 0.5em ;  border: solid; border-radius: 0.5em; border-width:2px; max-width: 90vw\">");
+	html_index_table += _new_line("<table style=\"margin:2 2vw 2 2vw; padding:0.5em 0.5em 0.5em 0.5em ;  border: solid; border-radius: 0.5em; border-width:2px; max-width: 90vw; overflow-wrap: break-word;\">");
 	html_index_table += _generate_table_header();
-	html_index_table += _generate_add_all_documents_link_lines(documents_data, uri_root);
+	html_index_table += _generate_add_all_documents_link_lines(documents_data, _target);
 	html_index_table += _new_line("</table>");
 	return (html_index_table);
 }
 
-std::string Autoindex::_generate_html_body(std::string &uri)
+std::string Autoindex::_generate_html_body( void )
 {
 	std::string html_body;
 
 	html_body = _new_line("<body style=\"font-family:sans-serif; padding-left:1%\">");
 
-	html_body += _new_line(std::string("<h1> Index of ") + uri + "</h1>");
+	html_body += _new_line(std::string("<h1> Index of ") + _target + "</h1>");
 	html_body += _new_line("");
 
-	html_body += _generate_index_table(_documents_data, _uri_root);
+	html_body += _generate_index_table(_documents_data, _target);
 
 	html_body += _new_line("</body>");
 	return (html_body);
@@ -248,7 +276,7 @@ std::string	Autoindex::generateAutoIndexBody( void )
 	line = "<!DOCTYPE html>\r\n";
 	line += "<html>\r\n";
 	line += _generate_html_header();
-	line += _generate_html_body(_uri_root);
+	line += _generate_html_body();
 	line += "</html>";
 	return (line);
 }
