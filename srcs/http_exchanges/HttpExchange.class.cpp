@@ -68,6 +68,11 @@ HttpExchange::~HttpExchange()
 		delete(_request);
 }
 
+Socket const & HttpExchange::getSocket() const
+{
+	return *_socket;
+}
+
 struct timeval const & HttpExchange::getAcceptRequestTime() const
 {
 	return _accept_request_time;
@@ -79,14 +84,14 @@ void HttpExchange::_setRightSocket(Cluster const &cluster)
 	{
 		protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
 					std::string("Error: Missing 'Host' variable in the http request from")));
-		throw ExceptionHttpStatusCode(HTTP_400); //!send error
+		throw ExceptionHttpStatusCode(HTTP_400);
 	}
 	std::vector<std::string> const &host_name = _request->getFieldValue("Host");
 	if (host_name.size() != 1)
 	{
 		protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
 					std::string("Error: Invalid format of 'Host' variable in the http request from")));
-		throw ExceptionHttpStatusCode(HTTP_400); //!send error
+		throw ExceptionHttpStatusCode(HTTP_400);
 	}
 	Socket const *socket = cluster.getMatchingSocket(_socket->getFd(), host_name.at(0));
 	if (socket != NULL)

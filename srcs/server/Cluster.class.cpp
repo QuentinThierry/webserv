@@ -116,12 +116,17 @@ void Cluster::_checkTimeout()
 {
 	struct timeval time;
 
-	gettimeofday(&time, NULL);
+	if (gettimeofday(&time, NULL) == -1)
+	{
+		protected_write(g_err_log_fd, std::string("Error: ") + std::strerror(errno));
+		throw ExceptionHttpStatusCode(HTTP_500);
+	}
 	for (unsigned int i = 0; i < _map_sockets.size(); i++)
 	{
 		if (_map_sockets.at(i).second.getAcceptRequestTime().tv_sec + TIMEOUT_SEC < time.tv_sec)
 		{
-			std::cout << "timeout " << _map_sockets.at(i).first << std::endl;//!close connection or send error to client
+			protected_write(g_err_log_fd, error_message_server(_map_sockets.at(i).second.getSocket().getServer(),
+					std::string("Error: Request timeout")));
 			closeConnection(_map_sockets.at(i).first);
 		}
 	}
@@ -187,8 +192,6 @@ void Cluster::_acceptNewConnection(Socket const & socket)
 					std::string("Error: accept() new connection ") + std::strerror(errno)));
 		return;
 	}
-	if (new_fd > _max_fd && new_fd < FD_SETSIZE)
-		_max_fd = new_fd;
 	if (new_fd >= FD_SETSIZE)
 	{
 		close(new_fd);
@@ -196,6 +199,8 @@ void Cluster::_acceptNewConnection(Socket const & socket)
 					"Error: Too many servers, ignore new connection to"));
 		return ;
 	}
+	if (new_fd > _max_fd)
+		_max_fd = new_fd;
 	_map_sockets.push_back(std::make_pair(new_fd, HttpExchange(socket)));
 }
 
