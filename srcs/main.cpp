@@ -3,6 +3,7 @@
 #include "Cluster.class.hpp"
 #include "HttpTools.hpp"
 #include "DefaultPath.hpp"
+#include "Cgi.class.hpp"
 
 int const	g_err_log_fd = STDERR_FILENO;
 std::vector<std::string>	g_http_methods;
@@ -48,6 +49,10 @@ int main(int argc, char **argv)
 		{
 			std::cout << e.what() << std::endl;
 			return 1;
+		}
+		catch (Cgi::NExceptionChildFail &e)
+		{
+			return 0;
 		}
 		catch (std::exception &e)
 		{

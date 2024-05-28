@@ -183,10 +183,8 @@ int Cgi::_exec(std::string cgi_path, char const *file_name, std::string root_pat
 					(char **)(char const * const []){cgi_path.c_str(), file_name, NULL},
 					(char **)env);
 			}
-			
 		}
-		std::cerr << "failed to execute cgi, exiting child" << std::endl;
-		std::exit(EXIT_FAILURE);
+		throw Cgi::NExceptionChildFail();
 	}
 	return 0;
 }

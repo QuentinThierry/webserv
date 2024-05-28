@@ -29,6 +29,11 @@ class Cgi
 		int	execPost(std::string cgi_path, std::string root_path, HttpExchange const &httpExchange);
 		bool isAlive() const;
 
+		class NExceptionChildFail
+		{
+			
+		};
+
 		~Cgi();
 
 	private:
