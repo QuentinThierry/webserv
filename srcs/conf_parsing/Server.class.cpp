@@ -133,3 +133,29 @@ std::string Server::getErrorPagePath(t_http_code error_code) const {
 		return it->second;
 	return "";
 }
+
+void	Server::removeDuplicatedLocation()
+{
+	for (unsigned int i = 1; i < this->getLocations().size(); i++)
+	{
+		std::string loc_path = this->getLocations()[i].getLocationPath();
+
+		if (loc_path.size() > 1 && loc_path[loc_path.size() - 1] == '/')
+			loc_path = loc_path.substr(0, loc_path.size() - 1);
+
+		for (unsigned int j = i + 1; j < this->getLocations().size();)
+		{
+			if (loc_path == this->getLocations()[j].getLocationPath())
+				this->_locations.erase(this->_locations.begin() + j);
+			j++;
+		}
+		
+		loc_path += '/';
+		for (unsigned int j = i + 1; j < this->getLocations().size();)
+		{
+			if (loc_path == this->getLocations()[j].getLocationPath())
+				this->_locations.erase(this->_locations.begin() + j);
+			j++;
+		}
+	}
+}

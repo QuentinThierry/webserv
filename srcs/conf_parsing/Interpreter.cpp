@@ -162,6 +162,7 @@ Server	interpret_server_loop(std::queue<std::string> &tokens)
 		ThrowMisc("missing `listen` field");
 	if (server.getDefaultLocation().getDefaultDirPath().empty())
 		server.getDefaultLocation().addDefaultDirPath("index.html");
+	server.removeDuplicatedLocation();
 	return server;
 }
 
