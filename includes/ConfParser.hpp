@@ -16,6 +16,7 @@ bool	wrap_getline_throw(std::fstream &s, std::string &buffer);
 
 std::string	extract_token(std::queue<std::string> &tokens);
 void	parse_tokens(std::queue<std::string> tokens);
+std::vector<Server>	parse_config(char const *filename);
 
 void	interpret_tokens(std::queue<std::string> &tokens, std::vector<Server> &servers);
 
@@ -25,5 +26,7 @@ std::string func_ptr_to_str(t_token_append_function ptr);
 
 bool	does_http_code_exist(std::string code);
 t_http_code	str_to_http_code(std::string code);
+
+void	print_server(Server &server);
 
 #endif
