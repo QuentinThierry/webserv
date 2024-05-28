@@ -10,7 +10,8 @@ std::vector<std::string>	g_http_versions;
 
 void cltr_c(int sig)
 {
-	(void)sig;
+	if (sig == SIGINT)
+		throw ExceptionCltrC();
 }
 
 char const * get_config(int argc, char **argv)
@@ -25,19 +26,32 @@ char const * get_config(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
+	std::vector<Server> servers;
+	signal(SIGINT, cltr_c);
+	_init_available_http_methods_versions();
 	try
 	{
-		signal(SIGINT, cltr_c);
-		_init_available_http_methods_versions();
-		std::vector<Server> servers = parse_config(get_config(argc, argv));
-		// for (unsigned int i = 0; i < servers.size(); i++) {
-		// 	print_server(servers[i]);
-		// }
-		Cluster web_server(servers);
-		web_server.runServer();
+		servers = parse_config(get_config(argc, argv));
 	}
 	catch (std::exception &e)
 	{
 		std::cout << e.what() << std::endl;
+	}
+	while(1)
+	{
+		try
+		{
+			Cluster web_server(servers);
+			web_server.runServer();
+		}
+		catch (ExceptionCltrC &e)
+		{
+			std::cout << e.what() << std::endl;
+			return 1;
+		}
+		catch (std::exception &e)
+		{
+			std::cout << e.what() << std::endl;
+		}
 	}
 }
