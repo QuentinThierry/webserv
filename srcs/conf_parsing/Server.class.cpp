@@ -77,30 +77,28 @@ bool	Server::is_equal(Server const &ref) const
 
 Location const &Server::searchLocation(std::string path) const
 {
-	size_t slash_pos = 0;
-
-	// exact match
+	size_t max = 0;
+	size_t pos = 0;
+	unsigned int index_res = 0;
 	for (unsigned int i = 1; i < this->getLocations().size(); i++)
 	{
-		if (this->getLocations()[i].getLocationPath() == path)
-			return this->getLocations()[i];
-	}
-	// match directories
-	do
-	{
-		for (unsigned int i = 1; i < this->getLocations().size(); i++)
+		std::string loc_path = this->getLocations()[i].getLocationPath();
+		if (path.size() > 0 && path[path.size() - 1] != '/')
+			path += '/';
+		pos = path.find(loc_path);
+		if (pos == 0)
 		{
-			if (this->getLocations()[i].getLocationPath() == path)
-				return this->getLocations()[i];
+			if (path[loc_path.size() - 1] == '/' || path[loc_path.size()] == '/')
+			{
+				if (max < loc_path.size())
+				{
+					max = loc_path.size();
+					index_res = i;
+				}
+			}
 		}
-		if (path[path.size() - 1] == '/')
-			path.erase(path.size() - 1);
-		slash_pos = path.find_last_of('/');
-		if (slash_pos != std::string::npos && path.size() - slash_pos > 1)
-			path = path.substr(0, slash_pos + 1);
-	} while (slash_pos != std::string::npos && path.size() != 0);
-
-	return this->getDefaultLocation();
+	}
+	return this->getLocations()[index_res];
 }
 
 // returns true if a CgiLocation exists, and fills cgi_loc
