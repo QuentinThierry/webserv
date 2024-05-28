@@ -37,7 +37,7 @@ class Cluster
 		Cluster & operator=(Cluster const &copy);
 		void			_addServer(Server const & server);
 		Socket const *	_findSameConfigServer(Server const &server) const;
-		void			_initSetFds(fd_set *readfds, fd_set *writefds, fd_set *exceptfds) const;
+		void			_initSetFds(fd_set *readfds, fd_set *writefds) const;
 		void			_printSet(fd_set *fds, std::string str) const;
 		void			_acceptNewConnection(Socket const & socket);
 		void			_checkTimeout();

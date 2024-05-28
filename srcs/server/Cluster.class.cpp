@@ -77,20 +77,15 @@ void Cluster::_addServer(Server const &server)
 	}
 }
 
-void Cluster::_initSetFds(fd_set *readfds, fd_set *writefds, fd_set *exceptfds) const
+void Cluster::_initSetFds(fd_set *readfds, fd_set *writefds) const
 {
 	FD_ZERO(readfds);
 	FD_ZERO(writefds);
-	FD_ZERO(exceptfds);
 	for (t_const_iter_sockets it = _sockets.begin(); it != _sockets.end(); it++)
-	{
-		FD_SET(it->getFd(), exceptfds);
 		FD_SET(it->getFd(), readfds);
-	}
 	unsigned int index = 0;
 	for (t_const_iter_map_sockets it = _map_sockets.begin(); it != _map_sockets.end(); it++)
 	{
-		FD_SET(it->first, exceptfds);
 		if (_fd_write.size() > index && it->first == _fd_write[index])
 		{
 			FD_SET(it->first, writefds);
@@ -136,24 +131,21 @@ void Cluster::runServer()
 {
 	fd_set readfds;
 	fd_set writefds;
-	fd_set exceptfds;
 	struct timeval timeout;
 	while (true)
 	{
 		timeout.tv_sec = 3;
 		timeout.tv_usec = 0;
-		_initSetFds(&readfds, &writefds, &exceptfds);
+		_initSetFds(&readfds, &writefds);
 		std::cout << " ----- SELECT() ---- " << std::endl;
-		int nb_fds = select(_max_fd + 1, &readfds, &writefds, &exceptfds, &timeout);
+		int nb_fds = select(_max_fd + 1, &readfds, &writefds, NULL, &timeout);
 		if (nb_fds == -1)
 			ThrowMisc(strerror(errno));
 		if (nb_fds == 0)
 			continue ;
 		for (t_iter_sockets it = _sockets.begin(); it != _sockets.end(); it++)
 		{
-			if (FD_ISSET(it->getFd(), &exceptfds))
-				std::cout << "ERROR" << std::endl;
-			else if (FD_ISSET(it->getFd(), &readfds))
+			if (FD_ISSET(it->getFd(), &readfds))
 			{
 				std::cout << "new connection" << std::endl;
 				_acceptNewConnection(*it);
@@ -168,12 +160,7 @@ void Cluster::runServer()
 					i--;
 				_close_connection = false;
 			}
-			if (FD_ISSET(_map_sockets.at(i).first, &exceptfds))
-			{
-				std::cout << "ERROR" << std::endl;
-				closeConnection(_map_sockets.at(i).first);
-			}
-			else if (FD_ISSET(_map_sockets.at(i).first, &writefds))
+			if (FD_ISSET(_map_sockets.at(i).first, &writefds))
 			{
 				std::cout << "write data" << std::endl;
 				_map_sockets.at(i).second.writeSocket(_map_sockets.at(i).first, *this);
@@ -187,7 +174,6 @@ void Cluster::runServer()
 			}
 		}
 		_checkTimeout();
-		// std::cout << " ----- fin ---- " << std::endl;
 	}
 }
 
