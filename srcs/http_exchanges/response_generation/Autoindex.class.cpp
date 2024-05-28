@@ -247,7 +247,7 @@ static std::string _generate_index_table(std::vector<s_document_data> &documents
 {
 	std::string html_index_table;
 	
-	html_index_table += _new_line("<table style=\"margin:2 2vw 2 2vw; padding:0.5em 0.5em 0.5em 0.5em ;  border: solid; border-radius: 0.5em; border-width:2px; max-width: 90vw; overflow-wrap: break-word;\">");
+	html_index_table += _new_line("<table style=\"margin:2 2vw 2 2vw; padding:0.5em 0.5em 0.5em 0.5em; border-radius: 0.5em; border-width:1px; border-color: rgb(40, 40, 40); box-shadow: 1px 1px 5px rgb(40, 40, 40); max-width: 90vw; overflow-wrap: break-word;\">");
 	html_index_table += _generate_table_header();
 	html_index_table += _generate_add_all_documents_link_lines(documents_data, _target);
 	html_index_table += _new_line("</table>");
