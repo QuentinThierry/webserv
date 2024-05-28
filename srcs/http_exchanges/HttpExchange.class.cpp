@@ -26,6 +26,21 @@ HttpExchange::HttpExchange(HttpExchange const &copy): _socket(copy._socket)
 	*this = copy;
 }
 
+HttpRequest const &HttpExchange::getRequest() const
+{
+	return *this->_request;
+}
+
+HttpResponse const &HttpExchange::getResponse() const
+{
+	return this->_response;
+}
+
+Socket const &HttpExchange::getSocket() const
+{
+	return *this->_socket;
+}
+
 void HttpExchange::_copyRequest(e_http_method method, HttpRequest const * request)
 {
 	switch (method)
