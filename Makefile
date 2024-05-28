@@ -18,6 +18,7 @@ FILES_CONF_PARSING		=	$(addprefix conf_parsing/, \
 								Parser \
 								Server.class \
 								Tokenizer \
+								PrintServer \
 							)
 
 FILES_HTTP_EXCHANGES	=	$(addprefix http_exchanges/, \

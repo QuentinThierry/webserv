@@ -36,6 +36,7 @@ class HttpResponse
 
 		e_status_code	openBodyFileStream(std::string filename);
 		bool			checkFieldExistence(std::string const & field_name) const;
+		std::vector<std::string> const &getFieldValue(std::string const & field_name) const throw(ExceptionHttpStatusCode);
 
 		void		generateErrorResponse(e_status_code status, Server const & server);
 

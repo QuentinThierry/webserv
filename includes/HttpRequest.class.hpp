@@ -40,7 +40,7 @@ class HttpRequest : public HttpRequestLine
 		void							addStringToBody( std::string const & extra_body_content);
 
 		bool							checkFieldExistence(std::string const & field_name) const;
-		const std::vector<std::string>	&getFieldValue(std::string const & field_name) const throw(ExceptionHttpStatusCode);
+		std::vector<std::string> const	&getFieldValue(std::string const & field_name) const throw(ExceptionHttpStatusCode);
 
 		bool							isAcceptedMethod(Location const & location) const;
 		virtual void					displayRequest( void ) const;

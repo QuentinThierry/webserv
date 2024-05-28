@@ -1,101 +1,57 @@
-#include "Cgi.class.hpp"
-#include <cstring>
+#include "ConfParser.hpp"
+#include <signal.h>
+#include "Cluster.class.hpp"
+#include "HttpTools.hpp"
+#include "DefaultPath.hpp"
 
-#define INFILE "infile"
-#define OUTFILE "outfile"
-#define COMMAND "/usr/bin/php-cgi"
+int const	g_err_log_fd = STDERR_FILENO;
+std::vector<std::string>	g_http_methods;
+std::vector<std::string>	g_http_versions;
 
-void	set_fds(fd_set *readfds, fd_set *writefds, fd_set *exceptfds, Cgi &cgi, int *max_fd, int do_it)
+void cltr_c(int sig)
 {
-	FD_ZERO(readfds);
-	FD_ZERO(writefds);
-	FD_ZERO(exceptfds);
-	if (do_it == 0)
-	{
-		FD_SET(cgi.getReadPipe(), readfds);
-		FD_SET(cgi.getWritePipe(), writefds);
-		*max_fd = std::max(cgi.getWritePipe(), cgi.getReadPipe()) + 1;
-	}
-	else if (do_it == 1)
-	{
-		FD_SET(cgi.getReadPipe(), readfds);
-		*max_fd = cgi.getReadPipe() + 1;
-	}
+	if (sig == SIGINT)
+		throw ExceptionCltrC();
+}
+
+char const * get_config(int argc, char **argv)
+{
+	if (argc == 1)
+		return DEFAULT_CONFIG;
+	else if (argc == 2)
+		return argv[1];
 	else
-	{
-		*max_fd = 0;
-	}
+		ThrowMisc("Invalid number of argument");
 }
 
-#include <sys/ioctl.h>
-
-int main()
+int main(int argc, char **argv)
 {
-	Cgi cgi;
-
-	cgi.execPost(COMMAND, ".");
-
-	fd_set readfds;
-	fd_set writefds;
-	fd_set exceptfds;
-
-
-
-	int test = 0;
-	int do_it = 0;
-	int fd = open("phpfile.php", O_RDONLY);
-	char buf[101];
-	std::string test_str_write;
-	ssize_t size = 1;
-	while (size > 0)
+	std::vector<Server> servers;
+	signal(SIGINT, cltr_c);
+	_init_available_http_methods_versions();
+	try
 	{
-		memset(buf, 0, 101);
-		size = read(fd, buf, 100);
-		if (size > 0)
-			test_str_write += buf;
+		servers = parse_config(get_config(argc, argv));
 	}
-	close(fd);
-
-
-
-
-
-	while (true)
+	catch (std::exception &e)
 	{
-		int max_fd;
-		struct timeval time = {1,0};
-		set_fds(&readfds, &writefds, &exceptfds, cgi, &max_fd, do_it);
-		int nb_fds = select(max_fd, &readfds, &writefds, NULL, &time);
-		if (!cgi.isAlive())
+		std::cout << e.what() << std::endl;
+	}
+	while(1)
+	{
+		try
 		{
-			return 0;
+			Cluster web_server(servers);
+			web_server.runServer();
 		}
-		if (nb_fds != 0)
+		catch (ExceptionCltrC &e)
 		{
-			if (FD_ISSET(cgi.getReadPipe(), &readfds))
-			{
-				std::string buffer;
-				ssize_t read_size = cgi.read(buffer);
-				std::cout << buffer;
-				if (read_size == 0)
-					do_it = 2;
-			}
-			else if (FD_ISSET(cgi.getWritePipe(), &writefds))
-			{
-				if (test == 1)
-					continue;
-				int w = cgi.write("<?php ecdho \"coucou\";?>");
-				if (w == 0)
-				{
-					test = 1;
-					close(cgi.getWritePipe());
-					do_it = 1;
-				}
-			}
+			std::cout << e.what() << std::endl;
+			return 1;
 		}
-		else
-			std::cerr << "no event" << std::endl;
+		catch (std::exception &e)
+		{
+			std::cout << e.what() << std::endl;
+		}
 	}
 }
-
-// check if upload path has a path after is on
