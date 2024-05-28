@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   HttpRequestGet.class.hpp                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/12 19:23:29 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/24 14:42:44 by acardona         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef HTTPREQUESTGET_CLASS_HPP
 # define HTTPREQUESTGET_CLASS_HPP
 
@@ -33,10 +21,12 @@ class HttpRequestGet : public HttpRequest
 		void	processHeader( Socket const * const socket );
 		void	generateResponse( Socket const * const socket, HttpResponse &response );
 		bool	hasBody() const;
-		void	readBody(int fd, Socket const * const socket);
+		void	readBody(int fd, Socket const * const socket, bool &end);
 
 	private:
 		void	_initResponse( Socket const * const socket, HttpResponse &response );
+		void	_handleDirectory(std::string & uri, Location const & location, HttpResponse & response);
+		void	_redirectDirectory(HttpResponse & response);
 
 		HttpRequestGet( void );
 };

@@ -1,4 +1,5 @@
 #include "HttpResponse.class.hpp"
+#include "HttpRequestPost.class.hpp"
 #include "Cluster.class.hpp"
 
 HttpResponse::HttpResponse( HttpResponse const & model)
@@ -35,7 +36,8 @@ HttpResponse & HttpResponse::operator=(HttpResponse const & model )
 
 HttpResponse::~HttpResponse( void )
 {
-	//TODO
+	if (_bodyFile.is_open())
+		_bodyFile.close();
 }
 
 HttpResponse::HttpResponse( void )
@@ -98,13 +100,14 @@ static e_status_code	_openFileStream(std::string & filename,
 {
 	if (access(filename.c_str(), F_OK) == -1)
 	{
-		if (errno == ENOENT)
+		if (errno == ENOENT || errno == ENOTDIR)
 			return HTTP_404;
 		else if (errno == EACCES)
 			return HTTP_403;
-		else
-			return HTTP_500;
+		return HTTP_500; //! not sure
 	}
+	if (HttpRequestPost::isBusyFile(filename))
+		return HTTP_404;
 	dest.open(filename.c_str());
 	if (dest.is_open() == false)
 		return HTTP_403;
@@ -149,6 +152,19 @@ bool	HttpResponse::checkFieldExistence(std::string const & field_name) const
 			return (true);
 	}
 	return (false);
+}
+
+const std::vector<std::string>	&HttpResponse::getFieldValue(
+	std::string const & field_name) const throw(ExceptionHttpStatusCode)
+{
+	std::vector<HttpField>::const_iterator it;
+
+	for (it = _fields.begin(); it != _fields.end(); ++it)
+	{
+		if (it->getName() == field_name)
+			return (it->getValues());
+	}
+	throw(ExceptionHttpStatusCode(HTTP_500));
 }
 
 void	HttpResponse::addAllowMethod(std::vector<std::string> const &method)
@@ -216,7 +232,7 @@ void HttpResponse::writeResponse(int fd, Cluster &cluster)
 	}
 	if (ret == -1 || ret == 0)
 	{
-		std::cout << "error" << strerror(errno) << std::endl;
+		std::cout << "error\n";
 		if (_fileOpen == true)
 			_close_body_file(_bodyFile, _fileOpen);
 		cluster.closeConnection(fd);
@@ -225,8 +241,6 @@ void HttpResponse::writeResponse(int fd, Cluster &cluster)
 	if (_header.empty() && _body.empty() && _fileOpen == false)
 	{
 		std::cout << "end\n";
-		if (_fileOpen == true) //pas possible 
-			_bodyFile.close();
 		cluster.closeConnection(fd);
 	}
 }

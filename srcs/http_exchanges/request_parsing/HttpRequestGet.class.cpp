@@ -51,14 +51,12 @@ static void	_handle_file(std::string & uri, HttpResponse & response)
 		throw ExceptionHttpStatusCode(error_code);
 }
 
-static void	_handle_Autoindex(std::string & uri, Location const & location,
-				HttpResponse & response)
+static void	_handle_Autoindex(std::string & uri, Location const & location)
 {
 		//add content-length flags
 		//fill body auto index
 		(void) uri;
 		(void) location;
-		response.fillHeader();
 		return; //TODO	
 }
 
@@ -74,14 +72,29 @@ static e_status	_handle_index_file(std::string & uri, Location const & location,
 		return (FAILURE);
 }
 
-static void	_handle_directory(std::string & uri, Location const & location, HttpResponse & response)
+void HttpRequestGet::_redirectDirectory(HttpResponse & response)
 {
-	if (location.getHasAutoindex())
-		_handle_Autoindex(uri, location, response);
-	else if (_handle_index_file(uri, location, response) == SUCCESS)
+	std::string location = "http://";
+	location += getFieldValue("Host")[0];
+	location += getTarget();
+	location += "/";
+	response.addField("Location", location);
+	throw ExceptionHttpStatusCode(HTTP_301);
+}
+
+void	HttpRequestGet::_handleDirectory(std::string & uri, Location const & location,
+				HttpResponse & response)
+{
+	if (*(uri.end() - 1) != '/')
+		_redirectDirectory(response);
+	if (_handle_index_file(uri, location, response) == SUCCESS)
 		return ;
-	else
-		throw ExceptionHttpStatusCode(HTTP_403);
+	if (location.getHasAutoindex())
+	{
+		_handle_Autoindex(uri, location);
+		return ;
+	}
+	throw ExceptionHttpStatusCode(HTTP_403);
 }
 
 void	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &response )
@@ -101,7 +114,7 @@ void	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &r
 	
 	std::string uri = getUri(location.getRootPath(), getTarget());
 	if (is_accessible_directory(uri.c_str()))
-		_handle_directory(uri, location, response);
+		_handleDirectory(uri, location, response);
 	else
 		_handle_file(uri, response);
 }
@@ -112,8 +125,9 @@ void	HttpRequestGet::generateResponse( Socket const * const socket, HttpResponse
 	response.fillHeader();
 }
 
-void	HttpRequestGet::readBody(int fd, Socket const * const socket)
+void	HttpRequestGet::readBody(int fd, Socket const * const socket, bool &end)
 {
 	(void)socket;
 	(void)fd;
+	end = true;
 }

@@ -1,4 +1,5 @@
 #include "HttpRequestDelete.class.hpp"
+#include "HttpRequestPost.class.hpp"
 #include "HttpResponse.class.hpp"
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -42,7 +43,7 @@ void			HttpRequestDelete::processHeader( Socket const * const socket )
 	//TODO
 }
 
-bool	remove_directory(std::string & uri)
+bool	remove_directory(std::string const & uri)
 {
 	int fd = open(uri.c_str(), O_DIRECTORY);
 	if (fd == -1)
@@ -53,11 +54,13 @@ bool	remove_directory(std::string & uri)
 	return true;
 }
 
-void	remove_file(std::string & uri)
+void	remove_file(std::string const & uri)
 {
+	if (HttpRequestPost::isBusyFile(uri))
+		throw ExceptionHttpStatusCode(HTTP_404);
 	if (remove(uri.c_str()) != 0)
 	{
-		if (errno == ENOENT)
+		if (errno == ENOENT || errno == ENOTDIR)
 			throw ExceptionHttpStatusCode(HTTP_404);
 		else
 			throw ExceptionHttpStatusCode(HTTP_403);
@@ -96,8 +99,9 @@ bool	HttpRequestDelete::hasBody() const
 	return (false);
 }
 
-void	HttpRequestDelete::readBody(int fd, Socket const * const socket)
+void	HttpRequestDelete::readBody(int fd, Socket const * const socket, bool &end)
 {
 	(void)fd;
 	(void)socket;
+	end = true;
 }

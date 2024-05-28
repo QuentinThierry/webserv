@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Shared.hpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/04 15:07:56 by jvigny            #+#    #+#             */
-/*   Updated: 2024/05/16 13:58:54 by acardona         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef SHARED_HPP
 # define SHARED_HPP
 
@@ -29,5 +17,11 @@ typedef enum e_status
 extern int const g_err_log_fd;
 
 int protected_write(int const fd, std::string const str);
+
+class ExceptionCltrC: public std::exception
+{
+	public:
+		char const *what() const throw() {return "Interrupt signal received";}
+};
 
 #endif

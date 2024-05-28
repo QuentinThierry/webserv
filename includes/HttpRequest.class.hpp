@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   HttpRequest.class.hpp                              :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/12 18:27:23 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/24 14:42:44 by acardona         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef HTTPREQUEST_CLASS_HPP
 # define HTTPREQUEST_CLASS_HPP
 
@@ -24,8 +12,7 @@
 
 # include <vector>
 
-#define READ_SIZE 20
-
+#define READ_SIZE 100
 typedef enum{
 	GET,
 	POST,
@@ -45,7 +32,7 @@ class HttpRequest : public HttpRequestLine
 		
 		virtual void					processHeader( Socket const * const socket ) = 0;
 		virtual void					generateResponse( Socket const * const socket, HttpResponse &response ) = 0;
-		virtual void					readBody(int fd, Socket const * const socket) = 0;
+		virtual void					readBody(int fd, Socket const * const socket, bool &end) = 0;
 		virtual bool					hasBody() const = 0;
 		
 		std::string	const &				getBody( void ) const;
@@ -53,7 +40,7 @@ class HttpRequest : public HttpRequestLine
 		void							addStringToBody( std::string const & extra_body_content);
 
 		bool							checkFieldExistence(std::string const & field_name) const;
-		const std::vector<std::string>	&getFieldValue(std::string const & field_name) const throw(ExceptionHttpStatusCode);
+		std::vector<std::string> const	&getFieldValue(std::string const & field_name) const throw(ExceptionHttpStatusCode);
 
 		bool							isAcceptedMethod(Location const & location) const;
 		virtual void					displayRequest( void ) const;

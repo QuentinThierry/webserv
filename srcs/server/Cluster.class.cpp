@@ -1,4 +1,5 @@
 #include "Cluster.class.hpp"
+#include "ConfException.class.hpp"
 #include "utils.hpp"
 
 Cluster::Cluster():_max_fd(0), _close_connection(false){};
@@ -58,8 +59,6 @@ void Cluster::_addServer(Server const &server)
 		Socket new_socket(server);
 		if (new_socket.getFd() == -1)
 			return ;
-		if (new_socket.getFd() > _max_fd && _max_fd < FD_SETSIZE)
-			_max_fd = new_socket.getFd();
 		if (new_socket.getFd() >= FD_SETSIZE)
 		{
 			close(new_socket.getFd());
@@ -67,6 +66,8 @@ void Cluster::_addServer(Server const &server)
 					"Error: Too many servers, ignore"));
 			return ;
 		}
+		if (new_socket.getFd() > _max_fd)
+			_max_fd = new_socket.getFd();
 		_sockets.push_back(new_socket);
 	}
 	else
@@ -139,21 +140,15 @@ void Cluster::runServer()
 	struct timeval timeout;
 	while (true)
 	{
-		timeout.tv_sec = 3; // 0
+		timeout.tv_sec = 3;
 		timeout.tv_usec = 0;
 		_initSetFds(&readfds, &writefds, &exceptfds);
-		// _printSet(&readfds, "READ");
-		// _printSet(&writefds, "WRITE");
-		// _printSet(&exceptfds, "EXCEPT");
 		std::cout << " ----- SELECT() ---- " << std::endl;
 		int nb_fds = select(_max_fd + 1, &readfds, &writefds, &exceptfds, &timeout);
-		// _printSet(&readfds, "READ");
-		// _printSet(&writefds, "WRITE");
-		// _printSet(&exceptfds, "EXCEPT");
 		if (nb_fds == -1)
-			return ; //??
+			ThrowMisc(strerror(errno));
 		if (nb_fds == 0)
-			continue;
+			continue ;
 		for (t_iter_sockets it = _sockets.begin(); it != _sockets.end(); it++)
 		{
 			if (FD_ISSET(it->getFd(), &exceptfds))
