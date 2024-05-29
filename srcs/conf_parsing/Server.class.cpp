@@ -75,10 +75,32 @@ bool	Server::is_equal(Server const &ref) const
 	return true;
 }
 
+static void trim_filename(std::string & filename)
+{
+	bool has_slash = false;
+
+	for (std::string::iterator it = filename.begin(); it != filename.end(); it++)
+	{
+		if (*it == '/')
+		{
+			if (has_slash)
+			{
+				it = filename.erase(it);
+				it--;
+			}
+			else
+				has_slash = true;
+		}
+		else if (has_slash)
+			has_slash = false;
+	}
+}
+
 Location const &Server::searchLocation(std::string path) const
 {
 	size_t max = 0;
 	size_t pos = 0;
+	trim_filename(path);
 	unsigned int index_res = 0;
 	for (unsigned int i = 1; i < this->getLocations().size(); i++)
 	{

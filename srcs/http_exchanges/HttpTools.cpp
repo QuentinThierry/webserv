@@ -96,7 +96,7 @@ void	trim_whitespace_r(std::string & str)
 
 bool	is_ascii(unsigned char const &c)
 {
-	return (c >= 0 && c <= 128);
+	return (c <= 128);
 }
 
 bool	is_VCHAR(unsigned char const &c)

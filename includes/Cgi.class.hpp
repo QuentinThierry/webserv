@@ -25,8 +25,8 @@ class Cgi
 		int write() const;
 		int write(std::string to_write) const;
 		ssize_t read(std::string &buffer) const;
-		int execGet(std::string cgi_path, std::string file_name, std::string root_path, HttpExchange const &httpExchange);
-		int	execPost(std::string cgi_path, std::string root_path, HttpExchange const &httpExchange);
+		int execGet(std::string cgi_path, std::string file_name, HttpExchange const &httpExchange);
+		int	execPost(std::string cgi_path, HttpExchange const &httpExchange);
 		bool isAlive() const;
 
 		class NExceptionChildFail
@@ -37,7 +37,7 @@ class Cgi
 		~Cgi();
 
 	private:
-		int _exec(std::string cgi_path, char const * file_name, std::string root_path, HttpExchange const &httpExchange);
+		int _exec(std::string cgi_path, char const * file_name, HttpExchange const &httpExchange);
 
 		int				_pipe_input[2];
 		int				_pipe_output[2];

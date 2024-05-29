@@ -50,17 +50,9 @@ void	tokenize_file(std::fstream &s, std::queue<std::string> &tokens)
 	while (true)
 	{
 		std::string	buffer;
-		try
-		{
-			if (!wrap_getline_throw(s, buffer))
-				break ;
-			_fill_line_tokens(buffer, tokens);
-		}
-		catch (std::exception &e)
-		{
-			std::cout << e.what() << std::endl;
-			return ;
-		}
+		if (!wrap_getline_throw(s, buffer))
+			break ;
+		_fill_line_tokens(buffer, tokens);
 	}
 }
 

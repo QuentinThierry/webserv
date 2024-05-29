@@ -19,6 +19,7 @@ class HttpExchange{
 		Socket	const &getSocket() const;
 		HttpRequest	const &getRequest() const;
 		HttpResponse	const &getResponse() const;
+		
 	private:
 		HttpExchange();
 		Socket const		*_socket;

@@ -135,7 +135,7 @@ static char const **create_cgi_env(HttpExchange const &httpExchange, char const 
 		env[9]  = alloc_str("REMOTE_IDENT=none"); // identity information DEFAULT
 		env[10] = alloc_str("REMOTE_USER=none"); // user identification DEFAULT (?)
 		env[12] = alloc_str(std::string("SCRIPT_FILENAME=") + file_name); // URI path without root
-		env[13] = alloc_str("SERVER_NAME="SERVER_NAME); // server name DEFAULT
+		env[13] = alloc_str("SERVER_NAME=" SERVER_NAME); // server name DEFAULT
 		env[14] = alloc_str("SERVER_PORT=" + ft_itoa(httpExchange.getSocket().getServer().getPort())); // port request
 		env[15] = alloc_str("SERVER_PROTOCOL=" + *httpExchange.getRequest().getVersion()); // http protocol version
 		env[16] = alloc_str("SERVER_SOFTWARE=Unix"); // server OS of request TODO (in User-agent)
@@ -154,7 +154,7 @@ static char const **create_cgi_env(HttpExchange const &httpExchange, char const 
  * 1 -> execve failed, path is not good, 502 Bad Gateway
  * 2 -> pipe or fork error, 500 Internal Server Error
 */
-int Cgi::_exec(std::string cgi_path, char const *file_name, std::string root_path, HttpExchange const &httpExchange)
+int Cgi::_exec(std::string cgi_path, char const *file_name, HttpExchange const &httpExchange)
 {
 	if (access(cgi_path.c_str(), X_OK))
 		return 1;
@@ -182,6 +182,7 @@ int Cgi::_exec(std::string cgi_path, char const *file_name, std::string root_pat
 				execve(cgi_path.c_str(),
 					(char **)(char const * const []){cgi_path.c_str(), file_name, NULL},
 					(char **)env);
+				free_env(env);
 			}
 		}
 		throw Cgi::NExceptionChildFail();
@@ -189,14 +190,14 @@ int Cgi::_exec(std::string cgi_path, char const *file_name, std::string root_pat
 	return 0;
 }
 
-int	Cgi::execPost(std::string cgi_path, std::string root_path, HttpExchange const &httpExchange)
+int	Cgi::execPost(std::string cgi_path, HttpExchange const &httpExchange)
 {
-	return this->_exec(cgi_path, NULL, root_path, httpExchange);
+	return this->_exec(cgi_path, NULL, httpExchange);
 }
 
-int Cgi::execGet(std::string cgi_path, std::string file_name, std::string root_path, HttpExchange const &httpExchange)
+int Cgi::execGet(std::string cgi_path, std::string file_name, HttpExchange const &httpExchange)
 {
-	return this->_exec(cgi_path, file_name.c_str(), root_path, httpExchange);
+	return this->_exec(cgi_path, file_name.c_str(), httpExchange);
 }
 
 Cgi::~Cgi()
