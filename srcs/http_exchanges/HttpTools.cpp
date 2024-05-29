@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   HttpTools.cpp                                      :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: jvigny <jvigny@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/04 19:47:57 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/23 14:03:59 by jvigny           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "HttpTools.hpp"
 
 static void	_init_available_http_methods( void )
@@ -108,7 +96,7 @@ void	trim_whitespace_r(std::string & str)
 
 bool	is_ascii(unsigned char const &c)
 {
-	return (c >= 0 && c <= 128);
+	return (c <= 128);
 }
 
 bool	is_VCHAR(unsigned char const &c)

@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   HttpRequestDelete.class.hpp                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/12 19:23:29 by acardona          #+#    #+#             */
-/*   Updated: 2024/04/12 19:28:51 by acardona         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef HTTPREQUESTDELETE_CLASS_HPP
 # define HTTPREQUESTDELETE_CLASS_HPP
 
@@ -32,7 +20,7 @@ class HttpRequestDelete : public HttpRequest
 		void				processHeader( Socket const * const socket );
 		void				generateResponse( Socket const * const socket, HttpResponse &response );
 		bool				hasBody() const;
-		void				readBody(int fd, Socket const * const socket);
+		void				readBody(int fd, Socket const * const socket, bool &end);
 
 	private:
 		void	_initResponse( Socket const * const socket, HttpResponse &response );

@@ -26,7 +26,7 @@ HttpRequestGet & HttpRequestGet::operator= (HttpRequestGet const & model)
 	return (*this);
 }
 
-HttpRequestGet::HttpRequestGet( void ) //unused
+HttpRequestGet::HttpRequestGet( void )
 {
 }
 
@@ -95,22 +95,37 @@ static void	_handle_Autoindex(std::string const & location_root,
 		response.fillHeader();
 }
 
-static void	_handle_directory(std::string const & target,
+void HttpRequestGet::_redirectDirectory(HttpResponse & response)
+{
+	std::string location = "http://";
+	location += getFieldValue("Host")[0];
+	location += getTarget();
+	location += "/";
+	response.addField("Location", location);
+	throw ExceptionHttpStatusCode(HTTP_301);
+}
+
+void	HttpRequestGet::_handleDirectory(std::string const & target,
 				Location const & location, HttpResponse & response)
 {
-	if (location.getHasAutoindex())
+	if (*(target.end() - 1) != '/')
+		_redirectDirectory(response);
+	else if (location.hasDefaultIndex()
+			&& _handle_index_file(target, location, response) == SUCCESS)
+		return;
+	else if (location.getHasAutoindex())
+	{
 		_handle_Autoindex(location.getRootPath(), target, response);
-	else if (_handle_index_file(target, location, response) == SUCCESS)
 		return ;
-	else
-		throw ExceptionHttpStatusCode(HTTP_403);
+	}
+	throw ExceptionHttpStatusCode(HTTP_403);
 }
 
 void	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &response )
 {
 	response.setVersion(getVersion());
 
-	Location location = socket->getServer().searchLocation(getTarget());// get location path
+	Location location = socket->getServer().searchLocation(getTarget());
 	//get location cgi if cgi
 	if (response.handle_redirect(location))
 		return ;
@@ -122,7 +137,7 @@ void	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &r
 	
 	std::string uri = getUri(location.getRootPath(), getTarget());
 	if (is_accessible_directory(uri.c_str()))
-		_handle_directory(getTarget(), location, response);
+		_handleDirectory(getTarget(), location, response);
 	else
 		_handle_file(uri, response);
 }
@@ -133,8 +148,9 @@ void	HttpRequestGet::generateResponse( Socket const * const socket, HttpResponse
 	response.fillHeader();
 }
 
-void	HttpRequestGet::readBody(int fd, Socket const * const socket)
+void	HttpRequestGet::readBody(int fd, Socket const * const socket, bool &end)
 {
 	(void)socket;
 	(void)fd;
+	end = true;
 }

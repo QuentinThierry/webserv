@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   HttpRequestLine.class.cpp                          :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: acardona <acardona@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/12 20:02:08 by acardona          #+#    #+#             */
-/*   Updated: 2024/05/22 16:15:14 by acardona         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "HttpRequestLine.class.hpp"
 
 HttpRequestLine::HttpRequestLine( void )

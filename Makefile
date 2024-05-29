@@ -18,6 +18,7 @@ FILES_CONF_PARSING		=	$(addprefix conf_parsing/, \
 								Parser \
 								Server.class \
 								Tokenizer \
+								PrintServer \
 							)
 
 FILES_HTTP_EXCHANGES	=	$(addprefix http_exchanges/, \
@@ -48,12 +49,17 @@ FILES_HTTP_SHARED		=	$(addprefix shared/, \
 								utils \
 							)
 
+FILES_CGI				=	$(addprefix cgi/, \
+								Cgi.class \
+							)
+
 
 FILES_NAMES				=	\
 							$(FILES_CONF_PARSING) \
 							$(FILES_HTTP_EXCHANGES) \
 							$(FILES_SERVER) \
 							$(FILES_HTTP_SHARED) \
+							$(FILES_CGI) \
 							main
 
 SRC_DIR			=	srcs

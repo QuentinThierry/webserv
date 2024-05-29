@@ -16,6 +16,9 @@ class HttpExchange{
 		void 					readSocket(int fd, Cluster &cluster);
 		void 					writeSocket(int fd, Cluster &cluster);
 		struct timeval const &	getAcceptRequestTime() const;
+		Socket const &			getSocket() const;
+		HttpRequest	const &		getRequest() const;
+		HttpResponse const &	getResponse() const;
 		
 	private:
 		HttpExchange();

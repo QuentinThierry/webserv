@@ -11,7 +11,7 @@
 # include <sys/types.h>
 # include <sys/stat.h>
 
-#define SIZE_WRITE 50
+#define SIZE_WRITE 100
 
 class Cluster;
 
@@ -38,10 +38,12 @@ class HttpResponse
 
 		std::string const &getBody(void) const;
 		bool			checkFieldExistence(std::string const & field_name) const;
+		std::vector<std::string> const &getFieldValue(std::string const & field_name) const throw(ExceptionHttpStatusCode);
 
 		void		generateErrorResponse(e_status_code status, Server const & server);
 
 		void		writeResponse(int fd, Cluster &cluster);
+		void		displayHeader();
 
 	private:
 		void		_removeField(std::string const &);

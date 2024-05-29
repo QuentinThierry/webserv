@@ -74,7 +74,7 @@ void fill_default_dir_file(std::string &token, Server &server, Location *locatio
 	(void)arg_counter;
 	if (!location)
 		location = &(server.getDefaultLocation());
-	location->addDefaultDirPath(token);
+	location->addDefaultIndexPath(token);
 }
 
 void fill_can_upload(std::string &token, Server &server, Location *location, unsigned int arg_counter)

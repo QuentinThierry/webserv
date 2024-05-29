@@ -90,8 +90,8 @@ void	interpret_location_loop(std::queue<std::string> &tokens, Server &server)
 				server.addCgiLocation(cgi_loc);
 			else if (!is_cgi_loc && !location.isEmptyLocation(server.getDefaultLocation()))
 			{
-				if (location.getDefaultDirPath().empty())
-					location.addDefaultDirPath("index.html");
+				if (location.getDefaultIndexPath().empty())
+					location.addDefaultIndexPath("index.html");
 				server.addLocations(location);
 			}
 			break;
@@ -160,8 +160,9 @@ Server	interpret_server_loop(std::queue<std::string> &tokens)
 	interpret_location_fields(server, tokens);
 	if (server.getHost().empty())
 		ThrowMisc("missing `listen` field");
-	if (server.getDefaultLocation().getDefaultDirPath().empty())
-		server.getDefaultLocation().addDefaultDirPath("index.html");
+	if (server.getDefaultLocation().getDefaultIndexPath().empty())
+		server.getDefaultLocation().addDefaultIndexPath("index.html");
+	server.removeDuplicatedLocation();
 	return server;
 }
 
