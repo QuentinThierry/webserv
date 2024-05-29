@@ -39,6 +39,7 @@ class Server
 		void	addCgiLocation(CgiLocation cgi_loc);
 		void	_setHasListen(bool has_listen);
 
+		void	removeDuplicatedLocation();
 		bool	is_equal(Server const &ref) const;
 
 		Location const &searchLocation(std::string path) const;
