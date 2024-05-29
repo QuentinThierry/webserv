@@ -26,7 +26,7 @@ HttpRequestGet & HttpRequestGet::operator= (HttpRequestGet const & model)
 	return (*this);
 }
 
-HttpRequestGet::HttpRequestGet( void ) //unused
+HttpRequestGet::HttpRequestGet( void )
 {
 }
 
@@ -101,7 +101,7 @@ void	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &r
 {
 	response.setVersion(getVersion());
 
-	Location location = socket->getServer().searchLocation(getTarget());// get location path
+	Location location = socket->getServer().searchLocation(getTarget());
 	//get location cgi if cgi
 	if (response.handle_redirect(location))
 		return ;

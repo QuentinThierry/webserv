@@ -5,15 +5,15 @@
 #include "DefaultPath.hpp"
 
 int const	g_err_log_fd = STDERR_FILENO;
+bool g_exit = false;
+
 std::vector<std::string>	g_http_methods;
 std::vector<std::string>	g_http_versions;
 
 void cltr_c(int sig)
 {
-	if (sig == SIGINT)
-	{
-		std::cout << "-------------CLTR C-------------" <<std::endl;
-	}
+	if (sig == SIGINT && g_exit == false)
+		g_exit = true;
 }
 
 char const * get_config(int argc, char **argv)
@@ -28,17 +28,29 @@ char const * get_config(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
+	std::vector<Server> servers;
+	std::signal(SIGINT, cltr_c);
 	try
 	{
-		std::vector<Server> servers;
-		std::signal(SIGINT, cltr_c);
 		_init_available_http_methods_versions();
 		servers = parse_config(get_config(argc, argv));
-		Cluster web_server(servers);
-		web_server.runServer();
 	}
 	catch (std::exception &e)
 	{
 		std::cout << e.what() << std::endl;
+		return 1;
 	}
+	while (g_exit == false)
+	{
+		try
+		{
+			Cluster web_server(servers);
+			web_server.runServer();
+		}
+		catch (std::exception &e)
+		{
+			std::cout << e.what() << std::endl;
+		}
+	}
+	return 0;
 }

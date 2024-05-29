@@ -137,7 +137,7 @@ void Cluster::runServer()
 	fd_set readfds;
 	fd_set writefds;
 	struct timeval timeout;
-	while (true)
+	while (g_exit == false)
 	{
 		timeout.tv_sec = 3;
 		timeout.tv_usec = 0;
@@ -217,7 +217,8 @@ Socket const *Cluster::getMatchingSocket(int fd, std::string server_name) const
 
 void Cluster::switchHttpExchangeToWrite(int fd)
 {
-	_fd_write.push_back(fd);
+	if (find(_fd_write.begin(), _fd_write.end(), fd) == _fd_write.end())
+		_fd_write.push_back(fd);
 }
 
 void Cluster::closeConnection(int fd)

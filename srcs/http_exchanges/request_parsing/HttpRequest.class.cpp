@@ -101,6 +101,7 @@ void	HttpRequest::_fill_fields( std::stringstream &request_stream)
 
 void	HttpRequest::displayRequest( void ) const
 {
+	std::cout << "------------ HttpRequest ------------" << std::endl;
 	displayRequest_line();
 	for (std::vector<HttpField>::const_iterator it = _fields.begin();
 			it != _fields.end(); ++it)
