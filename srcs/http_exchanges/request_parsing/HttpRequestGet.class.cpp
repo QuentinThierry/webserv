@@ -90,9 +90,7 @@ static void	_handle_Autoindex(std::string const & location_root,
 		Autoindex index(location_root, target);
 
 		_add_autoindex_body(response, index);
-		_add_content_length_field(response);		
-
-		response.fillHeader();
+		_add_content_length_field(response);
 }
 
 void HttpRequestGet::_redirectDirectory(HttpResponse & response)
