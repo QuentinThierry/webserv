@@ -13,8 +13,9 @@ class HttpExchange{
 		HttpExchange(HttpExchange const &);
 		HttpExchange & operator=(HttpExchange const &);
 		~HttpExchange();
-		void 					readSocket(int fd, Cluster &cluster);
-		void 					writeSocket(int fd, Cluster &cluster);
+		void					readSocket(int fd, Cluster &cluster);
+		void					readCgi(Cgi const &cgi);
+		void					writeSocket(int fd, Cluster &cluster);
 		struct timeval const &	getAcceptRequestTime() const;
 		Socket	const &getSocket() const;
 		HttpRequest	const &getRequest() const;

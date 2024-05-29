@@ -360,3 +360,13 @@ void	HttpRequestPost::generateResponse( Socket const * const socket,
 	_initResponse(socket, response);
 	response.fillHeader();
 }
+
+bool	HttpRequestPost::hasCgi() const
+{
+	return false;//!need to change after
+}
+
+Cgi	*HttpRequestPost::getCgi()
+{
+	return &_cgi;
+}

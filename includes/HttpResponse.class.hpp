@@ -26,6 +26,8 @@ class HttpResponse
 		HttpResponse( void );
 		HttpResponse & operator=(HttpResponse const & model );
 
+		void		parseHeader(std::string header);
+
 		bool		handle_redirect(Location const &);
 		void		fillHeader();
 
@@ -33,6 +35,7 @@ class HttpResponse
 		void		setVersion(it_version version);
 		void		addAllowMethod(std::vector<std::string> const &);
 		void		addField(std::string name, std::string value);
+		void		addBodyContent(std::string str);
 
 		e_status_code	openBodyFileStream(std::string filename);
 		bool			checkFieldExistence(std::string const & field_name) const;
@@ -42,6 +45,7 @@ class HttpResponse
 
 		void		writeResponse(int fd, Cluster &cluster);
 		void		displayHeader();
+		bool		is_response_ready();
 
 	private:
 		void		_removeField(std::string const &);
@@ -53,8 +57,13 @@ class HttpResponse
 		std::string				_header;
 
 		std::string				_body;
+		uint64_t				_content_lentgth;
+		uint64_t				_read_size;
+
 		std::ifstream			_bodyFile;
 		bool					_fileOpen;
+
+		bool					_response_ready;
 };
 
 /* 

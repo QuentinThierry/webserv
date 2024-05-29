@@ -19,6 +19,8 @@ class HttpRequestPost : public HttpRequest
 		void			generateResponse( Socket const * const socket, HttpResponse &response );
 		bool			hasBody() const;
 		void			readBody(int fd, Socket const * const socket, bool &end);
+		bool			hasCgi() const;
+		Cgi		*getCgi();
 		static bool		isBusyFile(std::string filename);
 	private:
 		HttpRequestPost( void );
@@ -43,6 +45,10 @@ class HttpRequestPost : public HttpRequest
 		bool		_has_size_chunk;
 		bool		_chunk_body_flags;
 		bool		_content_length_flags;
+
+		Cgi _cgi;
+		CgiLocation _cgiLocation;
+		
 };
 
 #endif

@@ -9,10 +9,11 @@
 # include "HttpResponseStatus.hpp"
 # include "HttpResponse.class.hpp"
 # include "utils.hpp"
+# include "Cgi.class.hpp"
 
 # include <vector>
 
-#define READ_SIZE 100
+#define READ_SIZE 5
 typedef enum{
 	GET,
 	POST,
@@ -34,6 +35,8 @@ class HttpRequest : public HttpRequestLine
 		virtual void					generateResponse( Socket const * const socket, HttpResponse &response ) = 0;
 		virtual void					readBody(int fd, Socket const * const socket, bool &end) = 0;
 		virtual bool					hasBody() const = 0;
+		virtual bool					hasCgi() const = 0;
+		virtual Cgi				*getCgi() = 0;
 		
 		std::string	const &				getBody( void ) const;
 

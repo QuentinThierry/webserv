@@ -217,6 +217,8 @@ void HttpExchange::_handleHeader(int fd, Cluster &cluster)
 		if (_request->hasBody() == false)
 		{
 			_request->generateResponse(_socket, _response);
+			if (_request->hasCgi())
+				cluster.addCgi(_request->getCgi(), this);
 			cluster.switchHttpExchangeToWrite(fd);
 		}
 	}
@@ -224,5 +226,31 @@ void HttpExchange::_handleHeader(int fd, Cluster &cluster)
 
 void HttpExchange::writeSocket(int fd, Cluster &cluster)
 {
-	_response.writeResponse(fd, cluster);
+	if (_response.is_response_ready())
+		_response.writeResponse(fd, cluster);
 }
+
+void HttpExchange::readCgi(Cgi const &cgi)
+{
+	std::string tmp;
+	cgi.read(tmp);
+	if (_response.is_response_ready())
+	{
+		_response.addBodyContent(tmp);
+	}
+	else
+	{
+		_buffer_read += tmp;
+		if (_buffer_read.find("\r\n\r\n") != std::string::npos)
+		{
+			_response.parseHeader(_buffer_read); //add rest body to response body + st content-lenght + read_size
+			_buffer_read.clear();
+			std::cout << "answer ready" << std::endl;
+		}
+	}
+}
+
+// void HttpExchange::writeCgi()
+// {
+	
+// }

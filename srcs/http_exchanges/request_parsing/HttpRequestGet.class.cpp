@@ -44,8 +44,18 @@ bool	HttpRequestGet::hasBody() const
 	return (false);
 }
 
-static void	_handle_file(std::string & uri, HttpResponse & response)
+
+void HttpRequestGet::_handleCgi(std::string & uri, Server const & server, CgiLocation const &cgi_location)
 {
+	_cgi.exec(cgi_location.getExecPath(), uri, *this, server);
+}
+
+void	HttpRequestGet::_handle_file(std::string & uri, HttpResponse & response, Server const & server)
+{
+	CgiLocation cgi_location;
+	_has_cgi = server.searchCgiLocation(uri, cgi_location);
+	if (_has_cgi)
+		return _handleCgi(uri, server, cgi_location);
 	e_status_code error_code = response.openBodyFileStream(uri);
 	if (error_code != HTTP_200)
 		throw ExceptionHttpStatusCode(error_code);
@@ -60,12 +70,12 @@ static void	_handle_Autoindex(std::string & uri, Location const & location)
 		return; //TODO	
 }
 
-static e_status	_handle_index_file(std::string & uri, Location const & location,
-				HttpResponse & response)
+e_status	HttpRequestGet::_handle_index_file(std::string & uri, Location const & location,
+				HttpResponse & response,  Server const & server)
 {
 	if (location.updateUriToIndex(uri) == SUCCESS)
 	{
-		_handle_file(uri, response);
+		_handle_file(uri, response, server);
 		return (SUCCESS);
 	}
 	else
@@ -83,11 +93,11 @@ void HttpRequestGet::_redirectDirectory(HttpResponse & response)
 }
 
 void	HttpRequestGet::_handleDirectory(std::string & uri, Location const & location,
-				HttpResponse & response)
+				HttpResponse & response, Server const & server)
 {
 	if (*(uri.end() - 1) != '/')
 		_redirectDirectory(response);
-	if (_handle_index_file(uri, location, response) == SUCCESS)
+	if (_handle_index_file(uri, location, response, server) == SUCCESS)
 		return ;
 	if (location.getHasAutoindex())
 	{
@@ -102,7 +112,7 @@ void	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &r
 	response.setVersion(getVersion());
 
 	Location location = socket->getServer().searchLocation(getTarget());
-	//get location cgi if cgi
+	
 	if (response.handle_redirect(location))
 		return ;
 	if (isAcceptedMethod(location) == false)
@@ -113,16 +123,18 @@ void	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &r
 	}
 	
 	std::string uri = getUri(location.getRootPath(), getTarget());
+
 	if (is_accessible_directory(uri.c_str()))
-		_handleDirectory(uri, location, response);
+		_handleDirectory(uri, location, response, socket->getServer());
 	else
-		_handle_file(uri, response);
+		_handle_file(uri, response, socket->getServer());
 }
 
 void	HttpRequestGet::generateResponse( Socket const * const socket, HttpResponse &response )
 {
 	_initResponse(socket, response);
-	response.fillHeader();
+	if (!_has_cgi)
+		response.fillHeader();
 }
 
 void	HttpRequestGet::readBody(int fd, Socket const * const socket, bool &end)
@@ -130,4 +142,14 @@ void	HttpRequestGet::readBody(int fd, Socket const * const socket, bool &end)
 	(void)socket;
 	(void)fd;
 	end = true;
+}
+
+bool	HttpRequestGet::hasCgi() const
+{
+	return _has_cgi;
+}
+
+Cgi	*HttpRequestGet::getCgi()
+{
+	return &_cgi;
 }

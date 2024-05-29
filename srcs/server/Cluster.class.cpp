@@ -94,6 +94,13 @@ void Cluster::_initSetFds(fd_set *readfds, fd_set *writefds) const
 		else
 			FD_SET(it->first, readfds);
 	}
+	for (t_const_iter_map_cgi it = _map_cgi.begin(); it != _map_cgi.end(); it++)
+	{
+		std::cout << " set "<< it->first->getReadPipe() << std::endl;
+		FD_SET(it->first->getReadPipe(), readfds);
+		if (*it->second->getRequest().getMethod() == "POST")
+			FD_SET(it->first->getWritePipe(), writefds);
+	}
 }
 
 void Cluster::_printSet(fd_set *fds, std::string str) const
@@ -156,6 +163,22 @@ void Cluster::runServer()
 				_acceptNewConnection(*it);
 				break;
 			}
+		}
+		for (t_const_iter_map_cgi it = _map_cgi.begin(); it != _map_cgi.end(); it++)
+		{
+			std::cout << "check " << it->first->getReadPipe() << std::endl;
+			if (FD_ISSET(it->first->getReadPipe(), &readfds))
+			{
+				std::cout << "read cgi "<<it->first->getReadPipe() << std::endl;
+				it->second->readCgi(*it->first);
+				break;
+			}
+			// else if (*it->second->getRequest().getMethod() == "POST"
+			// 		&& FD_ISSET(it->first->getWritePipe(), &writefds))
+			// {
+			// 	it->second->writeCgi();
+			// 	break;
+			// }
 		}
 		for (unsigned int i = 0; i < _map_sockets.size() + (_close_connection == true); i++)
 		{
@@ -221,6 +244,18 @@ void Cluster::switchHttpExchangeToWrite(int fd)
 		_fd_write.push_back(fd);
 }
 
+static void remove_cgi(HttpExchange *exchange, t_map_cgi & map_cgi)
+{
+	for (t_iter_map_cgi it = map_cgi.begin(); it != map_cgi.end(); it++)
+	{
+		if (it->second == exchange)
+		{
+			map_cgi.erase(it);
+			break;
+		}
+	}
+}
+
 void Cluster::closeConnection(int fd)
 {
 	std::cout << "close connection\n";
@@ -233,6 +268,7 @@ void Cluster::closeConnection(int fd)
 	{
 		if (it->first == fd)
 		{
+			remove_cgi(&it->second, _map_cgi);
 			close(it->first);
 			if (it == _map_sockets.begin())
 				_map_sockets.pop_front();
@@ -244,4 +280,12 @@ void Cluster::closeConnection(int fd)
 	}
 }
 
-
+void Cluster::addCgi(Cgi *cgi, HttpExchange *httpExchange)
+{
+	std::cout << "add cgi" << std::endl;
+	if (cgi->getReadPipe() > _max_fd)
+		_max_fd = cgi->getReadPipe();
+	if (cgi->getWritePipe() > _max_fd)
+		_max_fd = cgi->getWritePipe();
+	_map_cgi.push_back(std::make_pair(cgi, httpExchange));
+}
