@@ -41,6 +41,7 @@ class HttpResponse
 		void		generateErrorResponse(e_status_code status, Server const & server);
 
 		void		writeResponse(int fd, Cluster &cluster);
+		void		displayHeader();
 
 	private:
 		void		_removeField(std::string const &);

@@ -79,13 +79,21 @@ bool	HttpResponse::handle_redirect(Location const & location)
 void		HttpResponse::fillHeader()
 {
 	_header.clear();
-	std::cout <<  *_version << " " << status_code_to_int(_status_code) << " "
-			<< get_error_reason_phrase(_status_code) << "\r\n";
 	_header = *_version + " " + ft_itoa(status_code_to_int(_status_code)) + " "
 			+ get_error_reason_phrase(_status_code) + "\r\n";
 	for (unsigned int i = 0; i < _fields.size(); i++)
 		_header += _fields.at(i).getFields();
 	_header += "\r\n";
+	displayHeader();
+}
+
+void		HttpResponse::displayHeader()
+{
+	std::cout << "------------ HttpResponse ------------" << std::endl;
+	std::cout << *_version << " " << ft_itoa(status_code_to_int(_status_code)) << " "
+			<< get_error_reason_phrase(_status_code) << "\r\n";
+	for (unsigned int i = 0; i < _fields.size(); i++)
+		_fields.at(i).display_field();
 }
 
 static void _close_body_file(std::ifstream &response_bodyFile, bool &response_fileOpen)

@@ -15,13 +15,8 @@ typedef enum e_status
 # include <stdint.h>
 
 extern int const g_err_log_fd;
+extern bool g_exit;
 
 int protected_write(int const fd, std::string const str);
-
-class ExceptionCltrC: public std::exception
-{
-	public:
-		char const *what() const throw() {return "Interrupt signal received";}
-};
 
 #endif
