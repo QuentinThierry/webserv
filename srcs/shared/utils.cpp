@@ -35,3 +35,17 @@ bool	is_accessible_directory(char const *name)
 	close(fd);
 	return (true);
 }
+
+e_status empty_sstream_in_string(std::string &dest, std::stringstream &stream_to_empty)
+{	
+	std::string body_content;
+	while (!stream_to_empty.eof() && stream_to_empty.peek() != EOF)
+	{
+		if (!std::getline(stream_to_empty, body_content))
+			return (FAILURE);
+		dest += body_content;
+		if (!stream_to_empty.eof())
+			dest += "\n";
+	}
+	return (SUCCESS);
+}

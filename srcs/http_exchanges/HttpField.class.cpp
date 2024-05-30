@@ -218,3 +218,123 @@ std::string	HttpField::getFields( void ) const
 	return res;
 }
 
+static std::vector<HttpField>::const_iterator _find_field(std::vector<HttpField> const &fields, std::string const & field_name)
+{
+	std::vector<HttpField>::const_iterator it;
+
+	it = fields.begin();
+	while ( it != fields.end())
+	{
+		if (it->getName() == field_name)
+			return (it);
+		++it;
+	}
+	return (it);
+}
+
+static std::vector<HttpField>::iterator _find_field(std::vector<HttpField> &fields, std::string const & field_name)
+{
+	std::vector<HttpField>::iterator it;
+
+	it = fields.begin();
+	while ( it != fields.end())
+	{
+		if (it->getName() == field_name)
+			return (it);
+		++it;
+	}
+	return (it);
+}
+
+static void _add_field(std::vector<HttpField> &existing_fields, HttpField new_field)
+{
+	std::vector<HttpField>::iterator it;
+
+	it = _find_field(existing_fields, new_field.getName());
+	if (it == existing_fields.end())
+		existing_fields.push_back(new_field);
+	else
+		it->mergeFieldValues(new_field);
+}
+
+
+void	HttpField::fill_fields( std::stringstream &request_stream, std::vector<HttpField> &existing_fields)
+	throw (ExceptionHttpStatusCode)
+{
+	std::string			line;
+
+	while (!request_stream.eof() && std::getline(request_stream, line))
+	{
+		if (!is_line_properly_ended(request_stream, line))	
+			throw_http_err_with_log(HTTP_400, MSG_ERR_WRONG_END_OF_LINE);
+		if (line.empty())
+			break;
+		_add_field(existing_fields, HttpField(line));
+	}
+}
+
+
+bool	HttpField::checkFieldExistence(std::vector<HttpField> const &fields, std::string const & field_name)
+{
+	return (_find_field(fields, field_name) != fields.end());
+}
+
+std::vector<std::string>	&HttpField::getFieldValue(
+	std::vector<HttpField> &fields, std::string const & field_name)
+	throw(ExceptionHttpStatusCode)
+{
+	std::vector<HttpField>::iterator it;
+
+	it = _find_field(fields, field_name);
+	if (it != fields.end())
+		return (it->_values);
+	throw(ExceptionHttpStatusCode(HTTP_500));
+}
+
+std::vector<std::string> const	&HttpField::getFieldValue(
+	std::vector<HttpField> const &fields, std::string const & field_name)
+	throw(ExceptionHttpStatusCode)
+{
+	std::vector<HttpField>::const_iterator it;
+
+	it = _find_field(fields, field_name);
+	if (it != fields.end())
+		return (it->_values);
+	throw(ExceptionHttpStatusCode(HTTP_500));
+}
+
+void	HttpField::erase_field(std::vector<HttpField> &fields,
+	std::string const & field_name)
+{
+	std::vector<HttpField>::iterator it;
+
+	it = _find_field(fields, field_name);
+	if (it != fields.end())
+		fields.erase(it);
+}
+
+void	HttpField::erase_field_value(HttpField &field, std::string const & value)
+{
+	std::vector<std::string>::iterator it;
+
+	it = std::find(field._values.begin(), field._values.end(), value);
+	if (it != field._values.end())
+		field._values.erase(it);
+}
+
+
+e_status	HttpField::extract_field(std::vector<HttpField> &fields,
+			std::string const & value, std::vector<std::string> &dest_values)
+{
+	std::vector<HttpField>::iterator it;
+	std::vector<std::string> 		 values;
+
+	it = _find_field(fields, value);
+	if (it != fields.end())
+	{
+		dest_values = it->_values;
+		fields.erase(it);
+		return (SUCCESS);
+	}
+	return (FAILURE);
+}

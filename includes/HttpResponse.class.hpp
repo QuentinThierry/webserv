@@ -26,7 +26,7 @@ class HttpResponse
 		HttpResponse( void );
 		HttpResponse & operator=(HttpResponse const & model );
 
-		void		parseHeader(std::string header);
+		void		parseCgiHeader(std::string header) throw(ExceptionHttpStatusCode);
 
 		bool		handle_redirect(Location const &);
 		void		fillHeader();
@@ -48,16 +48,17 @@ class HttpResponse
 		bool		is_response_ready();
 
 	private:
-		void		_removeField(std::string const &);
+		void	_extract_cgi_fields_data( void );
 
-		it_version		_version;
-		e_status_code	_status_code;
+		it_version				_version;
+		e_status_code			_status_code;
 
 		std::vector<HttpField>	_fields;
+	
 		std::string				_header;
 
 		std::string				_body;
-		uint64_t				_content_lentgth;
+		uint64_t				_content_length;
 		uint64_t				_read_size;
 
 		std::ifstream			_bodyFile;

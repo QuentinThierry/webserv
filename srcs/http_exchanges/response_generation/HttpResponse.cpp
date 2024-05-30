@@ -15,7 +15,7 @@ HttpResponse::HttpResponse( it_version const & version)
 	_fields.push_back(HttpField("Server", SERVER_NAME));
 	_fileOpen = false;
 	_response_ready = false;
-	_content_lentgth = 0;
+	_content_length = 0;
 	_read_size = 0;
 }
 
@@ -34,7 +34,7 @@ HttpResponse & HttpResponse::operator=(HttpResponse const & model )
 		// _bodyFile = model._bodyFile;
 		_fileOpen = false;
 		_response_ready = model._response_ready;
-		_content_lentgth = model._content_lentgth;
+		_content_length = model._content_length;
 		_read_size = model._read_size;
 	}
 	return *this;
@@ -54,7 +54,7 @@ HttpResponse::HttpResponse( void )
 	_fields.push_back(HttpField("Server", SERVER_NAME));
 	_fileOpen = false;
 	_response_ready = false;
-	_content_lentgth = 0;
+	_content_length = 0;
 	_read_size = 0;
 }
 
@@ -201,24 +201,86 @@ void	HttpResponse::addAllowMethod(std::vector<std::string> const &method)
 	_fields.push_back(res);
 }
 
-void HttpResponse::_removeField(std::string const &name)
-{
-	std::vector<HttpField>::iterator it;
 
-	for (it = _fields.begin(); it != _fields.end(); ++it)
+static e_status	_extract_content_length(std::vector<HttpField> &response_fields,
+					uint64_t &value_dest)
+{
+	std::vector<std::string>	field_values;
+	e_status					itoa_error;
+
+	itoa_error = SUCCESS;
+	if (HttpField::extract_field(response_fields, "Content-Length", field_values) == SUCCESS)
 	{
-		if (it->getName() == name)
+		if (field_values.size() != 1)
 		{
-			_fields.erase(it);
-			return;
+			;//TODO error code 413 
+			return (FAILURE);
+		}
+		value_dest = ft_atoi(field_values.at(0), itoa_error);
+		if (itoa_error == FAILURE )
+		{
+			;//TODO error code 413 
+			return (FAILURE);
 		}
 	}
+	else
+		value_dest = 0;
+	return (SUCCESS);
 }
 
-void HttpResponse::parseHeader(std::string header)
+static e_status	_extract_status_code(std::vector<HttpField> &response_fields,
+					e_status_code &response_status)
+{
+	std::vector<std::string>	field_values;
+	e_status					itoa_error;
+	uint64_t					status_code;
+
+	itoa_error = SUCCESS;
+	if (HttpField::extract_field(response_fields, "Status", field_values) == SUCCESS)
+	{
+		if (field_values.size() == 0)
+		{
+			;//TODO error code (? 413) 
+			return (FAILURE);
+		}
+		status_code = ft_atoi(field_values.at(0), itoa_error);
+		if (itoa_error == FAILURE )
+		{
+			;//TODO error code 413 
+			return (FAILURE);
+		}
+		response_status = int_to_status_code(status_code);
+	}
+	else
+		response_status = HTTP_200;
+	return (SUCCESS);
+}
+
+void	HttpResponse::_extract_cgi_fields_data( void )
+{
+	if (_extract_content_length(_fields, _content_length) == FAILURE
+		|| _extract_status_code(_fields, _status_code) == FAILURE)
+		;//TODO
+}
+
+void HttpResponse::parseCgiHeader(std::string header) throw(ExceptionHttpStatusCode)
 {
 	std::cout << header << std::endl;
-	//TODO
+
+	std::stringstream header_stream(header);
+
+	HttpField::fill_fields(header_stream, _fields);
+
+	if (empty_sstream_in_string(_body, header_stream)== SUCCESS)
+		_extract_cgi_fields_data();
+	else //! comportement A confirmer
+	{
+		_fields.clear(); 
+		_fields.push_back(HttpField("Connection", "close"));
+		_fields.push_back(HttpField("Server", SERVER_NAME));
+		_status_code = HTTP_500;
+	}
+	_read_size = _body.size();
 	fillHeader();
 }
 
@@ -231,7 +293,7 @@ void	HttpResponse::generateErrorResponse(e_status_code status, Server const & se
 	if (!checkFieldExistence("Server"))
 		_fields.push_back(HttpField("Server", SERVER_NAME));
 	if (checkFieldExistence("Content-Length"))
-		_removeField("Content-Length");
+		HttpField::erase_field(_fields, "Content-Length");
 	if (_fileOpen == true)
 		_close_body_file(_bodyFile, _fileOpen);
 	_body.clear();
@@ -276,7 +338,7 @@ void HttpResponse::writeResponse(int fd, Cluster &cluster)
 		cluster.closeConnection(fd);
 		return ;
 	}
-	if (_header.empty() && _body.empty() && _fileOpen == false && _content_lentgth == _read_size)
+	if (_header.empty() && _body.empty() && _fileOpen == false && _content_length == _read_size)
 	{
 		std::cout << "end\n";
 		cluster.closeConnection(fd);
