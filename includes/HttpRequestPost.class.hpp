@@ -22,6 +22,7 @@ class HttpRequestPost : public HttpRequest
 		bool			hasCgi() const;
 		Cgi		*getCgi();
 		static bool		isBusyFile(std::string filename);
+		void			processBody(bool &end);
 	private:
 		HttpRequestPost( void );
 		void	_initResponse( Socket const * const socket, HttpResponse &response );
@@ -29,10 +30,10 @@ class HttpRequestPost : public HttpRequest
 		uint64_t		_getSizeToReadBody(uint64_t maxClientBody) const;
 		void			_openFile();
 		void			_closeFile();
-		void			_processBody(bool &end);
 		void			_processBodyContentLength(bool &end);
 		bool			_parseChunkBody();
 		void			_parseChunkSize();
+		void			_handleCgi(CgiLocation const & cgi_location, Server const &server);
 		static std::vector<std::string> _busyFile;
 
 		std::string		_filename;
@@ -46,8 +47,8 @@ class HttpRequestPost : public HttpRequest
 		bool		_chunk_body_flags;
 		bool		_content_length_flags;
 
-		Cgi _cgi;
-		CgiLocation _cgiLocation;
+		Cgi			_cgi;
+		bool		_has_cgi;
 		
 };
 

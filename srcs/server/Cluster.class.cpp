@@ -96,7 +96,6 @@ void Cluster::_initSetFds(fd_set *readfds, fd_set *writefds) const
 	}
 	for (t_const_iter_map_cgi it = _map_cgi.begin(); it != _map_cgi.end(); it++)
 	{
-		std::cout << " set "<< it->first->getReadPipe() << std::endl;
 		FD_SET(it->first->getReadPipe(), readfds);
 		if (*it->second->getRequest().getMethod() == "POST")
 			FD_SET(it->first->getWritePipe(), writefds);
@@ -139,6 +138,16 @@ void Cluster::_checkTimeout()
 	}
 }
 
+static int findFd(t_map_sockets const & map_socket, HttpExchange *exchange)
+{
+	for (t_const_iter_map_sockets it = map_socket.begin(); it != map_socket.end(); it++)
+	{
+		if (&it->second == exchange)
+			return it->first;
+	}
+	return -1;
+}
+
 void Cluster::runServer()
 {
 	fd_set readfds;
@@ -166,19 +175,19 @@ void Cluster::runServer()
 		}
 		for (t_const_iter_map_cgi it = _map_cgi.begin(); it != _map_cgi.end(); it++)
 		{
-			std::cout << "check " << it->first->getReadPipe() << std::endl;
 			if (FD_ISSET(it->first->getReadPipe(), &readfds))
 			{
 				std::cout << "read cgi "<<it->first->getReadPipe() << std::endl;
 				it->second->readCgi(*it->first);
 				break;
 			}
-			// else if (*it->second->getRequest().getMethod() == "POST"
-			// 		&& FD_ISSET(it->first->getWritePipe(), &writefds))
-			// {
-			// 	it->second->writeCgi();
-			// 	break;
-			// }
+			else if (*it->second->getRequest().getMethod() == "POST"
+					&& FD_ISSET(it->first->getWritePipe(), &writefds))
+			{
+				std::cout << "write cgi "<<it->first->getWritePipe() << std::endl;
+				it->second->writeCgi(findFd(_map_sockets, it->second), *this);
+				break;
+			}
 		}
 		for (unsigned int i = 0; i < _map_sockets.size() + (_close_connection == true); i++)
 		{

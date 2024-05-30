@@ -165,6 +165,7 @@ void HttpExchange::readSocket(int fd, Cluster &cluster)
 			_request->readBody(fd, _socket, end);
 			if (end == true)
 			{
+				std::cout << "switch write" << std::endl;
 				_request->generateResponse(_socket, _response);
 				cluster.switchHttpExchangeToWrite(fd);
 			}
@@ -216,41 +217,61 @@ void HttpExchange::_handleHeader(int fd, Cluster &cluster)
 		_request->processHeader(_socket);
 		if (_request->hasBody() == false)
 		{
+			std::cout << "switch write no body" << std::endl;
 			_request->generateResponse(_socket, _response);
-			if (_request->hasCgi())
-				cluster.addCgi(_request->getCgi(), this);
 			cluster.switchHttpExchangeToWrite(fd);
 		}
+		if (_request->hasCgi())
+			cluster.addCgi(_request->getCgi(), this);
 	}
 }
 
 void HttpExchange::writeSocket(int fd, Cluster &cluster)
 {
 	if (_response.is_response_ready())
-		_response.writeResponse(fd, cluster);
+		_response.writeResponse(fd, cluster, _request->hasCgi());
+	else
+	 	std::cout << " not ready" << std::endl;
 }
 
 void HttpExchange::readCgi(Cgi const &cgi)
 {
 	std::string tmp;
-	cgi.read(tmp);
+	int ret = cgi.read(tmp);
+	// if (ret == -1)
+	// 	;//!error
+	if (ret == 0)
+	{
+		std::cout << "end of file" << std::endl;
+		_response.setEndOfFile();
+	}
 	if (_response.is_response_ready())
 	{
 		_response.addBodyContent(tmp);
+		std::cout << "body:" << tmp <<std::endl;
 	}
 	else
 	{
 		_buffer_read += tmp;
 		if (_buffer_read.find("\r\n\r\n") != std::string::npos)
 		{
-			_response.parseHeader(_buffer_read); //add rest body to response body + st content-lenght + read_size
+			_response.parseHeader(_buffer_read); //add rest body to response body + set content-lenght + read_size
 			_buffer_read.clear();
 			std::cout << "answer ready" << std::endl;
 		}
 	}
 }
 
-// void HttpExchange::writeCgi()
-// {
-	
-// }
+void HttpExchange::writeCgi(int fd, Cluster & cluster)
+{
+	if (fd == -1)
+		return ;
+	bool end = false;
+	dynamic_cast<HttpRequestPost*>(_request)->processBody(end);
+	if (end == true)
+	{
+		std::cout << "switch write cgi" << std::endl;
+		_request->generateResponse(_socket, _response);
+		cluster.switchHttpExchangeToWrite(fd);
+	}
+}

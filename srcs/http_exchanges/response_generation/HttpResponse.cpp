@@ -15,7 +15,9 @@ HttpResponse::HttpResponse( it_version const & version)
 	_fields.push_back(HttpField("Server", SERVER_NAME));
 	_fileOpen = false;
 	_response_ready = false;
-	_content_lentgth = 0;
+	_content_length = 0;
+	_content_length_flag = false;
+	_end_of_file_flag = false;
 	_read_size = 0;
 }
 
@@ -34,7 +36,9 @@ HttpResponse & HttpResponse::operator=(HttpResponse const & model )
 		// _bodyFile = model._bodyFile;
 		_fileOpen = false;
 		_response_ready = model._response_ready;
-		_content_lentgth = model._content_lentgth;
+		_content_length = model._content_length;
+		_content_length_flag = model._content_length_flag;
+		_end_of_file_flag = model._end_of_file_flag;
 		_read_size = model._read_size;
 	}
 	return *this;
@@ -54,7 +58,9 @@ HttpResponse::HttpResponse( void )
 	_fields.push_back(HttpField("Server", SERVER_NAME));
 	_fileOpen = false;
 	_response_ready = false;
-	_content_lentgth = 0;
+	_content_length = 0;
+	_content_length_flag = false;
+	_end_of_file_flag = false;
 	_read_size = 0;
 }
 
@@ -82,6 +88,11 @@ void	HttpResponse::addField(std::string name, std::string value)
 void	HttpResponse::addBodyContent(std::string str)
 {
 	_body += str;
+}
+
+void		HttpResponse::setEndOfFile()
+{
+	_end_of_file_flag = true;
 }
 
 bool	HttpResponse::handle_redirect(Location const & location)
@@ -242,10 +253,30 @@ void	HttpResponse::generateErrorResponse(e_status_code status, Server const & se
 	fillHeader();
 }
 
-
-void HttpResponse::writeResponse(int fd, Cluster &cluster)
+bool HttpResponse::_checkEndCgi(bool has_cgi) const
 {
-	int ret = 0;
+	if (has_cgi)
+	{
+		if (_content_length_flag && _content_length == _read_size)
+			return true;
+		else if (!_content_length_flag && _end_of_file_flag)
+			return true;
+	}
+	return false;
+}
+
+void HttpResponse::_chunkResponse()
+{
+	int size = _body.size();
+
+	_body = ft_itoa(size) + "\r\n" + _body + "\r\n";
+	if (_checkEndCgi(true))
+		_body += "0\r\n";
+}
+
+void HttpResponse::writeResponse(int fd, Cluster &cluster, bool has_cgi)
+{
+	int ret = 1;
 	if (_header.empty() == false)
 	{
 		std::cout << "send header" << std::endl;
@@ -261,11 +292,13 @@ void HttpResponse::writeResponse(int fd, Cluster &cluster)
 		_bodyFile.gcount();
 		ret = send(fd, tmp, _bodyFile.gcount(), MSG_NOSIGNAL);
 	}
-	else
+	else if (!_body.empty())
 	{
+		if (has_cgi && !_content_length_flag)
+			_chunkResponse();
 		std::cout << "send body" << std::endl;
 		ret = send(fd, _body.c_str(), _body.size(), MSG_NOSIGNAL);
-		_read_size += ret; //!can send less then rbody.size()
+		_read_size += ret; //!can send less then body.size()
 		_body.clear();
 	}
 	if (ret == -1 || ret == 0)
@@ -276,8 +309,12 @@ void HttpResponse::writeResponse(int fd, Cluster &cluster)
 		cluster.closeConnection(fd);
 		return ;
 	}
-	if (_header.empty() && _body.empty() && _fileOpen == false && _content_lentgth == _read_size)
+	if ((!has_cgi && _header.empty() && _body.empty() && _fileOpen == false && _content_length == _read_size)
+		|| _checkEndCgi(has_cgi))
 	{
+		std::cout << "has cgi:" << has_cgi << std::endl;
+		std::cout << "content flags:" << _content_length_flag << std::endl;
+		std::cout << "eof:" << _end_of_file_flag << std::endl;
 		std::cout << "end\n";
 		cluster.closeConnection(fd);
 	}

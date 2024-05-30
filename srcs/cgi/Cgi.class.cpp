@@ -57,6 +57,12 @@ ssize_t	Cgi::read(std::string &buffer) const
 	return size;
 }
 
+void	Cgi::endWrite()
+{
+	close(getWritePipe());
+	_pipe_input[WRITE] = -1;
+}
+
 static char const *alloc_str(std::string str)
 {
 	unsigned int size = str.size();
@@ -180,8 +186,8 @@ void Cgi::exec(std::string cgi_path, std::string file_name, HttpRequest const &r
 		if (!error)
 		{
 			char const **env = create_cgi_env(request, server, file_name);
-			for (uint16_t i = 0; i < 18; i++)
-				std::cerr << env[i] << std::endl;
+			// for (uint16_t i = 0; i < 18; i++)
+			// 	std::cerr << env[i] << std::endl;
 			if (env)
 			{
 				std::cerr << "path :" << cgi_path.c_str() <<std::endl;

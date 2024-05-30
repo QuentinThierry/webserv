@@ -43,11 +43,15 @@ class HttpResponse
 
 		void		generateErrorResponse(e_status_code status, Server const & server);
 
-		void		writeResponse(int fd, Cluster &cluster);
+		void		writeResponse(int fd, Cluster &cluster, bool has_cgi);
 		void		displayHeader();
 		bool		is_response_ready();
+		void		setEndOfFile();
+
 
 	private:
+		void		_chunkResponse();
+		bool		_checkEndCgi(bool has_cgi) const;
 		void		_removeField(std::string const &);
 
 		it_version		_version;
@@ -57,7 +61,9 @@ class HttpResponse
 		std::string				_header;
 
 		std::string				_body;
-		uint64_t				_content_lentgth;
+		uint64_t				_content_length;
+		bool					_content_length_flag;
+		bool					_end_of_file_flag;
 		uint64_t				_read_size;
 
 		std::ifstream			_bodyFile;
