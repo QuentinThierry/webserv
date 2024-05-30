@@ -32,7 +32,6 @@ void	print_server(Server &server)
 		}
 		std::cout << "\tHas autoindex : " << loc.getHasAutoindex() << std::endl;
 		std::cout << "\tCan upload ? : " << loc.getCanUpload() << std::endl;
-		std::cout << "\tUpload dir : " << loc.getUploadPath() << std::endl;
 	}
 
 	for (unsigned int i = 0; i < server.getCgiLocations().size(); i++)
@@ -41,6 +40,7 @@ void	print_server(Server &server)
 		CgiLocation const &cgi_loc = server.getCgiLocations()[i];
 		std::cout << "\tExtension : " << cgi_loc.getExtension() << std::endl;
 		std::cout << "\tExec path : " << cgi_loc.getExecPath() << std::endl;
+		std::cout << "\tRoot path : " << cgi_loc.getRootPath() << std::endl;
 	}
 	std::cout << std::endl;
 }

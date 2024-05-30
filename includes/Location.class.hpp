@@ -29,7 +29,6 @@ class Location
 		std::vector<std::string> const &			getDefaultIndexPath() const;
 		bool const &								getHasAutoindex() const;
 		bool const &								getCanUpload() const;
-		std::string const &							getUploadPath() const;
 
 		void	setLocationPath(std::string location_path);
 		void	setMethods(std::vector<std::string> methods);
@@ -41,7 +40,6 @@ class Location
 		void	addDefaultIndexPath(std::string default_path);
 		void	setHasAutoindex(bool has_auto_index);
 		void	setCanUpload(bool can_upload);
-		void	setUploadPath(std::string upload_path);
 
 		bool		isEmptyLocation(Location &default_location) const;
 		bool		doesAcceptMethod(std::string method) const;
@@ -57,7 +55,6 @@ class Location
 		std::vector<std::string>			_default_index_path;
 		bool								_has_autoindex;
 		bool								_can_upload;
-		std::string							_upload_path;
 };
 
 #endif

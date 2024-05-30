@@ -35,4 +35,3 @@ void	fill_root_path(std::string &token, Server &server, Location *location, unsi
 void	fill_autoindex(std::string &token, Server &server, Location *location, unsigned int arg_counter);
 void	fill_default_dir_file(std::string &token, Server &server, Location *location, unsigned int arg_counter);
 void	fill_can_upload(std::string &token, Server &server, Location *location, unsigned int arg_counter);
-void	fill_upload_path(std::string &token, Server &server, Location *location, unsigned int arg_counter);

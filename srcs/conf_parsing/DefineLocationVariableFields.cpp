@@ -91,13 +91,3 @@ void fill_can_upload(std::string &token, Server &server, Location *location, uns
 	else
 		ThrowBadArgument(token, "can_upload");
 }
-
-void fill_upload_path(std::string &token, Server &server, Location *location, unsigned int arg_counter)
-{
-	(void)server;
-	if (!location)
-		ThrowBadFieldLocation("server", "upload_path");
-	if (arg_counter != 1)
-		ThrowBadArgumentNumber("upload_path", 1, true);
-	location->setUploadPath(token);
-}

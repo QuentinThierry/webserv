@@ -293,7 +293,7 @@ void	HttpRequestPost::processHeader(Socket const * const socket)
 		return ;
 	if (!location.getCanUpload())
 		throw ExceptionHttpStatusCode(HTTP_403); //!not sure
-	_filename = getUri(location.getUploadPath(), getTarget()); //! ou root
+	_filename = getUri(location.getRootPath(), getTarget()); //! changed to root
 	if (access(_filename.c_str(), F_OK) == 0)
 		throw ExceptionHttpStatusCode(HTTP_409);
 	else if (errno == EACCES)
