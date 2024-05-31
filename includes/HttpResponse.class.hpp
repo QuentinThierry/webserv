@@ -52,6 +52,7 @@ class HttpResponse
 
 		it_version				_version;
 		e_status_code			_status_code;
+		std::string				_custom_status;
 
 		std::vector<HttpField>	_fields;
 	
