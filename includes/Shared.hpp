@@ -14,8 +14,8 @@ typedef enum e_status
 # include <unistd.h>
 # include <stdint.h>
 
-extern int const g_err_log_fd;
-extern bool g_exit;
+extern int const	g_err_log_fd;
+extern bool 		g_exit;
 
 int protected_write(int const fd, std::string const str);
 

@@ -66,15 +66,6 @@ void	HttpRequestGet::_handle_file(std::string & uri, HttpResponse & response, Se
 		throw ExceptionHttpStatusCode(error_code);
 }
 
-static void	_handle_Autoindex(std::string & uri, Location const & location)
-{
-		//add content-length flags
-		//fill body auto index
-		(void) uri;
-		(void) location;
-		return; //TODO	
-}
-
 e_status	HttpRequestGet::_handle_index_file(std::string & uri, Location const & location,
 				HttpResponse & response,  Server const & server)
 {
@@ -85,6 +76,33 @@ e_status	HttpRequestGet::_handle_index_file(std::string & uri, Location const & 
 	}
 	else
 		return (FAILURE);
+}
+
+static void	_add_autoindex_body(HttpResponse & response, Autoindex & index)
+{
+	std::string body_content;
+
+	body_content = index.generateAutoIndexBody();
+	response.setBody(body_content);
+}
+
+static void _add_content_length_field(HttpResponse & response)
+{
+	std::string	field_name;
+	std::string length;
+
+	field_name = "Content-Length";
+	length = ft_itoa(response.getBody().length());
+	response.addField(field_name, length);
+}
+
+static void	_handle_Autoindex(std::string const & location_root,
+				std::string const & target, HttpResponse & response)
+{
+		Autoindex index(location_root, target);
+
+		_add_autoindex_body(response, index);
+		_add_content_length_field(response);
 }
 
 void HttpRequestGet::_redirectDirectory(HttpResponse & response)
@@ -106,7 +124,7 @@ void	HttpRequestGet::_handleDirectory(std::string & uri, Location const & locati
 		return ;
 	if (location.getHasAutoindex())
 	{
-		_handle_Autoindex(uri, location);
+		_handle_Autoindex(location.getRootPath(), getTarget(), response);
 		return ;
 	}
 	throw ExceptionHttpStatusCode(HTTP_403);
@@ -124,7 +142,6 @@ void	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &r
 	{
 		response.addAllowMethod(location.getMethods());
 		throw ExceptionHttpStatusCode(HTTP_405);
-		return ;
 	}
 	
 	std::string uri = getUri(location.getRootPath(), getTarget());

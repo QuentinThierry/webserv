@@ -36,8 +36,10 @@ class HttpResponse
 		void		addAllowMethod(std::vector<std::string> const &);
 		void		addField(std::string name, std::string value);
 		void		addBodyContent(std::string str);
-
+		void		setBody(std::string &body_content);
 		e_status_code	openBodyFileStream(std::string filename);
+
+		std::string const &getBody(void) const;
 		bool			checkFieldExistence(std::string const & field_name) const;
 		std::vector<std::string> const &getFieldValue(std::string const & field_name) const throw(ExceptionHttpStatusCode);
 

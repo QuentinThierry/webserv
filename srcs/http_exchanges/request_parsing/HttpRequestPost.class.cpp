@@ -329,7 +329,7 @@ void	HttpRequestPost::processHeader(Socket const * const socket)
 		return ;
 	if (!location.getCanUpload())
 		throw ExceptionHttpStatusCode(HTTP_403); //!not sure
-	_filename = getUri(location.getUploadPath(), getTarget()); //! ou root
+	_filename = getUri(location.getRootPath(), getTarget());
 	CgiLocation cgi_location;
 	_setBodyReadType(socket->getServer().getClientMaxBodySize());
 	_has_cgi = socket->getServer().searchCgiLocation(_filename, cgi_location);
