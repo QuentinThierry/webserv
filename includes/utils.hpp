@@ -12,6 +12,8 @@ std::string		error_message_server(Server const &server, std::string const &messa
 uint64_t 		ft_atoi(std::string nb, e_status &error);
 std::string		ft_itoa( uint64_t number );
 bool			is_accessible_directory(char const *name);
+uint64_t		str_to_hex(std::string str, bool &error);
+std::string		hex_to_str(uint64_t val);
 
 
 #endif
