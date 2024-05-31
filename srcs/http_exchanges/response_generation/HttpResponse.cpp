@@ -293,9 +293,10 @@ void HttpResponse::parseCgiHeader(std::string header) throw(ExceptionHttpStatusC
 		_status_code = HTTP_500;
 		return ;
 	}
-	if (!_content_length_flag)
+	if (_content_length_flag)
+		_fields.push_back(HttpField("content-Length", ft_itoa(_content_length)));
+	else
 		_fields.push_back(HttpField("Transfer-Encoding", "chunked"));
-	_read_size = _body.size();
 	fillHeader();
 }
 
@@ -320,6 +321,11 @@ void	HttpResponse::generateErrorResponse(e_status_code status, Server const & se
 
 bool HttpResponse::_checkEndCgi(bool has_cgi) const
 {
+	// std::cout << "has cgi:" << has_cgi << std::endl;
+	// std::cout << "content flags:" << _content_length_flag << std::endl;
+	// std::cout << "content:" << _content_length << std::endl;
+	// std::cout << "read_size:" << _read_size << std::endl;
+	// std::cout << "eof:" << _end_of_file_flag << std::endl;
 	if (has_cgi)
 	{
 		if (_content_length_flag && _content_length == _read_size)

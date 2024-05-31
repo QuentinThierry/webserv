@@ -149,7 +149,6 @@ void HttpRequestPost::_processBodyContentLength(bool &end)
 	}
 	if (_has_cgi)
 	{
-		std::cout << "body :" << _body << std::endl;
 		if (_cgi.write(_body) == -1)
 			throw ExceptionHttpStatusCode(HTTP_500); //!not sure
 	}
@@ -395,8 +394,9 @@ void	HttpRequestPost::_initResponse( Socket const * const socket,
 		response.addAllowMethod(location.getMethods());
 		throw ExceptionHttpStatusCode(HTTP_405);
 	}
-	response.addField("Content-Length", "0");
-	//add location with uri;
+	if (!_has_cgi)
+		response.addField("Content-Length", "0");
+		//add location with uri;
 }
 
 void	HttpRequestPost::generateResponse( Socket const * const socket,
