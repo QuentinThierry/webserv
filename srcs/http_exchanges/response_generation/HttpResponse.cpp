@@ -177,6 +177,7 @@ static e_status _set_content_length_field(std::string &filename,
 void		HttpResponse::setBody(std::string &body_content)
 {
 	_body = body_content;
+	_content_length = _body.size();
 }
 
 
@@ -341,11 +342,6 @@ void	HttpResponse::generateErrorResponse(e_status_code status, Server const & se
 
 bool HttpResponse::_checkEndCgi(bool has_cgi) const
 {
-	// std::cout << "has cgi:" << has_cgi << std::endl;
-	// std::cout << "content flags:" << _content_length_flag << std::endl;
-	// std::cout << "content:" << _content_length << std::endl;
-	// std::cout << "read_size:" << _read_size << std::endl;
-	// std::cout << "eof:" << _end_of_file_flag << std::endl;
 	if (has_cgi)
 	{
 		if (_content_length_flag && _content_length == _read_size)
@@ -403,9 +399,6 @@ void HttpResponse::writeResponse(int fd, Cluster &cluster, bool has_cgi)
 	if ((!has_cgi && _header.empty() && _body.empty() && _fileOpen == false && _content_length == _read_size)
 		|| _checkEndCgi(has_cgi))
 	{
-		std::cout << "has cgi:" << has_cgi << std::endl;
-		std::cout << "content flags:" << _content_length_flag << std::endl;
-		std::cout << "eof:" << _end_of_file_flag << std::endl;
 		std::cout << "end\n";
 		cluster.closeConnection(fd);
 	}
