@@ -1,7 +1,7 @@
 #ifndef CGILOCATION_HPP
 #define CGILOCATION_HPP
 
-#include <string>
+# include <string>
 
 class CgiLocation
 {

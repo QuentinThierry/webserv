@@ -260,7 +260,8 @@ void HttpExchange::readCgi(Cgi const &cgi)
 		_buffer_read += tmp;
 		if (_buffer_read.find("\r\n\r\n") != std::string::npos)
 		{
-			_response.parseCgiHeader(_buffer_read); //add rest body to response body + st content-lenght + read_size
+			_response.parseCgiHeader(_buffer_read);
+			_response.fillHeader();
 			_buffer_read.clear();
 			std::cout << "answer ready" << std::endl;
 		}

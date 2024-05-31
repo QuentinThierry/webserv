@@ -109,8 +109,13 @@ bool	HttpResponse::handle_redirect(Location const & location)
 void		HttpResponse::fillHeader()
 {
 	_header.clear();
-	_header = *_version + " " + ft_itoa(status_code_to_int(_status_code)) + " "
-			+ get_error_reason_phrase(_status_code) + "\r\n";
+	_header = *_version + " ";
+	if (_custom_status.empty()) 
+		_header += ft_itoa(status_code_to_int(_status_code)) + " "
+			+ get_error_reason_phrase(_status_code);
+	else
+	 	_header += _custom_status;
+	_header += "\r\n";
 	for (unsigned int i = 0; i < _fields.size(); i++)
 		_header += _fields.at(i).getFields();
 	_header += "\r\n";
@@ -121,8 +126,13 @@ void		HttpResponse::fillHeader()
 void		HttpResponse::displayHeader()
 {
 	std::cout << "------------ HttpResponse ------------" << std::endl;
-	std::cout << *_version << " " << ft_itoa(status_code_to_int(_status_code)) << " "
-			<< get_error_reason_phrase(_status_code) << "\r\n";
+	std::cout << *_version << " ";
+	if (_custom_status.empty()) 
+		std::cout << ft_itoa(status_code_to_int(_status_code)) << " "
+			<< get_error_reason_phrase(_status_code);
+	else
+	 	std::cout << _custom_status;
+	std::cout << std::endl;
 	for (unsigned int i = 0; i < _fields.size(); i++)
 		_fields.at(i).display_field();
 }
@@ -217,22 +227,26 @@ static e_status	_extract_content_length(std::vector<HttpField> &response_fields,
 					uint64_t &value_dest, bool &has_content_length)
 {
 	std::vector<std::string>	field_values;
-	e_status					itoa_error;
+	e_status					atoi_error;
 
-	itoa_error = SUCCESS;
+	atoi_error = SUCCESS;
 	if (HttpField::extract_field(response_fields, "Content-Length", field_values) == SUCCESS)
 	{
+		std::cout << "Content-Length found"<<std::endl <<std::endl;//
 		if (field_values.size() != 1)
 		{
 			// ;//TODO error code 413 
+			protected_write(g_err_log_fd, "Warning: cgi: incorrect content length size");
 			return (FAILURE);
 		}
-		value_dest = ft_atoi(field_values.at(0), itoa_error);
-		if (itoa_error == FAILURE )
+		value_dest = ft_atoi(field_values.at(0), atoi_error);
+		if (atoi_error == FAILURE )
 		{
 			// ;//TODO error code 413 
+			protected_write(g_err_log_fd, "Warning: cgi: incorrect content length format");
 			return (FAILURE);
 		}
+		response_fields.push_back(HttpField("Content-Length", field_values));
 		has_content_length = true;
 	}
 	else
@@ -241,27 +255,23 @@ static e_status	_extract_content_length(std::vector<HttpField> &response_fields,
 }
 
 static e_status	_extract_status_code(std::vector<HttpField> &response_fields,
-					e_status_code &response_status)
+					e_status_code &response_status, std::string &custom_status)
 {
 	std::vector<std::string>	field_values;
-	e_status					itoa_error;
-	uint64_t					status_code;
 
-	itoa_error = SUCCESS;
 	if (HttpField::extract_field(response_fields, "Status", field_values) == SUCCESS)
 	{
+		// std::cout << std::endl << "Status found" << std::endl << std::endl;//
 		if (field_values.size() == 0)
 		{
-			// ;//TODO error code (? 413) 
+			response_status = HTTP_502;//TODO error code (? 502) 
+			protected_write(g_err_log_fd, "cgi: empty status send in response");
 			return (FAILURE);
 		}
-		status_code = ft_atoi(field_values.at(0), itoa_error);
-		if (itoa_error == FAILURE )
-		{
-			// ;//TODO error code 413 
-			return (FAILURE);
-		}
-		response_status = int_to_status_code(status_code);
+		custom_status += field_values.at(0);
+		for (std::vector<std::string>::iterator it = field_values.begin() + 1;
+				it != field_values.end(); ++it)
+			custom_status += "," + *it;
 	}
 	else
 		response_status = HTTP_200;
@@ -271,7 +281,7 @@ static e_status	_extract_status_code(std::vector<HttpField> &response_fields,
 void	HttpResponse::_extract_cgi_fields_data( void )
 {
 	if (_extract_content_length(_fields, _content_length, _content_length_flag) == FAILURE
-		|| _extract_status_code(_fields, _status_code) == FAILURE)
+		|| _extract_status_code(_fields, _status_code, _custom_status) == FAILURE)
 		return ;//TODO
 }
 
@@ -285,7 +295,7 @@ void HttpResponse::parseCgiHeader(std::string header) throw(ExceptionHttpStatusC
 
 	if (empty_sstream_in_string(_body, header_stream)== SUCCESS)
 		_extract_cgi_fields_data();
-	else //! comportement A confirmer
+	else //! comportement a confirmer, faire comme generateErrorResponse ?
 	{
 		_fields.clear(); 
 		_fields.push_back(HttpField("Connection", "close"));
@@ -293,9 +303,7 @@ void HttpResponse::parseCgiHeader(std::string header) throw(ExceptionHttpStatusC
 		_status_code = HTTP_500;
 		return ;
 	}
-	if (_content_length_flag)
-		_fields.push_back(HttpField("content-Length", ft_itoa(_content_length)));
-	else
+	if (!_content_length_flag)
 		_fields.push_back(HttpField("Transfer-Encoding", "chunked"));
 	fillHeader();
 }
