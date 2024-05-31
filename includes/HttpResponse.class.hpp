@@ -26,7 +26,7 @@ class HttpResponse
 		HttpResponse( void );
 		HttpResponse & operator=(HttpResponse const & model );
 
-		void		parseHeader(std::string header);
+		void		parseCgiHeader(std::string header) throw(ExceptionHttpStatusCode);
 
 		bool		handle_redirect(Location const &);
 		void		fillHeader();
@@ -53,11 +53,14 @@ class HttpResponse
 		void		_chunkResponse();
 		bool		_checkEndCgi(bool has_cgi) const;
 		void		_removeField(std::string const &);
+		
+		void		_extract_cgi_fields_data( void );
 
-		it_version		_version;
-		e_status_code	_status_code;
+		it_version				_version;
+		e_status_code			_status_code;
 
 		std::vector<HttpField>	_fields;
+	
 		std::string				_header;
 
 		std::string				_body;

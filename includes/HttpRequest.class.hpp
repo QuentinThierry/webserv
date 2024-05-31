@@ -47,12 +47,12 @@ class HttpRequest : public HttpRequestLine
 
 		bool							isAcceptedMethod(Location const & location) const;
 		virtual void					displayRequest( void ) const;
+
 	protected:
 		std::string	_body;
+		
 	private:
 		std::vector<HttpField> _fields;
-
-		void	_fill_fields(std::stringstream &request_stream) throw (ExceptionHttpStatusCode);    
 };
 
 #endif

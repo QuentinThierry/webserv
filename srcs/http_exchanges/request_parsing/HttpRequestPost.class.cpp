@@ -37,20 +37,6 @@ bool	HttpRequestPost::isBusyFile(std::string filename)
 	return false;
 }
 
-static void	_add_body_from_request_stream( std::string &request_body,
-				std::stringstream &stream_request )
-{	
-	std::string body_content;
-	while (!stream_request.eof() && stream_request.peek() != EOF)
-	{
-		if (!std::getline(stream_request, body_content))
-			throw_http_err_with_log(HTTP_500, MSG_ERR_HTTPPOST_SSTREAM_FAIL);
-		request_body += body_content;
-		if (!stream_request.eof())
-			request_body += "\n";
-	}
-}
-
 HttpRequestPost::HttpRequestPost (std::string const & str_request)
 	throw (ExceptionHttpStatusCode)
 	: HttpRequest(), _cgi()
@@ -63,8 +49,10 @@ HttpRequestPost::HttpRequestPost (std::string const & str_request)
 
 	if (*getMethod() != "POST")
 		throw_http_err_with_log(HTTP_500, MSG_ERR_HTTPPOST_WRONG_METHOD);
-
-	_add_body_from_request_stream(_body, stream_request);
+	
+	if (empty_sstream_in_string(_body, stream_request)== FAILURE)
+			throw_http_err_with_log(HTTP_500, MSG_ERR_HTTPPOST_SSTREAM_FAIL);
+		
 	_read_size = _body.size();
 
 	_content_length = 0;

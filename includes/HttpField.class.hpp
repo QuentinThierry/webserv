@@ -28,6 +28,33 @@ class HttpField
 		std::string							getFields( void ) const;
 		void								mergeFieldValues( HttpField &to_merge);
 
+		static void 							fill_fields(
+													std::stringstream &new_fields_stream,
+													std::vector<HttpField> &existing_fields)
+														throw (ExceptionHttpStatusCode);
+		static bool								checkFieldExistence(std::vector<HttpField> const &fields,
+													std::string const & field_name);
+		static std::vector<std::string>			&getFieldValue(
+													std::vector<HttpField> &fields,
+													std::string const & field_name)
+														throw(ExceptionHttpStatusCode);
+		static std::vector<std::string>	const	&getFieldValue(
+													std::vector<HttpField> const &fields,
+													std::string const & field_name)
+														throw(ExceptionHttpStatusCode);
+		static void								erase_field(
+													std::vector<HttpField> &fields,
+													std::string const & field_name);
+		static void								erase_field_value(
+													HttpField &fields,
+													std::string const & value);
+		static e_status							extract_field(
+													std::vector<HttpField> &fields,
+													std::string const & value,
+													std::vector<std::string> &dest_values);
+
+
+
 		void	display_field ( void ) const;
 
 	private:

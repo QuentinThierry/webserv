@@ -212,24 +212,90 @@ void	HttpResponse::addAllowMethod(std::vector<std::string> const &method)
 	_fields.push_back(res);
 }
 
-void HttpResponse::_removeField(std::string const &name)
-{
-	std::vector<HttpField>::iterator it;
 
-	for (it = _fields.begin(); it != _fields.end(); ++it)
+static e_status	_extract_content_length(std::vector<HttpField> &response_fields,
+					uint64_t &value_dest, bool &has_content_length)
+{
+	std::vector<std::string>	field_values;
+	e_status					itoa_error;
+
+	itoa_error = SUCCESS;
+	if (HttpField::extract_field(response_fields, "Content-Length", field_values) == SUCCESS)
 	{
-		if (it->getName() == name)
+		if (field_values.size() != 1)
 		{
-			_fields.erase(it);
-			return;
+			// ;//TODO error code 413 
+			return (FAILURE);
 		}
+		value_dest = ft_atoi(field_values.at(0), itoa_error);
+		if (itoa_error == FAILURE )
+		{
+			// ;//TODO error code 413 
+			return (FAILURE);
+		}
+		has_content_length = true;
 	}
+	else
+		value_dest = 0;
+	return (SUCCESS);
 }
 
-void HttpResponse::parseHeader(std::string header)
+static e_status	_extract_status_code(std::vector<HttpField> &response_fields,
+					e_status_code &response_status)
+{
+	std::vector<std::string>	field_values;
+	e_status					itoa_error;
+	uint64_t					status_code;
+
+	itoa_error = SUCCESS;
+	if (HttpField::extract_field(response_fields, "Status", field_values) == SUCCESS)
+	{
+		if (field_values.size() == 0)
+		{
+			// ;//TODO error code (? 413) 
+			return (FAILURE);
+		}
+		status_code = ft_atoi(field_values.at(0), itoa_error);
+		if (itoa_error == FAILURE )
+		{
+			// ;//TODO error code 413 
+			return (FAILURE);
+		}
+		response_status = int_to_status_code(status_code);
+	}
+	else
+		response_status = HTTP_200;
+	return (SUCCESS);
+}
+
+void	HttpResponse::_extract_cgi_fields_data( void )
+{
+	if (_extract_content_length(_fields, _content_length, _content_length_flag) == FAILURE
+		|| _extract_status_code(_fields, _status_code) == FAILURE)
+		return ;//TODO
+}
+
+void HttpResponse::parseCgiHeader(std::string header) throw(ExceptionHttpStatusCode)
 {
 	std::cout << header << std::endl;
-	//TODO
+
+	std::stringstream header_stream(header);
+
+	HttpField::fill_fields(header_stream, _fields);
+
+	if (empty_sstream_in_string(_body, header_stream)== SUCCESS)
+		_extract_cgi_fields_data();
+	else //! comportement A confirmer
+	{
+		_fields.clear(); 
+		_fields.push_back(HttpField("Connection", "close"));
+		_fields.push_back(HttpField("Server", SERVER_NAME));
+		_status_code = HTTP_500;
+		return ;
+	}
+	if (!_content_length_flag)
+		_fields.push_back(HttpField("Transfer-Encoding", "chunked"));
+	_read_size = _body.size();
 	fillHeader();
 }
 
@@ -242,7 +308,7 @@ void	HttpResponse::generateErrorResponse(e_status_code status, Server const & se
 	if (!checkFieldExistence("Server"))
 		_fields.push_back(HttpField("Server", SERVER_NAME));
 	if (checkFieldExistence("Content-Length"))
-		_removeField("Content-Length");
+		HttpField::erase_field(_fields, "Content-Length");
 	if (_fileOpen == true)
 		_close_body_file(_bodyFile, _fileOpen);
 	_body.clear();
