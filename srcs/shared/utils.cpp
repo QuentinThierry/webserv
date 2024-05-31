@@ -42,7 +42,10 @@ e_status empty_sstream_in_string(std::string &dest, std::stringstream &stream_to
 	while (!stream_to_empty.eof() && stream_to_empty.peek() != EOF)
 	{
 		if (!std::getline(stream_to_empty, body_content))
+		{
+			protected_write(g_err_log_fd, "Error: internal: getline failure");
 			return (FAILURE);
+		}
 		dest += body_content;
 		if (!stream_to_empty.eof())
 			dest += "\n";
