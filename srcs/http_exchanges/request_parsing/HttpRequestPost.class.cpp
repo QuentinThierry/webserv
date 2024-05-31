@@ -53,7 +53,7 @@ static void	_add_body_from_request_stream( std::string &request_body,
 
 HttpRequestPost::HttpRequestPost (std::string const & str_request)
 	throw (ExceptionHttpStatusCode)
-	: HttpRequest()
+	: HttpRequest(), _cgi()
 {
 	std::stringstream	stream_request (str_request);
 
@@ -73,6 +73,7 @@ HttpRequestPost::HttpRequestPost (std::string const & str_request)
 	_has_size_chunk = false;
 	_chunk_body_flags = false;
 	_content_length_flags = false;
+	_has_cgi = false;
 }
 
 HttpRequestPost::HttpRequestPost ( HttpRequestPost const & model)
@@ -87,6 +88,9 @@ HttpRequestPost::HttpRequestPost ( HttpRequestPost const & model)
 	_chunk_body_flags = model._chunk_body_flags;
 	_content_length_flags = model._content_length_flags;
 	_has_size_chunk = model._has_size_chunk;
+
+	_cgi = model._cgi;
+	_has_cgi = model._has_cgi;
 }
 
 HttpRequestPost & HttpRequestPost::operator= (HttpRequestPost const & model)
@@ -103,6 +107,9 @@ HttpRequestPost & HttpRequestPost::operator= (HttpRequestPost const & model)
 		_chunk_body_flags = model._chunk_body_flags;
 		_content_length_flags = model._content_length_flags;
 		_has_size_chunk = model._has_size_chunk;
+
+		_cgi = model._cgi;
+		_has_cgi = model._has_cgi;
 	}
 	return (*this);
 }
@@ -116,6 +123,8 @@ HttpRequestPost::HttpRequestPost( void ) //unused
 	_chunk_body_flags = false;
 	_content_length_flags = false;
 	_has_size_chunk = false;
+
+	_has_cgi = false;
 }
 
 HttpRequestPost::~HttpRequestPost( void )
@@ -152,6 +161,7 @@ void HttpRequestPost::_processBodyContentLength(bool &end)
 	}
 	if (_has_cgi)
 	{
+		std::cout << "body :" << _body << std::endl;
 		if (_cgi.write(_body) == -1)
 			throw ExceptionHttpStatusCode(HTTP_500); //!not sure
 	}

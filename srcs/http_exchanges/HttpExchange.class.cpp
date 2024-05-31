@@ -229,7 +229,12 @@ void HttpExchange::_handleHeader(int fd, Cluster &cluster)
 void HttpExchange::writeSocket(int fd, Cluster &cluster)
 {
 	if (_response.is_response_ready())
-		_response.writeResponse(fd, cluster, _request->hasCgi());
+	{
+		if (_request == NULL)
+			_response.writeResponse(fd, cluster, false);
+		else
+			_response.writeResponse(fd, cluster, _request->hasCgi());
+	}
 	else
 	 	std::cout << " not ready" << std::endl;
 }
@@ -267,6 +272,7 @@ void HttpExchange::writeCgi(int fd, Cluster & cluster)
 	if (fd == -1)
 		return ;
 	bool end = false;
+	std::cout << "body :" << _request->getBody() << std::endl;
 	dynamic_cast<HttpRequestPost*>(_request)->processBody(end);
 	if (end == true)
 	{

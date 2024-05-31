@@ -3,7 +3,7 @@
 
 HttpRequestGet::HttpRequestGet (std::string const & str_request)
 	throw (ExceptionHttpStatusCode)
-	: HttpRequest()
+	: HttpRequest(), _cgi(), _has_cgi(false)
 {
 	std::stringstream	stream_request (str_request);
 
@@ -15,19 +15,24 @@ HttpRequestGet::HttpRequestGet (std::string const & str_request)
 }
 
 HttpRequestGet::HttpRequestGet ( HttpRequestGet const & model)
-	: HttpRequest(model)
+	: HttpRequest(model), _cgi(model._cgi), _has_cgi(model._has_cgi)
 {
 }
 
 HttpRequestGet & HttpRequestGet::operator= (HttpRequestGet const & model)
 {
 	if (&model != this)
+	{
 		HttpRequest::operator=(model);
+		_cgi = model._cgi;
+		_has_cgi = model._has_cgi;
+	}
 	return (*this);
 }
 
 HttpRequestGet::HttpRequestGet( void )
 {
+	_has_cgi = false;
 }
 
 HttpRequestGet::~HttpRequestGet( void )

@@ -135,7 +135,8 @@ static char const **create_cgi_env(HttpRequest const &request, Server const &ser
 		env[3]  = alloc_str("GATEWAY_INTERFACE=CGI/1.1"); // DEFAULT
 		env[4] = alloc_str("PATH_INFO=" + file_name);
 		env[5]  = alloc_str("PATH_TRANSLATED=" + file_name); // root/URI
-		env[6]  = alloc_str("QUERY_STRING=\"\""); // '?' arguments TODO
+		env[6] = alloc_str("");
+		// env[6]  = alloc_str("QUERY_STRING=\"\""); // '?' arguments TODO
 		env[7]  = alloc_str("REMOTE_ADDR=" + server.getHost());
 		env[8]  = alloc_str("REMOTE_HOST=" + request.getFieldValue("Host")[0]);
 		env[9]  = alloc_str("REMOTE_IDENT=none"); // identity information DEFAULT
@@ -186,8 +187,8 @@ void Cgi::exec(std::string cgi_path, std::string file_name, HttpRequest const &r
 		if (!error)
 		{
 			char const **env = create_cgi_env(request, server, file_name);
-			// for (uint16_t i = 0; i < 18; i++)
-			// 	std::cerr << env[i] << std::endl;
+			for (uint16_t i = 0; i < 18; i++)
+				std::cerr << env[i] << std::endl;
 			if (env)
 			{
 				std::cerr << "path :" << cgi_path.c_str() <<std::endl;

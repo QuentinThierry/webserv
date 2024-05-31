@@ -247,9 +247,8 @@ void	HttpResponse::generateErrorResponse(e_status_code status, Server const & se
 		_close_body_file(_bodyFile, _fileOpen);
 	_body.clear();
 	std::string path = server.getErrorPagePath(status_code_to_int(_status_code));
-	if (path.empty())
+	if (path.empty() || openBodyFileStream(path) != HTTP_200)
 		_fields.push_back(HttpField("Content-Length", "0"));
-	openBodyFileStream(path);
 	fillHeader();
 }
 
