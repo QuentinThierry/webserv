@@ -81,7 +81,7 @@ void	HttpRequestDelete::_initResponse( Socket const * const socket, HttpResponse
 		throw ExceptionHttpStatusCode(HTTP_405);
 		return ;
 	}
-	std::string uri = getUri(location.getRootPath(), getTarget());
+	std::string uri = get_uri(location.getRootPath(), getTarget());
 	response.addField("Content-Length", "0");
 	// if (remove_directory(uri))
 	// 	return FAILURE;

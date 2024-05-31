@@ -56,7 +56,7 @@ static e_status	_handle_index_file(std::string const & target, Location const & 
 {
 	std::string	uri;
 
-	uri = getUri(location.getRootPath(), target);
+	uri = get_uri(location.getRootPath(), target);
 	if (location.updateUriToIndex(uri) == SUCCESS)
 	{
 		_handle_file(uri, response);
@@ -133,7 +133,7 @@ void	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &r
 		throw ExceptionHttpStatusCode(HTTP_405);
 	}
 	
-	std::string uri = getUri(location.getRootPath(), getTarget());
+	std::string uri = get_uri(location.getRootPath(), getTarget());
 	if (is_accessible_directory(uri.c_str()))
 		_handleDirectory(getTarget(), location, response);
 	else

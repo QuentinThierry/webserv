@@ -127,7 +127,7 @@ static char const **create_cgi_env(HttpExchange const &httpExchange, char const 
 		else
 			env[2] = alloc_str("");
 		env[3]  = "GATEWAY_INTERFACE=CGI/1.1"; // DEFAULT
-		env[4] = alloc_str("PATH_INFO=" + getUri(httpExchange.getSocket().getServer().searchLocation(httpExchange.getRequest().getTarget()).getRootPath(), httpExchange.getRequest().getTarget()));
+		env[4] = alloc_str("PATH_INFO=" + get_uri(httpExchange.getSocket().getServer().searchLocation(httpExchange.getRequest().getTarget()).getRootPath(), httpExchange.getRequest().getTarget()));
 		env[5]  = alloc_str(env[4]); // root/URI
 		env[6]  = "QUERY_STRING=\"\""; // '?' arguments TODO
 		env[7]  = alloc_str("REMOTE_ADDR=" + httpExchange.getSocket().getServer().getHost());

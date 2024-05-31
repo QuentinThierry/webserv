@@ -210,7 +210,7 @@ void	throw_http_err_with_log(e_status_code error_code, std::string log_msg)
 	throw(ExceptionHttpStatusCode(error_code));
 }
 
-std::string	getUri(std::string root, std::string target)
+std::string	get_uri(std::string root, std::string target)
 {
 	std::string uri = root + target;
 	size_t pos = uri.find_first_of('?');

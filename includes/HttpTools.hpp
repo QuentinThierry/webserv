@@ -44,6 +44,6 @@ e_status	find_end_word(std::string const & str, size_t start_idx,
 
 void		throw_http_err_with_log(e_status_code error_code, std::string log_msg);
 
-std::string	getUri(std::string root, std::string target);
+std::string	get_uri(std::string root, std::string target);
 
 #endif
