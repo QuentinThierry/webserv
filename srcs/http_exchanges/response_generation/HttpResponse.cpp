@@ -225,12 +225,14 @@ static e_status	_extract_content_length(std::vector<HttpField> &response_fields,
 		if (field_values.size() != 1)
 		{
 			;//TODO error code 413 
+			protected_write(g_err_log_fd, "Warning: cgi: incorrect content length size");
 			return (FAILURE);
 		}
 		value_dest = ft_atoi(field_values.at(0), atoi_error);
 		if (atoi_error == FAILURE )
 		{
 			;//TODO error code 413 
+			protected_write(g_err_log_fd, "Warning: cgi: incorrect content length format");
 			return (FAILURE);
 		}
 		response_fields.push_back(HttpField("Content-Length", field_values));
