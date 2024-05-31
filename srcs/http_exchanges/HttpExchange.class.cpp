@@ -26,41 +26,6 @@ HttpExchange::HttpExchange(HttpExchange const &copy): _socket(copy._socket)
 	*this = copy;
 }
 
-HttpRequest const &HttpExchange::getRequest() const
-{
-	return *this->_request;
-}
-
-HttpResponse const &HttpExchange::getResponse() const
-{
-	return this->_response;
-}
-
-Socket const &HttpExchange::getSocket() const
-{
-	return *this->_socket;
-}
-
-void HttpExchange::_copyRequest(e_http_method method, HttpRequest const * request)
-{
-	switch (method)
-	{
-		case GET:
-			_request = ::new HttpRequestGet(*((HttpRequestGet*)request));
-			break;
-		case POST:
-			_request = ::new HttpRequestPost(*((HttpRequestPost*)request));
-			break;
-		case DELETE:
-			_request = ::new HttpRequestDelete(*((HttpRequestDelete*)request));
-			break;
-		default:
-			protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
-				std::string("Error: invalid request method from")));
-			throw ExceptionHttpStatusCode(HTTP_500);
-	}
-}
-
 HttpExchange & HttpExchange::operator=(HttpExchange const &assign)
 {
 	if (this != &assign)
@@ -83,12 +48,35 @@ HttpExchange::~HttpExchange()
 		delete(_request);
 }
 
-struct timeval const & HttpExchange::getAcceptRequestTime() const
+void HttpExchange::_copyRequest(e_http_method method, HttpRequest const * request)
 {
-	return _accept_request_time;
+	switch (method)
+	{
+		case GET:
+			_request = ::new HttpRequestGet(*((HttpRequestGet*)request));
+			break;
+		case POST:
+			_request = ::new HttpRequestPost(*((HttpRequestPost*)request));
+			break;
+		case DELETE:
+			_request = ::new HttpRequestDelete(*((HttpRequestDelete*)request));
+			break;
+		default:
+			protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
+				std::string("Error: invalid request method from")));
+			throw ExceptionHttpStatusCode(HTTP_500);
+	}
 }
 
-void HttpExchange::_setRightSocket(Cluster const &cluster)
+HttpRequest const	&HttpExchange::getRequest() const {return *this->_request;}
+
+HttpResponse const	&HttpExchange::getResponse() const {return this->_response;}
+
+Socket const		&HttpExchange::getSocket() const {return *this->_socket;}
+
+struct timeval const & HttpExchange::getAcceptRequestTime() const {return _accept_request_time;}
+
+void	HttpExchange::_setRightSocket(Cluster const &cluster)
 {
 	if (_request->checkFieldExistence("Host") == false)
 	{
@@ -108,7 +96,7 @@ void HttpExchange::_setRightSocket(Cluster const &cluster)
 		_socket = socket;
 }
 
-e_http_method HttpExchange::_findMethod(std::string const & cmp)
+e_http_method	HttpExchange::_findMethod(std::string const & cmp)
 {
 	std::string method_name[3] = {"GET", "POST", "DELETE"};
 	e_http_method method_value[3] = {GET, POST, DELETE};
@@ -128,7 +116,7 @@ e_http_method HttpExchange::_findMethod(std::string const & cmp)
 	return NONE;
 }
 
-void HttpExchange::_initRequest(e_http_method method)
+void	HttpExchange::_initRequest(e_http_method method)
 {
 	switch (method)
 	{
@@ -148,14 +136,13 @@ void HttpExchange::_initRequest(e_http_method method)
 	}
 }
 
-void HttpExchange::_handleError(int fd, Cluster &cluster, e_status_code error)
+void	HttpExchange::_handleError(int fd, Cluster &cluster, e_status_code error)
 {
 	_response.generateErrorResponse(error, _socket->getServer());
 	cluster.switchHttpExchangeToWrite(fd);
 }
 
-
-void HttpExchange::readSocket(int fd, Cluster &cluster)
+void	HttpExchange::readSocket(int fd, Cluster &cluster)
 {
 	try
 	{
@@ -171,7 +158,7 @@ void HttpExchange::readSocket(int fd, Cluster &cluster)
 			}
 		}
 		else
-			_handleHeader(fd, cluster);
+			_readHeader(fd, cluster);
 	}
 	catch(ExceptionHttpStatusCode &e)
 	{
@@ -186,10 +173,26 @@ void HttpExchange::readSocket(int fd, Cluster &cluster)
 		_handleError(fd, cluster, HTTP_500);
 		return ;
 	}
-	
 }
 
-void HttpExchange::_handleHeader(int fd, Cluster &cluster)
+void	HttpExchange::_handleHeader(int fd, Cluster &cluster)
+{
+	_initRequest(_findMethod(_buffer_read));
+	_request->displayRequest();
+	_setRightSocket(cluster);
+	_buffer_read.clear();
+	_request->processHeader(_socket);
+	if (_request->hasBody() == false)
+	{
+		std::cout << "switch write no body" << std::endl;
+		_request->generateResponse(_socket, _response);
+		cluster.switchHttpExchangeToWrite(fd);
+	}
+	if (_request->hasCgi())
+		cluster.addCgi(_request->getCgi(), this);
+}
+
+void	HttpExchange::_readHeader(int fd, Cluster &cluster)
 {
 	char buffer[READ_SIZE + 1] = {0};
 
@@ -209,24 +212,10 @@ void HttpExchange::_handleHeader(int fd, Cluster &cluster)
 	std::string tmp(buffer, ret);
 	_buffer_read += tmp;
 	if (_buffer_read.find("\r\n\r\n") != std::string::npos)
-	{
-		_initRequest(_findMethod(_buffer_read));
-		_request->displayRequest();
-		_setRightSocket(cluster);
-		_buffer_read.clear();
-		_request->processHeader(_socket);
-		if (_request->hasBody() == false)
-		{
-			std::cout << "switch write no body" << std::endl;
-			_request->generateResponse(_socket, _response);
-			cluster.switchHttpExchangeToWrite(fd);
-		}
-		if (_request->hasCgi())
-			cluster.addCgi(_request->getCgi(), this);
-	}
+		_handleHeader(fd, cluster);
 }
 
-void HttpExchange::writeSocket(int fd, Cluster &cluster)
+void	HttpExchange::writeSocket(int fd, Cluster &cluster)
 {
 	if (_response.is_response_ready())
 	{
@@ -239,7 +228,7 @@ void HttpExchange::writeSocket(int fd, Cluster &cluster)
 	 	std::cout << " not ready" << std::endl;
 }
 
-void HttpExchange::readCgi(Cgi const &cgi)
+void	HttpExchange::readCgi(Cgi const &cgi)
 {
 	std::string tmp;
 	int ret = cgi.read(tmp);
@@ -268,7 +257,7 @@ void HttpExchange::readCgi(Cgi const &cgi)
 	}
 }
 
-void HttpExchange::writeCgi(int fd, Cluster & cluster)
+void	HttpExchange::writeCgi(int fd, Cluster & cluster)
 {
 	if (fd == -1)
 		return ;

@@ -16,8 +16,10 @@ HttpRequestGet::HttpRequestGet (std::string const & str_request)
 
 HttpRequestGet::HttpRequestGet ( HttpRequestGet const & model)
 	: HttpRequest(model), _cgi(model._cgi), _has_cgi(model._has_cgi)
-{
-}
+{}
+
+HttpRequestGet::HttpRequestGet( void ): _cgi(), _has_cgi(false)
+{}
 
 HttpRequestGet & HttpRequestGet::operator= (HttpRequestGet const & model)
 {
@@ -30,52 +32,22 @@ HttpRequestGet & HttpRequestGet::operator= (HttpRequestGet const & model)
 	return (*this);
 }
 
-HttpRequestGet::HttpRequestGet( void )
-{
-	_has_cgi = false;
-}
-
 HttpRequestGet::~HttpRequestGet( void )
-{
-}
+{}
 
-void			HttpRequestGet::processHeader( Socket const * const socket )
+void	HttpRequestGet::processHeader( Socket const * const socket ) {(void)socket;}
+
+bool	HttpRequestGet::hasBody() const {return (false);}
+
+bool	HttpRequestGet::hasCgi() const {return _has_cgi;}
+
+Cgi		*HttpRequestGet::getCgi() {return &_cgi;}
+
+void	HttpRequestGet::readBody(int fd, Socket const * const socket, bool &end)
 {
 	(void)socket;
-}
-
-bool	HttpRequestGet::hasBody() const
-{
-	return (false);
-}
-
-
-void HttpRequestGet::_handleCgi(std::string & uri, Server const & server, CgiLocation const &cgi_location)
-{
-	_cgi.exec(cgi_location.getExecPath(), uri, *this, server);
-}
-
-void	HttpRequestGet::_handle_file(std::string & uri, HttpResponse & response, Server const & server)
-{
-	CgiLocation cgi_location;
-	_has_cgi = server.searchCgiLocation(uri, cgi_location);
-	if (_has_cgi)
-		return _handleCgi(uri, server, cgi_location);
-	e_status_code error_code = response.openBodyFileStream(uri);
-	if (error_code != HTTP_200)
-		throw ExceptionHttpStatusCode(error_code);
-}
-
-e_status	HttpRequestGet::_handle_index_file(std::string & uri, Location const & location,
-				HttpResponse & response,  Server const & server)
-{
-	if (location.updateUriToIndex(uri) == SUCCESS)
-	{
-		_handle_file(uri, response, server);
-		return (SUCCESS);
-	}
-	else
-		return (FAILURE);
+	(void)fd;
+	end = true;
 }
 
 static void	_add_autoindex_body(HttpResponse & response, Autoindex & index)
@@ -105,7 +77,19 @@ static void	_handle_Autoindex(std::string const & location_root,
 		_add_content_length_field(response);
 }
 
-void HttpRequestGet::_redirectDirectory(HttpResponse & response)
+e_status	HttpRequestGet::_handle_index_file(std::string & uri, Location const & location,
+				HttpResponse & response,  Server const & server)
+{
+	if (location.updateUriToIndex(uri) == SUCCESS)
+	{
+		_handle_file(uri, response, server);
+		return (SUCCESS);
+	}
+	else
+		return (FAILURE);
+}
+
+void	HttpRequestGet::_redirectDirectory(HttpResponse & response)
 {
 	std::string location = "http://";
 	location += getFieldValue("Host")[0];
@@ -128,6 +112,24 @@ void	HttpRequestGet::_handleDirectory(std::string & uri, Location const & locati
 		return ;
 	}
 	throw ExceptionHttpStatusCode(HTTP_403);
+}
+
+void	HttpRequestGet::_handleCgi(std::string & uri, Server const & server,
+						CgiLocation const &cgi_location)
+{
+	_cgi.exec(cgi_location.getExecPath(), uri, *this, server);
+}
+
+void	HttpRequestGet::_handle_file(std::string & uri, HttpResponse & response,
+								Server const & server)
+{
+	CgiLocation cgi_location;
+	_has_cgi = server.searchCgiLocation(uri, cgi_location);
+	if (_has_cgi)
+		return _handleCgi(uri, server, cgi_location);
+	e_status_code error_code = response.openBodyFileStream(uri);
+	if (error_code != HTTP_200)
+		throw ExceptionHttpStatusCode(error_code);
 }
 
 void	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &response )
@@ -157,21 +159,4 @@ void	HttpRequestGet::generateResponse( Socket const * const socket, HttpResponse
 	_initResponse(socket, response);
 	if (!_has_cgi)
 		response.fillHeader();
-}
-
-void	HttpRequestGet::readBody(int fd, Socket const * const socket, bool &end)
-{
-	(void)socket;
-	(void)fd;
-	end = true;
-}
-
-bool	HttpRequestGet::hasCgi() const
-{
-	return _has_cgi;
-}
-
-Cgi	*HttpRequestGet::getCgi()
-{
-	return &_cgi;
 }

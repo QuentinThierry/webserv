@@ -22,6 +22,10 @@ HttpRequestDelete::HttpRequestDelete ( HttpRequestDelete const & model)
 {
 }
 
+HttpRequestDelete::HttpRequestDelete( void ) //unused
+{
+}
+
 HttpRequestDelete & HttpRequestDelete::operator= (HttpRequestDelete const & model)
 {
 	if (&model != this)
@@ -29,42 +33,37 @@ HttpRequestDelete & HttpRequestDelete::operator= (HttpRequestDelete const & mode
 	return (*this);
 }
 
-HttpRequestDelete::HttpRequestDelete( void ) //unused
-{
-}
-
 HttpRequestDelete::~HttpRequestDelete( void )
 {
 }
 
-bool	HttpRequestDelete::hasCgi() const
-{
-	return false;
-}
+bool	HttpRequestDelete::hasCgi() const {return false;}
 
-Cgi	*HttpRequestDelete::getCgi()
-{
-	return NULL;
-}
+Cgi		*HttpRequestDelete::getCgi() {return NULL;}
 
-void			HttpRequestDelete::processHeader( Socket const * const socket )
+void	HttpRequestDelete::processHeader( Socket const * const socket ) {(void)socket;}
+
+bool	HttpRequestDelete::hasBody() const {return (false);}
+
+void	HttpRequestDelete::readBody(int fd, Socket const * const socket, bool &end)
 {
+	(void)fd;
 	(void)socket;
-	//TODO
+	end = true;
 }
 
-bool	remove_directory(std::string const & uri)
-{
-	int fd = open(uri.c_str(), O_DIRECTORY);
-	if (fd == -1)
-		return false;
-	close(fd);
-	//remove dir
-	throw ExceptionHttpStatusCode(HTTP_403);
-	return true;
-}
+// static bool	remove_directory(std::string const & uri)
+// {
+// 	int fd = open(uri.c_str(), O_DIRECTORY);
+// 	if (fd == -1)
+// 		return false;
+// 	close(fd);
+// 	//remove dir
+// 	throw ExceptionHttpStatusCode(HTTP_403);
+// 	return true;
+// }
 
-void	remove_file(std::string const & uri)
+static void	remove_file(std::string const & uri)
 {
 	if (HttpRequestPost::isBusyFile(uri))
 		throw ExceptionHttpStatusCode(HTTP_404);
@@ -82,7 +81,7 @@ void	HttpRequestDelete::_initResponse( Socket const * const socket, HttpResponse
 	response.setVersion(getVersion());
 	response.setStatusCode(HTTP_204);
 
-	Location location = socket->getServer().searchLocation(getTarget());// get location path
+	Location location = socket->getServer().searchLocation(getTarget());
 	if (response.handle_redirect(location))
 		return ;
 	if (isAcceptedMethod(location) == false)
@@ -102,16 +101,4 @@ void	HttpRequestDelete::generateResponse( Socket const * const socket, HttpRespo
 {
 	_initResponse(socket, response);
 	response.fillHeader();
-}
-
-bool	HttpRequestDelete::hasBody() const
-{
-	return (false);
-}
-
-void	HttpRequestDelete::readBody(int fd, Socket const * const socket, bool &end)
-{
-	(void)fd;
-	(void)socket;
-	end = true;
 }

@@ -25,28 +25,28 @@ class HttpRequest : public HttpRequestLine
 {
 	public:
 		HttpRequest( void );
-		virtual void init( std::stringstream &request_stream ) throw(ExceptionHttpStatusCode);
 		virtual ~HttpRequest( void );
-
 		HttpRequest ( HttpRequest const & model );
 		virtual HttpRequest & operator=(HttpRequest const & model);
-		
-		virtual void					processHeader( Socket const * const socket ) = 0;
-		virtual void					generateResponse( Socket const * const socket, HttpResponse &response ) = 0;
-		virtual void					readBody(int fd, Socket const * const socket, bool &end) = 0;
-		virtual bool					hasBody() const = 0;
-		virtual bool					hasCgi() const = 0;
-		virtual Cgi						*getCgi() = 0;
-		
-		std::string	const &				getBody( void ) const;
 
-		void							addStringToBody( std::string const & extra_body_content);
+		virtual void	init( std::stringstream &request_stream ) throw(ExceptionHttpStatusCode);
+		virtual void	displayRequest( void ) const;
+
+		virtual void	processHeader( Socket const * const socket ) = 0;
+		virtual void	generateResponse( Socket const * const socket, HttpResponse &response ) = 0;
+		virtual void	readBody(int fd, Socket const * const socket, bool &end) = 0;
+		virtual bool	hasBody() const = 0;
+		virtual bool	hasCgi() const = 0;
+		virtual Cgi		*getCgi() = 0;
+		
+
+		void				addStringToBody( std::string const & extra_body_content);
+		std::string	const &	getBody( void ) const;
 
 		bool							checkFieldExistence(std::string const & field_name) const;
 		std::vector<std::string> const	&getFieldValue(std::string const & field_name) const throw(ExceptionHttpStatusCode);
 
-		bool							isAcceptedMethod(Location const & location) const;
-		virtual void					displayRequest( void ) const;
+		bool				isAcceptedMethod(Location const & location) const;
 
 	protected:
 		std::string	_body;

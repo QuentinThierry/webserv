@@ -4,39 +4,6 @@
 
 std::vector<std::string> HttpRequestPost::_busyFile = std::vector<std::string>();
 
-static void trim_filename(std::string & filename)
-{
-	bool has_slash = false;
-
-	for (std::string::iterator it = filename.begin(); it != filename.end(); it++)
-	{
-		if (*it == '/')
-		{
-			if (has_slash)
-			{
-				it = filename.erase(it);
-				it--;
-			}
-			else
-				has_slash = true;
-		}
-		else if (has_slash)
-			has_slash = false;
-	}
-}
-
-bool	HttpRequestPost::isBusyFile(std::string filename)
-{
-	trim_filename(filename);
-	for (std::vector<std::string>::iterator it = _busyFile.begin();
-			it != _busyFile.end(); it++)
-	{
-		if (filename == *it)
-			return true;
-	}
-	return false;
-}
-
 HttpRequestPost::HttpRequestPost (std::string const & str_request)
 	throw (ExceptionHttpStatusCode)
 	: HttpRequest(), _cgi()
@@ -81,6 +48,19 @@ HttpRequestPost::HttpRequestPost ( HttpRequestPost const & model)
 	_has_cgi = model._has_cgi;
 }
 
+HttpRequestPost::HttpRequestPost( void ) //unused
+{
+	_content_length = 0;
+	_chunk_read_size = 0;
+	_read_size = 0;
+
+	_chunk_body_flags = false;
+	_content_length_flags = false;
+	_has_size_chunk = false;
+
+	_has_cgi = false;
+}
+
 HttpRequestPost & HttpRequestPost::operator= (HttpRequestPost const & model)
 {
 	if (&model != this)
@@ -102,19 +82,6 @@ HttpRequestPost & HttpRequestPost::operator= (HttpRequestPost const & model)
 	return (*this);
 }
 
-HttpRequestPost::HttpRequestPost( void ) //unused
-{
-	_content_length = 0;
-	_chunk_read_size = 0;
-	_read_size = 0;
-
-	_chunk_body_flags = false;
-	_content_length_flags = false;
-	_has_size_chunk = false;
-
-	_has_cgi = false;
-}
-
 HttpRequestPost::~HttpRequestPost( void )
 {
 	std::vector<std::string>::iterator pos = find(_busyFile.begin(),
@@ -124,16 +91,70 @@ HttpRequestPost::~HttpRequestPost( void )
 		if (_file.is_open())
 		{
 			_file.close();
-			std::cout << "remove :" << _filename <<std::endl;
 			remove(_filename.c_str());
 		}
 		_busyFile.erase(pos);
 	}
 }
 
+static void	trim_filename(std::string & filename)
+{
+	bool has_slash = false;
+
+	for (std::string::iterator it = filename.begin(); it != filename.end(); it++)
+	{
+		if (*it == '/')
+		{
+			if (has_slash)
+			{
+				it = filename.erase(it);
+				it--;
+			}
+			else
+				has_slash = true;
+		}
+		else if (has_slash)
+			has_slash = false;
+	}
+}
+
+bool	HttpRequestPost::isBusyFile(std::string filename)
+{
+	trim_filename(filename);
+	for (std::vector<std::string>::iterator it = _busyFile.begin();
+			it != _busyFile.end(); it++)
+	{
+		if (filename == *it)
+			return true;
+	}
+	return false;
+}
+
+bool	HttpRequestPost::hasCgi() const {return _has_cgi;}
+
+Cgi		*HttpRequestPost::getCgi() {return &_cgi;}
+
 bool HttpRequestPost::hasBody() const
 {
 	return (_chunk_body_flags == true || _content_length_flags == true);
+}
+
+void	HttpRequestPost::_closeFile()
+{
+	_file.close();
+	std::vector<std::string>::iterator pos = find(_busyFile.begin(),
+			_busyFile.end(), _filename);
+	if (pos != _busyFile.end())
+		_busyFile.erase(pos);
+}
+
+void	HttpRequestPost::_openFile()
+{
+	_file.open(_filename.c_str());
+	if (!_file.is_open())
+		throw ExceptionHttpStatusCode(HTTP_500);
+	trim_filename(_filename);
+	_busyFile.push_back(_filename);
 }
 
 void HttpRequestPost::_processBodyContentLength(bool &end)
@@ -157,7 +178,7 @@ void HttpRequestPost::_processBodyContentLength(bool &end)
 		_file.write(_body.c_str(), _body.size());
 		if (!_file.good())
 			throw ExceptionHttpStatusCode(HTTP_500); //!not sure
-	};
+	}
 	if (_read_size == _content_length)
 	{
 		if (_has_cgi)
@@ -169,7 +190,7 @@ void HttpRequestPost::_processBodyContentLength(bool &end)
 	_body.clear();
 }
 
-void HttpRequestPost::_parseChunkSize()
+void	HttpRequestPost::_parseChunkSize()
 {
 	_content_length = 0;
 	for (unsigned int i = 0; i < _body.size(); i++)
@@ -190,7 +211,7 @@ void HttpRequestPost::_parseChunkSize()
 	}
 }
 
-bool HttpRequestPost::_parseChunkBody()
+bool	HttpRequestPost::_parseChunkBody()
 {
 	uint64_t write_size = _body.size();
 
@@ -228,7 +249,7 @@ bool HttpRequestPost::_parseChunkBody()
 	return true;
 }
 
-void HttpRequestPost::processBody(bool &end)
+void	HttpRequestPost::processBody(bool &end)
 {
 	if (_content_length_flags)
 		_processBodyContentLength(end);
@@ -259,7 +280,17 @@ void HttpRequestPost::processBody(bool &end)
 	}
 }
 
-void HttpRequestPost::readBody(int fd, Socket const * const socket, bool &end)
+uint64_t	HttpRequestPost::_getSizeToReadBody(uint64_t max_boby_client) const
+{
+	if (_content_length_flags == true && _read_size + READ_SIZE > _content_length)
+		return _content_length - _read_size;
+	else if (_read_size + READ_SIZE > max_boby_client)
+		return max_boby_client - _read_size;
+	else
+		return READ_SIZE;
+}
+
+void	HttpRequestPost::readBody(int fd, Socket const * const socket, bool &end)
 {
 	end = false;
 	char buffer[READ_SIZE + 1] = {0};
@@ -285,76 +316,12 @@ void HttpRequestPost::readBody(int fd, Socket const * const socket, bool &end)
 		processBody(end);
 }
 
-void HttpRequestPost::_closeFile()
-{
-	_file.close();
-	std::vector<std::string>::iterator pos = find(_busyFile.begin(),
-			_busyFile.end(), _filename);
-	if (pos != _busyFile.end())
-		_busyFile.erase(pos);
-}
-
-void HttpRequestPost::_openFile()
-{
-	std::cout << "filename :" << _filename << std::endl;
-	_file.open(_filename.c_str());
-	if (!_file.is_open())
-		throw ExceptionHttpStatusCode(HTTP_500);
-	trim_filename(_filename);
-	_busyFile.push_back(_filename);
-}
-
-uint64_t HttpRequestPost::_getSizeToReadBody(uint64_t max_boby_client) const
-{
-	if (_content_length_flags == true && _read_size + READ_SIZE > _content_length)
-		return _content_length - _read_size;
-	else if (_read_size + READ_SIZE > max_boby_client)
-		return max_boby_client - _read_size;
-	else
-		return READ_SIZE;
-}
-
 void	HttpRequestPost::_handleCgi(CgiLocation const & cgi_location, Server const &server)
 {
 	_cgi.exec(cgi_location.getExecPath(), _filename, *this, server);
 }
 
-
-void	HttpRequestPost::processHeader(Socket const * const socket)
-{
-	Location location = socket->getServer().searchLocation(getTarget());
-	if (location.getHasRedirect())
-		return ;
-	if (isAcceptedMethod(location) == false)
-		return ;
-	if (!location.getCanUpload())
-		throw ExceptionHttpStatusCode(HTTP_403); //!not sure
-	_filename = getUri(location.getRootPath(), getTarget());
-	CgiLocation cgi_location;
-	_setBodyReadType(socket->getServer().getClientMaxBodySize());
-	_has_cgi = socket->getServer().searchCgiLocation(_filename, cgi_location);
-	if (_has_cgi)
-	{
-		_handleCgi(cgi_location, socket->getServer());
-		return;
-	}
-	if (access(_filename.c_str(), F_OK) == 0)
-		throw ExceptionHttpStatusCode(HTTP_409);
-	else if (errno == EACCES)
-		throw ExceptionHttpStatusCode(HTTP_403);
-	// _chunk_body_flags = true;//!for test
-	_openFile();
-	bool end = false;
-	processBody(end);
-	if (end)
-	{
-		std::cout << "end process header\n";
-		_chunk_body_flags = false;
-		_content_length_flags = false;
-	}
-}
-
-void HttpRequestPost::_setBodyReadType(uint64_t maxClientBody)
+void	HttpRequestPost::_setBodyReadType(uint64_t maxClientBody)
 {
 	if (checkFieldExistence("Transfer-Encoding") == true)
 	{
@@ -377,6 +344,35 @@ void HttpRequestPost::_setBodyReadType(uint64_t maxClientBody)
 			throw ExceptionHttpStatusCode(HTTP_413);
 		_content_length_flags = true;
 		return ;
+	}
+}
+
+void	HttpRequestPost::processHeader(Socket const * const socket)
+{
+	Location location = socket->getServer().searchLocation(getTarget());
+	if (location.getHasRedirect())
+		return ;
+	if (isAcceptedMethod(location) == false)
+		return ;
+	if (!location.getCanUpload())
+		throw ExceptionHttpStatusCode(HTTP_403); //!not sure
+	_filename = getUri(location.getRootPath(), getTarget());
+	_setBodyReadType(socket->getServer().getClientMaxBodySize());
+	CgiLocation cgi_location;
+	_has_cgi = socket->getServer().searchCgiLocation(_filename, cgi_location);
+	if (_has_cgi)
+		return _handleCgi(cgi_location, socket->getServer());
+	if (access(_filename.c_str(), F_OK) == 0)
+		throw ExceptionHttpStatusCode(HTTP_409);
+	else if (errno == EACCES)
+		throw ExceptionHttpStatusCode(HTTP_403);
+	_openFile();
+	bool end = false;
+	processBody(end);
+	if (end)
+	{
+		_chunk_body_flags = false;
+		_content_length_flags = false;
 	}
 }
 
@@ -405,14 +401,4 @@ void	HttpRequestPost::generateResponse( Socket const * const socket,
 	_initResponse(socket, response);
 	if (!_has_cgi)
 		response.fillHeader();
-}
-
-bool	HttpRequestPost::hasCgi() const
-{
-	return _has_cgi;
-}
-
-Cgi	*HttpRequestPost::getCgi()
-{
-	return &_cgi;
 }

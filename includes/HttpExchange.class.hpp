@@ -13,6 +13,7 @@ class HttpExchange{
 		HttpExchange(HttpExchange const &);
 		HttpExchange & operator=(HttpExchange const &);
 		~HttpExchange();
+
 		void					readSocket(int fd, Cluster &cluster);
 		void					readCgi(Cgi const &cgi);
 		void					writeSocket(int fd, Cluster &cluster);
@@ -21,9 +22,10 @@ class HttpExchange{
 		Socket const &			getSocket() const;
 		HttpRequest	const &		getRequest() const;
 		HttpResponse const &	getResponse() const;
-		
+
 	private:
 		HttpExchange();
+
 		Socket const		*_socket;
 		std::string			_buffer_read;
 		HttpRequest			*_request;
@@ -34,6 +36,7 @@ class HttpExchange{
 		void			_copyRequest(e_http_method method, HttpRequest const * request);
 		e_http_method	_findMethod(std::string const & cmp);
 		void			_setRightSocket(Cluster const &cluster);
+		void			_readHeader(int fd, Cluster &cluster);
 		void			_handleHeader(int fd, Cluster &cluster);
 		void			_handleError(int fd, Cluster &cluster, e_status_code error);
 };

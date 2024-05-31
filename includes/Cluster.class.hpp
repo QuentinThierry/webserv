@@ -13,9 +13,9 @@
 # define TIMEOUT_SEC 30
 
 
-typedef std::vector<Socket>::const_iterator	t_const_iter_sockets;
-typedef std::vector<Socket>::iterator		t_iter_sockets;
-typedef std::vector<Socket>					t_sockets;
+typedef std::vector<Socket>::const_iterator							t_const_iter_sockets;
+typedef std::vector<Socket>::iterator								t_iter_sockets;
+typedef std::vector<Socket>											t_sockets;
 
 typedef std::deque<std::pair<int, HttpExchange> >::const_iterator	t_const_iter_map_sockets;
 typedef std::deque<std::pair<int, HttpExchange> >::iterator			t_iter_map_sockets;
@@ -30,6 +30,7 @@ class Cluster
 	public:
 		Cluster(std::vector<Server>);
 		~Cluster();
+
 		void			runServer();
 		void			closeConnection(int fd);
 		Socket const	*getMatchingSocket(int fd, std::string server_name) const;
@@ -40,6 +41,7 @@ class Cluster
 		Cluster();
 		Cluster(Cluster const &copy);
 		Cluster & operator=(Cluster const &copy);
+
 		void			_addServer(Server const & server);
 		Socket const *	_findSameConfigServer(Server const &server) const;
 		void			_initSetFds(fd_set *readfds, fd_set *writefds) const;
@@ -47,13 +49,12 @@ class Cluster
 		void			_acceptNewConnection(Socket const & socket);
 		void			_checkTimeout();
 
-		std::vector<Socket>							_sockets; //fd that are listening
-		std::deque<std::pair<int, HttpExchange> >	_map_sockets; //fd create with accept => read
-		std::vector<int>							_fd_write; //fd create with accept => write
-		std::deque<std::pair<Cgi *, HttpExchange *> >	_map_cgi;
-		int											_max_fd;
-		bool										_close_connection;
-
+		t_sockets			_sockets; //fd listening
+		t_map_sockets		_map_sockets; //fd create with accept => read and write
+		std::vector<int>	_fd_write; //fd create with accept => write
+		t_map_cgi			_map_cgi;
+		int					_max_fd;
+		bool				_close_connection;
 };
 
 #endif

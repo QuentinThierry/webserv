@@ -26,32 +26,32 @@ class HttpResponse
 		HttpResponse( void );
 		HttpResponse & operator=(HttpResponse const & model );
 
-		void		parseCgiHeader(std::string header) throw(ExceptionHttpStatusCode);
-
-		bool		handle_redirect(Location const &);
-		void		fillHeader();
 
 		void		setStatusCode(e_status_code code);
 		void		setVersion(it_version version);
+		void		setBody(std::string &body_content);
+		void		setEndOfFile();
 		void		addAllowMethod(std::vector<std::string> const &);
 		void		addField(std::string name, std::string value);
 		void		addBodyContent(std::string str);
-		void		setBody(std::string &body_content);
-		e_status_code	openBodyFileStream(std::string filename);
-
 		std::string const &getBody(void) const;
-		bool			checkFieldExistence(std::string const & field_name) const;
-		std::vector<std::string> const &getFieldValue(std::string const & field_name) const throw(ExceptionHttpStatusCode);
+		bool		is_response_ready() const;
 
-		void		generateErrorResponse(e_status_code status, Server const & server);
+		bool							checkFieldExistence(std::string const & field_name) const;
+		std::vector<std::string> const &getFieldValue(std::string const & field_name)
+								const throw(ExceptionHttpStatusCode);
 
 		void		writeResponse(int fd, Cluster &cluster, bool has_cgi);
-		void		displayHeader();
-		bool		is_response_ready();
-		void		setEndOfFile();
 
+		void		generateErrorResponse(e_status_code status, Server const & server);
+		void		parseCgiHeader(std::string header) throw(ExceptionHttpStatusCode);
+		bool		handle_redirect(Location const &);
+		void		fillHeader();
+		void		displayHeader();
+		e_status_code	openBodyFileStream(std::string filename);
 
 	private:
+		ssize_t		_sendBodyString(int fd, bool has_cgi);
 		void		_chunkResponse();
 		bool		_checkEndCgi(bool has_cgi) const;
 		void		_removeField(std::string const &);
@@ -63,32 +63,18 @@ class HttpResponse
 		std::string				_custom_status;
 
 		std::vector<HttpField>	_fields;
-	
 		std::string				_header;
 
 		std::string				_body;
 		uint64_t				_content_length;
 		bool					_content_length_flag;
 		bool					_end_of_file_flag;
-		uint64_t				_read_size;
+		uint64_t				_write_size;
 
 		std::ifstream			_bodyFile;
 		bool					_fileOpen;
 
 		bool					_response_ready;
 };
-
-/* 
-Since the 205 status code implies that no additional content will be
-   provided, a server MUST NOT generate a payload in a 205 response.  In
-   other words, a server MUST do one of the following for a 205
-   response: a) indicate a zero-length body for the response by
-   including a Content-Length header field with a value of 0; b)
-   indicate a zero-length payload for the response by including a
-   Transfer-Encoding header field with a value of chunked and a message
-   body consisting of a single chunk of zero-length; or, c) close the
-   connection immediately after sending the blank line terminating the
-   header section.
- */
 
 #endif

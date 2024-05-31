@@ -18,25 +18,25 @@ class HttpRequestGet : public HttpRequest
 		HttpRequestGet ( HttpRequestGet const & model);
 		HttpRequestGet & operator= (HttpRequestGet const & model);
 		~HttpRequestGet( void );
-		
 
 		void	processHeader( Socket const * const socket );
 		void	generateResponse( Socket const * const socket, HttpResponse &response );
 		bool	hasBody() const;
 		void	readBody(int fd, Socket const * const socket, bool &end);
 		bool	hasCgi() const;
-		Cgi	*getCgi();
+		Cgi		*getCgi();
 
 	private:
-		void	_initResponse( Socket const * const socket, HttpResponse &response );
-		void	_handleDirectory(std::string & uri, Location const & location, HttpResponse & response, Server const &server);
-		void	_redirectDirectory(HttpResponse & response);
-		void	_handle_file(std::string & uri, HttpResponse & response, Server const & server);
-		e_status	_handle_index_file(std::string & uri, Location const & location,
-				HttpResponse & response,  Server const & server);
-		void	_handleCgi(std::string & uri, Server const & server, CgiLocation const &cgi_location);
-
 		HttpRequestGet( void );
+
+		void		_initResponse( Socket const * const socket, HttpResponse &response);
+		void		_handleDirectory(std::string & uri, Location const & location,
+							HttpResponse & response, Server const &server);
+		void		_handle_file(std::string & uri, HttpResponse & response, Server const & server);
+		e_status	_handle_index_file(std::string & uri, Location const & location,
+							HttpResponse & response,  Server const & server);
+		void		_handleCgi(std::string & uri, Server const & server, CgiLocation const &cgi_location);
+		void		_redirectDirectory(HttpResponse & response);
 
 		Cgi		_cgi;
 		bool	_has_cgi;

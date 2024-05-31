@@ -18,7 +18,21 @@ HttpResponse::HttpResponse( it_version const & version)
 	_content_length = 0;
 	_content_length_flag = false;
 	_end_of_file_flag = false;
-	_read_size = 0;
+	_write_size = 0;
+}
+
+HttpResponse::HttpResponse( void )
+{
+	_version = --g_http_versions.end();
+	_status_code = HTTP_200;
+	_fields.push_back(HttpField("Connection", "close"));
+	_fields.push_back(HttpField("Server", SERVER_NAME));
+	_fileOpen = false;
+	_response_ready = false;
+	_content_length = 0;
+	_content_length_flag = false;
+	_end_of_file_flag = false;
+	_write_size = 0;
 }
 
 //! Can't copy open file(_bodyFile) during the operation
@@ -39,7 +53,7 @@ HttpResponse & HttpResponse::operator=(HttpResponse const & model )
 		_content_length = model._content_length;
 		_content_length_flag = model._content_length_flag;
 		_end_of_file_flag = model._end_of_file_flag;
-		_read_size = model._read_size;
+		_write_size = model._write_size;
 	}
 	return *this;
 }
@@ -50,34 +64,17 @@ HttpResponse::~HttpResponse( void )
 		_bodyFile.close();
 }
 
-HttpResponse::HttpResponse( void )
-{
-	_version = --g_http_versions.end();
-	_status_code = HTTP_200;
-	_fields.push_back(HttpField("Connection", "close"));
-	_fields.push_back(HttpField("Server", SERVER_NAME));
-	_fileOpen = false;
-	_response_ready = false;
-	_content_length = 0;
-	_content_length_flag = false;
-	_end_of_file_flag = false;
-	_read_size = 0;
-}
+std::string const	&HttpResponse::getBody(void) const {return (_body);}
 
-bool	HttpResponse::is_response_ready()
-{
-	return _response_ready;
-}
+bool	HttpResponse::is_response_ready() const {return _response_ready;}
 
-void	HttpResponse::setVersion(it_version version)
-{
-	_version = version;
-}
+void	HttpResponse::setVersion(it_version version) {_version = version;}
 
-void	HttpResponse::setStatusCode(e_status_code code)
-{
-	_status_code = code;
-}
+void	HttpResponse::setStatusCode(e_status_code code){_status_code = code;}
+
+void	HttpResponse::setEndOfFile() {_end_of_file_flag = true;}
+
+void	HttpResponse::addBodyContent(std::string str) {_body += str;}
 
 void	HttpResponse::addField(std::string name, std::string value)
 {
@@ -85,14 +82,41 @@ void	HttpResponse::addField(std::string name, std::string value)
 	_fields.push_back(tmp);
 }
 
-void	HttpResponse::addBodyContent(std::string str)
+void	HttpResponse::addAllowMethod(std::vector<std::string> const &method)
 {
-	_body += str;
+	HttpField res("Allow", method);
+	_fields.push_back(res);
 }
 
-void		HttpResponse::setEndOfFile()
+void		HttpResponse::setBody(std::string &body_content)
 {
-	_end_of_file_flag = true;
+	_body = body_content;
+	_content_length = _body.size();
+}
+
+bool	HttpResponse::checkFieldExistence(std::string const & field_name) const
+{
+	std::vector<HttpField>::const_iterator it;
+
+	for (it = _fields.begin(); it != _fields.end(); ++it)
+	{
+		if (it->getName() == field_name)
+			return (true);
+	}
+	return (false);
+}
+
+const std::vector<std::string>	&HttpResponse::getFieldValue(
+	std::string const & field_name) const throw(ExceptionHttpStatusCode)
+{
+	std::vector<HttpField>::const_iterator it;
+
+	for (it = _fields.begin(); it != _fields.end(); ++it)
+	{
+		if (it->getName() == field_name)
+			return (it->getValues());
+	}
+	throw(ExceptionHttpStatusCode(HTTP_500));
 }
 
 bool	HttpResponse::handle_redirect(Location const & location)
@@ -106,7 +130,7 @@ bool	HttpResponse::handle_redirect(Location const & location)
 	return false;
 }
 
-void		HttpResponse::fillHeader()
+void	HttpResponse::fillHeader()
 {
 	_header.clear();
 	_header = *_version + " ";
@@ -123,7 +147,7 @@ void		HttpResponse::fillHeader()
 	displayHeader();
 }
 
-void		HttpResponse::displayHeader()
+void	HttpResponse::displayHeader()
 {
 	std::cout << "------------ HttpResponse ------------" << std::endl;
 	std::cout << *_version << " ";
@@ -137,7 +161,7 @@ void		HttpResponse::displayHeader()
 		_fields.at(i).display_field();
 }
 
-static void _close_body_file(std::ifstream &response_bodyFile, bool &response_fileOpen)
+static void	_close_body_file(std::ifstream &response_bodyFile, bool &response_fileOpen)
 {
 	response_fileOpen = false;
 	if (response_bodyFile.is_open())
@@ -174,13 +198,6 @@ static e_status _set_content_length_field(std::string &filename,
 	return (SUCCESS);
 }
 
-void		HttpResponse::setBody(std::string &body_content)
-{
-	_body = body_content;
-	_content_length = _body.size();
-}
-
-
 e_status_code HttpResponse::openBodyFileStream(std::string filename)
 {
 	e_status_code status;
@@ -197,44 +214,6 @@ e_status_code HttpResponse::openBodyFileStream(std::string filename)
 
 	return HTTP_200;
 }
-
-std::string const &HttpResponse::getBody(void) const
-{
-	return (_body);
-}
-
-
-bool	HttpResponse::checkFieldExistence(std::string const & field_name) const
-{
-	std::vector<HttpField>::const_iterator it;
-
-	for (it = _fields.begin(); it != _fields.end(); ++it)
-	{
-		if (it->getName() == field_name)
-			return (true);
-	}
-	return (false);
-}
-
-const std::vector<std::string>	&HttpResponse::getFieldValue(
-	std::string const & field_name) const throw(ExceptionHttpStatusCode)
-{
-	std::vector<HttpField>::const_iterator it;
-
-	for (it = _fields.begin(); it != _fields.end(); ++it)
-	{
-		if (it->getName() == field_name)
-			return (it->getValues());
-	}
-	throw(ExceptionHttpStatusCode(HTTP_500));
-}
-
-void	HttpResponse::addAllowMethod(std::vector<std::string> const &method)
-{
-	HttpField res("Allow", method);
-	_fields.push_back(res);
-}
-
 
 static e_status	_extract_content_length(std::vector<HttpField> &response_fields,
 					uint64_t &value_dest, bool &has_content_length)
@@ -298,7 +277,7 @@ void	HttpResponse::_extract_cgi_fields_data( void )
 		return ;//TODO
 }
 
-void HttpResponse::parseCgiHeader(std::string header) throw(ExceptionHttpStatusCode)
+void	HttpResponse::parseCgiHeader(std::string header) throw(ExceptionHttpStatusCode)
 {
 	std::cout << header << std::endl;
 
@@ -340,11 +319,11 @@ void	HttpResponse::generateErrorResponse(e_status_code status, Server const & se
 	fillHeader();
 }
 
-bool HttpResponse::_checkEndCgi(bool has_cgi) const
+bool	HttpResponse::_checkEndCgi(bool has_cgi) const
 {
 	if (has_cgi)
 	{
-		if (_content_length_flag && _content_length == _read_size)
+		if (_content_length_flag && _content_length == _write_size)
 			return true;
 		else if (!_content_length_flag && _end_of_file_flag)
 			return true;
@@ -352,7 +331,7 @@ bool HttpResponse::_checkEndCgi(bool has_cgi) const
 	return false;
 }
 
-void HttpResponse::_chunkResponse()
+void	HttpResponse::_chunkResponse()
 {
 	int size = _body.size();
 
@@ -361,33 +340,43 @@ void HttpResponse::_chunkResponse()
 		_body += "0\r\n";
 }
 
-void HttpResponse::writeResponse(int fd, Cluster &cluster, bool has_cgi)
+static ssize_t	send_header(int fd, std::string &header)
+{
+	ssize_t ret = send(fd, header.c_str(), header.size(), MSG_NOSIGNAL);
+	header.clear();
+	return ret;
+}
+
+static ssize_t	send_body_file(int fd, std::ifstream &file, bool &is_open)
+{
+	char tmp[SIZE_WRITE + 1] = {0};
+	file.read(tmp, SIZE_WRITE);
+	if (file.eof() || file.fail())
+		_close_body_file(file, is_open);
+	file.gcount();
+	ssize_t ret = send(fd, tmp, file.gcount(), MSG_NOSIGNAL);
+	return ret;
+}
+
+ssize_t	HttpResponse::_sendBodyString(int fd, bool has_cgi)
+{
+	if (has_cgi && !_content_length_flag)
+		_chunkResponse();
+	ssize_t ret = send(fd, _body.c_str(), _body.size(), MSG_NOSIGNAL);
+	_write_size += ret; //!can send less then body.size()
+	_body.clear();
+	return ret;
+}
+
+void	HttpResponse::writeResponse(int fd, Cluster &cluster, bool has_cgi)
 {
 	int ret = 1;
 	if (_header.empty() == false)
-	{
-		std::cout << "send header" << std::endl;
-		ret = send(fd, _header.c_str(), _header.size(), MSG_NOSIGNAL);
-		_header.clear();
-	}
+		ret = send_header(fd, _header);
 	else if (_fileOpen)
-	{
-		char tmp[SIZE_WRITE + 1] = {0};
-		_bodyFile.read(tmp, SIZE_WRITE);
-		if (_bodyFile.eof() || _bodyFile.fail())
-			_close_body_file(_bodyFile, _fileOpen);
-		_bodyFile.gcount();
-		ret = send(fd, tmp, _bodyFile.gcount(), MSG_NOSIGNAL);
-	}
+		ret = send_body_file(fd, _bodyFile, _fileOpen);
 	else if (!_body.empty())
-	{
-		if (has_cgi && !_content_length_flag)
-			_chunkResponse();
-		std::cout << "send body" << std::endl;
-		ret = send(fd, _body.c_str(), _body.size(), MSG_NOSIGNAL);
-		_read_size += ret; //!can send less then body.size()
-		_body.clear();
-	}
+		ret = _sendBodyString(fd, has_cgi);
 	if (ret == -1 || ret == 0)
 	{
 		std::cout << "error\n";
@@ -396,7 +385,8 @@ void HttpResponse::writeResponse(int fd, Cluster &cluster, bool has_cgi)
 		cluster.closeConnection(fd);
 		return ;
 	}
-	if ((!has_cgi && _header.empty() && _body.empty() && _fileOpen == false && _content_length == _read_size)
+	if ((!has_cgi && _header.empty() && _body.empty()
+			&& _fileOpen == false && _content_length == _write_size)
 		|| _checkEndCgi(has_cgi))
 	{
 		std::cout << "end\n";
