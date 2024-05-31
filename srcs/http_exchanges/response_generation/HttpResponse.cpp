@@ -216,22 +216,24 @@ static e_status	_extract_content_length(std::vector<HttpField> &response_fields,
 					uint64_t &value_dest)
 {
 	std::vector<std::string>	field_values;
-	e_status					itoa_error;
+	e_status					atoi_error;
 
-	itoa_error = SUCCESS;
+	atoi_error = SUCCESS;
 	if (HttpField::extract_field(response_fields, "Content-Length", field_values) == SUCCESS)
 	{
+		std::cout << "Content-Length found"<<std::endl <<std::endl;//
 		if (field_values.size() != 1)
 		{
 			;//TODO error code 413 
 			return (FAILURE);
 		}
-		value_dest = ft_atoi(field_values.at(0), itoa_error);
-		if (itoa_error == FAILURE )
+		value_dest = ft_atoi(field_values.at(0), atoi_error);
+		if (atoi_error == FAILURE )
 		{
 			;//TODO error code 413 
 			return (FAILURE);
 		}
+		response_fields.push_back(HttpField("Content-Length", field_values));
 	}
 	else
 		value_dest = 0;
