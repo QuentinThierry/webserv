@@ -307,6 +307,12 @@ static std::string _get_img_path(e_status_code error_code)
 	switch (error_code) {
 		case HTTP_404:
 			return (std::string("fixed/") + ERROR_404_PATH);
+		case HTTP_403:
+			return (std::string("fixed/") + ERROR_403_PATH);
+		case HTTP_418:
+			return (std::string("fixed/") + ERROR_418_PATH);
+		case HTTP_500:
+			return (std::string("fixed/") + ERROR_500_PATH);
 		default:
 			unsigned int i = std::rand() % (sizeof(error_path) / sizeof(char **));
 			return (std::string("randomized/") + error_path[i]);
@@ -317,7 +323,6 @@ void	HttpResponse::_generateErrorPageBody(e_status_code error_code)
 {
 	std::string error_message = ft_itoa(error_code) + " " + get_error_reason_phrase(error_code);
 	std::string img_path = _get_img_path(error_code);
-	std::cerr << "ICI : " << img_path << std::endl;
 	_body =
 	"<!DOCTYPE html>\r\n"
 	"<html>\r\n"
@@ -337,7 +342,7 @@ void	HttpResponse::_generateErrorPageBody(e_status_code error_code)
 	"			webserv\r\n"
 	"		</center>\r\n"
 	"		<center>\r\n"
-	"			<img src='default_webserv/error_img/" + img_path + "' style='max-height:500px; max-width:500px; height: 50%; width: 100%; object-fit: contain;'>\r\n" +
+	"			<img src='/default_webserv/error_img/" + img_path + "' style='max-height:500px; max-width:500px; height: 50%; width: 100%; object-fit: contain;'>\r\n" +
 	"		</center>\r\n"
 	"	</body>\r\n"
 	"</html>\r\n";

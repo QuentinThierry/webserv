@@ -19,11 +19,15 @@ extern bool 		g_exit;
 
 // randomized errors path
 #define RANDOMIZED_ERROR_PAGE_PATHS {\
-	"chat_mignon.webp"\
+	"cat0.webp", "cat1.webp", "cat2.webp", "cat3.webp",\
+	"cat4.webp", "cat5.webp", "cat6.webp"\
 }
 
 // fixed errors path
-#define ERROR_404_PATH "404error.avif"
+#define ERROR_404_PATH "404error.webp"
+#define ERROR_403_PATH "403forbidden.webp"
+#define ERROR_418_PATH "418teapot.webp"
+#define ERROR_500_PATH "500internalerror.webp"
 
 int protected_write(int const fd, std::string const str);
 
