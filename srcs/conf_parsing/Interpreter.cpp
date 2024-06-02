@@ -49,9 +49,7 @@ void interpret_cgi_field_loop(std::string &token, std::queue<std::string> &token
 		{
 			if (arg_counter == 1)
 				ThrowBadArgumentNumber(identifier, 1, false);
-			arg_counter = 0;
-			token = extract_token(tokens);
-			continue ;
+			break;
 		}
 		else
 		{
