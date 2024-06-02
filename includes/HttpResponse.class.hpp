@@ -54,6 +54,7 @@ class HttpResponse
 		ssize_t		_sendBodyString(int fd, bool has_cgi);
 		void		_chunkResponse();
 		bool		_checkEndCgi(bool has_cgi) const;
+		void		_generateErrorPageBody(e_status_code error_code);
 		void		_removeField(std::string const &);
 		
 		void		_extract_cgi_fields_data( void );

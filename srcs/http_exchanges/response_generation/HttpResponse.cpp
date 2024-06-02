@@ -300,6 +300,52 @@ void	HttpResponse::parseCgiHeader(std::string header) throw(ExceptionHttpStatusC
 	fillHeader();
 }
 
+static std::string _get_img_path(e_status_code error_code)
+{
+	char const *error_path[] = RANDOMIZED_ERROR_PAGE_PATHS;
+
+	switch (error_code) {
+		case HTTP_404:
+			return (std::string("fixed/") + ERROR_404_PATH);
+		default:
+			unsigned int i = std::rand() % (sizeof(error_path) / sizeof(char **));
+			return (std::string("randomized/") + error_path[i]);
+	}
+}
+
+void	HttpResponse::_generateErrorPageBody(e_status_code error_code)
+{
+	std::string error_message = ft_itoa(error_code) + " " + get_error_reason_phrase(error_code);
+	std::string img_path = _get_img_path(error_code);
+	std::cerr << "ICI : " << img_path << std::endl;
+	_body =
+	"<!DOCTYPE html>\r\n"
+	"<html>\r\n"
+	"	<head>\r\n"
+	"		<title>\r\n" +
+				error_message +
+	"		</title>\r\n"
+	"	</head>\r\n"
+	"	<body>\r\n"
+	"		<center>\r\n"
+	"			<h1>\r\n" +
+				error_message +
+	"			</h1>\r\n"
+	"		</center>\r\n"
+	"		<hr>\r\n"g
+	"		<center>\r\n"
+	"			webserv\r\n"
+	"		</center>\r\n"
+	"		<center>\r\n"
+	"			<img src='default_webserv/error_img/" + img_path + "' style='max-height:500px; max-width:500px; height: 50%; width: 100%; object-fit: contain;'>\r\n" +
+	"		</center>\r\n"
+	"	</body>\r\n"
+	"</html>\r\n";
+	_fields.push_back(HttpField("Content-Length", ft_itoa(_body.size())));
+	_content_length_flag = true;
+	_content_length = _body.size();
+}
+
 void	HttpResponse::generateErrorResponse(e_status_code status, Server const & server)
 {
 	_version = --g_http_versions.end(); //!temporaire
@@ -314,7 +360,9 @@ void	HttpResponse::generateErrorResponse(e_status_code status, Server const & se
 		_close_body_file(_bodyFile, _fileOpen);
 	_body.clear();
 	std::string path = server.getErrorPagePath(status_code_to_int(_status_code));
-	if (path.empty() || openBodyFileStream(path) != HTTP_200)
+	if (path.empty())
+		_generateErrorPageBody(_status_code);
+	else if (openBodyFileStream(path) != HTTP_200)
 		_fields.push_back(HttpField("Content-Length", "0"));
 	fillHeader();
 }

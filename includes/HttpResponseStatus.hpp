@@ -81,7 +81,7 @@ class ExceptionUnknownStatusCode : public std::exception
 		}
 };
 
-std::string get_error_reason_phrase(int error_code) throw( ExceptionUnknownStatusCode);
+std::string get_error_reason_phrase(e_status_code error_code) throw(ExceptionUnknownStatusCode);
 
 class ExceptionHttpStatusCode : public std::exception 
 {

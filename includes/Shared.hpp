@@ -17,6 +17,14 @@ typedef enum e_status
 extern int const	g_err_log_fd;
 extern bool 		g_exit;
 
+// randomized errors path
+#define RANDOMIZED_ERROR_PAGE_PATHS {\
+	"chat_mignon.webp"\
+}
+
+// fixed errors path
+#define ERROR_404_PATH "404error.avif"
+
 int protected_write(int const fd, std::string const str);
 
 class ExceptionCltrC: public std::exception

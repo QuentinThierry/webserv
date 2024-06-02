@@ -30,6 +30,7 @@ char const * get_config(int argc, char **argv)
 int main(int argc, char **argv)
 {
 	std::vector<Server> servers;
+	std::srand(time(NULL));
 	std::signal(SIGINT, cltr_c);
 	try
 	{
