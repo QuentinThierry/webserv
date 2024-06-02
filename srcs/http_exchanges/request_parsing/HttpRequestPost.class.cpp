@@ -195,23 +195,25 @@ void HttpRequestPost::_processBodyContentLength(bool &end)
 
 void	HttpRequestPost::_parseChunkSize()
 {
+	std::string number;
 	_content_length = 0;
-	for (unsigned int i = 0; i < _body.size(); i++)
-	{
-		if (std::isdigit(_body[i]) == 0)
-		{
-			if (i + 1 >= _body.size())
-				return ;
-			if (!(_body[i] == '\r' && _body[i + 1] == '\n'))
-				throw_http_err_with_log(HTTP_400, "ERROR: bad syntax for transfer-encoding=chuncked");
-			_has_size_chunk = true;
-			_body = _body.substr(i + 2, _body.size() - (i + 2));
-			break ;
-		}
-		if (_content_length > (UINT64_MAX - (_body[i] - '0')) / 10)
-			throw_http_err_with_log(HTTP_413, "ERROR: chunk size too long for transfer-encoding=chuncked");
-		_content_length = _content_length * 10 + (_body[i] - '0');
-	}
+	size_t pos = _body.find_first_not_of("0123456789abcdefABCDEF");
+	if (pos != std::string::npos && pos != 0)
+		number = _body.substr(0, pos);
+	else
+		return ;
+	bool error = false;
+	_content_length = str_to_hex(number, error);
+	if (error == true)
+		throw_http_err_with_log(HTTP_413, "ERROR: chunk size too long for transfer-encoding=chuncked");
+
+	if (pos + 1 >= _body.size())
+		return ;
+	if (!(_body[pos] == '\r' && _body[pos + 1] == '\n'))
+		throw_http_err_with_log(HTTP_400, "ERROR: bad syntax for transfer-encoding=chuncked");
+	_has_size_chunk = true;
+	_body = _body.substr(pos + 2, _body.size() - (pos + 2));
+	std::cout << "chunk size :" << _content_length << std::endl;
 }
 
 bool	HttpRequestPost::_parseChunkBody()

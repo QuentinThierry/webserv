@@ -317,7 +317,7 @@ void	HttpResponse::_chunkResponse()
 {
 	int size = _body.size();
 
-	_body = ft_itoa(size) + "\r\n" + _body + "\r\n";
+	_body = hex_to_str(size) + "\r\n" + _body + "\r\n";
 	if (_checkEndCgi(true))
 		_body += "0\r\n";
 }

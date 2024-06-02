@@ -62,7 +62,8 @@ uint64_t	str_to_hex(std::string str, bool &error)
 		return error = true;
 	if (str.find_first_not_of("0123456789abcdefABCDEF") != std::string::npos)
 		return error = true;
-	
+	if (str.size() > 16)
+		return error = true;
 	for (unsigned int i = 0; i < str.size(); i++)
 	{
 		res *= 16;
