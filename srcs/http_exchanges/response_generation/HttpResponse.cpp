@@ -324,6 +324,7 @@ void	HttpResponse::_chunkResponse()
 
 static ssize_t	send_header(int fd, std::string &header)
 {
+	std::cout << "header" <<std::endl;
 	ssize_t ret = send(fd, header.c_str(), header.size(), MSG_NOSIGNAL);
 	header.clear();
 	return ret;
@@ -331,6 +332,8 @@ static ssize_t	send_header(int fd, std::string &header)
 
 static ssize_t	send_body_file(int fd, std::ifstream &file, bool &is_open)
 {
+	std::cout << "file" <<std::endl;
+
 	char tmp[SIZE_WRITE + 1] = {0};
 	file.read(tmp, SIZE_WRITE);
 	if (file.eof() || file.fail())
@@ -342,8 +345,11 @@ static ssize_t	send_body_file(int fd, std::ifstream &file, bool &is_open)
 
 ssize_t	HttpResponse::_sendBodyString(int fd, bool has_cgi)
 {
+	std::cout << "body --" <<std::endl;
+
 	if (has_cgi && !_content_length_flag)
 		_chunkResponse();
+	std::cout << "body response:" << _body << std::endl;
 	ssize_t ret = send(fd, _body.c_str(), _body.size(), MSG_NOSIGNAL);
 	_write_size += ret; //!can send less then body.size()
 	_body.clear();
@@ -352,13 +358,16 @@ ssize_t	HttpResponse::_sendBodyString(int fd, bool has_cgi)
 
 void	HttpResponse::writeResponse(int fd, Cluster &cluster, bool has_cgi)
 {
+	std::cout << "eof: " << _end_of_file_flag <<std::endl;
 	int ret = 1;
 	if (_header.empty() == false)
 		ret = send_header(fd, _header);
 	else if (_fileOpen)
 		ret = send_body_file(fd, _bodyFile, _fileOpen);
-	else if (!_body.empty())
+	else if (!_body.empty() || _end_of_file_flag)
 		ret = _sendBodyString(fd, has_cgi);
+	else
+		std::cout << "cpucpu" << _body << std::endl;
 	if (ret == -1 || ret == 0)
 	{
 		std::cout << "error\n";
