@@ -332,7 +332,7 @@ void	HttpResponse::_generateErrorPageBody(e_status_code error_code)
 				error_message +
 	"			</h1>\r\n"
 	"		</center>\r\n"
-	"		<hr>\r\n"g
+	"		<hr>\r\n"
 	"		<center>\r\n"
 	"			webserv\r\n"
 	"		</center>\r\n"
