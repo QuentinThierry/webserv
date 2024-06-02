@@ -200,7 +200,6 @@ void Cgi::exec(std::string cgi_path, std::string file_name, HttpRequest const &r
 				std::cerr << "path :" << cgi_path.c_str() <<std::endl;
 				std::cerr << "file :" << file_name.c_str() <<std::endl;
 				std::cerr << "-----------------------------execve ready------------------------------"<<std::endl;
-				fflush(stderr);
 				char const *args[3];
 				args[0] = alloc_str(cgi_path);
 				args[1] = alloc_str(file_name);
@@ -216,6 +215,11 @@ void Cgi::exec(std::string cgi_path, std::string file_name, HttpRequest const &r
 			}
 		}
 		throw Cgi::NExceptionChildFail();
+	}
+	else
+	{
+		close(_pipe_input[READ]);
+		close(_pipe_output[WRITE]);
 	}
 }
 
