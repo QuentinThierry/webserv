@@ -111,7 +111,7 @@ void	HttpRequestGet::_handleDirectory(std::string & uri, Location const & locati
 		_handle_Autoindex(location.getRootPath(), getTarget(), response);
 		return ;
 	}
-	throw ExceptionHttpStatusCode(HTTP_403);
+	throw_http_err_with_log(HTTP_403, "ERROR: no such file or directory");
 }
 
 void	HttpRequestGet::_handleCgi(std::string & uri, Server const & server,
@@ -143,7 +143,7 @@ void	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &r
 	if (isAcceptedMethod(location) == false)
 	{
 		response.addAllowMethod(location.getMethods());
-		throw ExceptionHttpStatusCode(HTTP_405);
+		throw_http_err_with_log(HTTP_405, "ERROR: method not allowed");
 	}
 	
 	std::string uri = getUri(location.getRootPath(), getTarget());

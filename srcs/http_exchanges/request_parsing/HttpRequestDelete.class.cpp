@@ -66,13 +66,13 @@ void	HttpRequestDelete::readBody(int fd, Socket const * const socket, bool &end)
 static void	remove_file(std::string const & uri)
 {
 	if (HttpRequestPost::isBusyFile(uri))
-		throw ExceptionHttpStatusCode(HTTP_404);
+		throw_http_err_with_log(HTTP_404, "ERROR: no such file or directory");
 	if (remove(uri.c_str()) != 0)
 	{
 		if (errno == ENOENT || errno == ENOTDIR)
-			throw ExceptionHttpStatusCode(HTTP_404);
+			throw_http_err_with_log(HTTP_404, "ERROR: no such file or directory");
 		else
-			throw ExceptionHttpStatusCode(HTTP_403);
+			throw_http_err_with_log(HTTP_403, "ERROR: no such file or directory");
 	}
 }
 
@@ -87,7 +87,7 @@ void	HttpRequestDelete::_initResponse( Socket const * const socket, HttpResponse
 	if (isAcceptedMethod(location) == false)
 	{
 		response.addAllowMethod(location.getMethods());
-		throw ExceptionHttpStatusCode(HTTP_405);
+		throw_http_err_with_log(HTTP_405, "ERROR: method not allowed");
 		return ;
 	}
 	std::string uri = getUri(location.getRootPath(), getTarget());
