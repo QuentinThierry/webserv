@@ -132,6 +132,8 @@ bool	HttpRequestPost::isBusyFile(std::string filename)
 
 bool	HttpRequestPost::hasCgi() const {return _has_cgi;}
 
+void	HttpRequestPost::setCgi(bool has_cgi) {_has_cgi = has_cgi;}
+
 Cgi		*HttpRequestPost::getCgi() {return &_cgi;}
 
 bool HttpRequestPost::hasBody() const
@@ -319,7 +321,7 @@ void	HttpRequestPost::readBody(int fd, Socket const * const socket, bool &end)
 
 void	HttpRequestPost::_handleCgi(CgiLocation const & cgi_location, Server const &server)
 {
-	_cgi.exec(cgi_location.getExecPath(), _filename, *this, server);
+	_cgi.exec(cgi_location.getExecPath(), cgi_location.getRootPath() + getTarget(), *this, server);
 }
 
 void	HttpRequestPost::_setBodyReadType(uint64_t maxClientBody)

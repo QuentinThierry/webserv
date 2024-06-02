@@ -24,6 +24,7 @@ class HttpRequestGet : public HttpRequest
 		bool	hasBody() const;
 		void	readBody(int fd, Socket const * const socket, bool &end);
 		bool	hasCgi() const;
+		void	setCgi(bool has_cgi);
 		Cgi		*getCgi();
 
 	private:
@@ -35,7 +36,7 @@ class HttpRequestGet : public HttpRequest
 		void		_handle_file(std::string & uri, HttpResponse & response, Server const & server);
 		e_status	_handle_index_file(std::string & uri, Location const & location,
 							HttpResponse & response,  Server const & server);
-		void		_handleCgi(std::string & uri, Server const & server, CgiLocation const &cgi_location);
+		void		_handleCgi(Server const & server, CgiLocation const &cgi_location);
 		void		_redirectDirectory(HttpResponse & response);
 
 		Cgi		_cgi;

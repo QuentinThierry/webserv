@@ -15,7 +15,7 @@ class HttpExchange{
 		~HttpExchange();
 
 		void					readSocket(int fd, Cluster &cluster);
-		void					readCgi(Cgi const &cgi);
+		void					readCgi(int fd, Cluster & cluster);
 		void					writeSocket(int fd, Cluster &cluster);
 		void					writeCgi(int fd, Cluster & cluster);
 		struct timeval const &	getAcceptRequestTime() const;

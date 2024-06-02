@@ -63,6 +63,12 @@ void	Cgi::endWrite()
 	_pipe_input[WRITE] = -1;
 }
 
+void	Cgi::endRead()
+{
+	close(getReadPipe());
+	_pipe_output[READ] = -1;
+}
+
 static char const *alloc_str(std::string str)
 {
 	unsigned int size = str.size();

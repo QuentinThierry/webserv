@@ -39,6 +39,8 @@ HttpRequestDelete::~HttpRequestDelete( void )
 
 bool	HttpRequestDelete::hasCgi() const {return false;}
 
+void	HttpRequestDelete::setCgi(bool has_cgi) {(void)has_cgi;}
+
 Cgi		*HttpRequestDelete::getCgi() {return NULL;}
 
 void	HttpRequestDelete::processHeader( Socket const * const socket ) {(void)socket;}
