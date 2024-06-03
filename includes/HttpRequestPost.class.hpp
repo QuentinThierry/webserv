@@ -24,6 +24,7 @@ class HttpRequestPost : public HttpRequest
 		Cgi		*getCgi();
 
 		void	processBody(bool &end);
+		bool	hasContentLength() const;
 
 		static bool	isBusyFile(std::string filename);
 

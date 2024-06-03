@@ -1,5 +1,6 @@
 #include "Cgi.class.hpp"
 #include "HttpRequest.class.hpp"
+#include "HttpRequestPost.class.hpp"
 
 Cgi::Cgi()
 {
@@ -118,7 +119,8 @@ static char const **create_cgi_env(HttpRequest const &request, Server const &ser
 		}
 		else
 		{
-			if (request.checkFieldExistence("Content-Length"))
+			if (dynamic_cast<HttpRequestPost const &>(request).hasContentLength()
+					&& request.checkFieldExistence("Content-Length"))
 			{
 				std::vector<std::string> vec = request.getFieldValue("Content-Length");
 				if (vec.size() != 1)

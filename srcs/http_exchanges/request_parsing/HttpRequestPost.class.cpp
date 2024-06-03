@@ -136,7 +136,9 @@ void	HttpRequestPost::setCgi(bool has_cgi) {_has_cgi = has_cgi;}
 
 Cgi		*HttpRequestPost::getCgi() {return &_cgi;}
 
-bool HttpRequestPost::hasBody() const
+bool	HttpRequestPost::hasContentLength() const {return _content_length_flags;}
+
+bool	HttpRequestPost::hasBody() const
 {
 	return (_chunk_body_flags == true || _content_length_flags == true);
 }
