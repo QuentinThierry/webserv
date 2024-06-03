@@ -186,9 +186,7 @@ void	HttpExchange::_handleHeader(int fd, Cluster &cluster)
 	{
 		std::cout << "switch write no body" << std::endl;
 		_request->generateResponse(_socket, _response);
-		std::cout << "test1" << std::endl;
 		cluster.switchHttpExchangeToWrite(fd);
-		std::cout << "test2" << std::endl;
 	}
 	if (_request->hasCgi())
 		cluster.addCgi(_request->getCgi(), this);
@@ -238,10 +236,8 @@ void	HttpExchange::readCgi(int fd, Cluster & cluster)
 		int ret = _request->getCgi()->read(tmp);
 		if (ret == -1)
 			throw_http_err_with_log(HTTP_500, "ERROR: fail to read in cgi");
-		std::cout << "body: " <<tmp<<std::endl;
 		if (ret == 0)
 		{
-			std::cout << "end of file" << std::endl;
 			if (!_response.is_response_ready())
 				throw_http_err_with_log(HTTP_400, "ERROR: Missing empty line at the end of the cgi");
 			_response.setEndOfFile();
@@ -255,7 +251,6 @@ void	HttpExchange::readCgi(int fd, Cluster & cluster)
 			{
 				_response.parseCgiHeader(_buffer_read);
 				_buffer_read.clear();
-				std::cout << "answer ready" << std::endl;
 			}
 		}
 	}
@@ -291,7 +286,6 @@ void	HttpExchange::writeCgi(int fd, Cluster & cluster)
 		if (fd == -1)
 			return ;
 		bool end = false;
-		std::cout << "body :" << _request->getBody() << std::endl;
 		dynamic_cast<HttpRequestPost*>(_request)->processBody(end);
 		if (end == true)
 		{
