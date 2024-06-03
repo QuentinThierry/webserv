@@ -35,7 +35,7 @@ class HttpRequestGet : public HttpRequest
 		void		_initResponse( Socket const * const socket, HttpResponse &response);
 		void		_handleDirectory(std::string & uri, Location const & location,
 							HttpResponse & response, Server const &server);
-		void		_handle_file(std::string & uri, HttpResponse & response, Server const & server);
+		void		_handleFile(std::string & uri, HttpResponse & response, Server const & server);
 		e_status	_handle_index_file(std::string & uri, Location const & location,
 							HttpResponse & response,  Server const & server);
 		void		_handleCgi(Server const & server, CgiLocation const &cgi_location);
