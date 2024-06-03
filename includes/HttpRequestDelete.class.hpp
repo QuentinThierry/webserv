@@ -22,6 +22,7 @@ class HttpRequestDelete : public HttpRequest
 		bool	hasBody() const;
 		void	readBody(int fd, Socket const * const socket, bool &end);
 		bool	hasCgi() const;
+		void	setCgi(bool has_cgi);
 		Cgi		*getCgi();
 	private:
 		void	_initResponse( Socket const * const socket, HttpResponse &response );

@@ -178,7 +178,7 @@ void Cluster::runServer()
 			if (FD_ISSET(it->first->getReadPipe(), &readfds))
 			{
 				std::cout << "read cgi "<<it->first->getReadPipe() << std::endl;
-				it->second->readCgi(*it->first);
+				it->second->readCgi(findFd(_map_sockets, it->second), *this);
 				break;
 			}
 			else if (*it->second->getRequest().getMethod() == "POST"

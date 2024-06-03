@@ -132,9 +132,13 @@ bool	HttpRequestPost::isBusyFile(std::string filename)
 
 bool	HttpRequestPost::hasCgi() const {return _has_cgi;}
 
+void	HttpRequestPost::setCgi(bool has_cgi) {_has_cgi = has_cgi;}
+
 Cgi		*HttpRequestPost::getCgi() {return &_cgi;}
 
-bool HttpRequestPost::hasBody() const
+bool	HttpRequestPost::hasContentLength() const {return _content_length_flags;}
+
+bool	HttpRequestPost::hasBody() const
 {
 	return (_chunk_body_flags == true || _content_length_flags == true);
 }
@@ -171,13 +175,14 @@ void HttpRequestPost::_processBodyContentLength(bool &end)
 	if (_has_cgi)
 	{
 		if (_cgi.write(_body) == -1)
-			throw ExceptionHttpStatusCode(HTTP_500); //!not sure
+			throw_http_err_with_log(HTTP_500, "ERROR: fail to write in cgi"); //!not sure
 	}
 	else
 	{
 		_file.write(_body.c_str(), _body.size());
 		if (!_file.good())
-			throw ExceptionHttpStatusCode(HTTP_500); //!not sure
+			throw_http_err_with_log(HTTP_500, "ERROR: fail to write in socket"); //!not sure
+ //!not sure
 	}
 	if (_read_size == _content_length)
 	{
@@ -192,23 +197,25 @@ void HttpRequestPost::_processBodyContentLength(bool &end)
 
 void	HttpRequestPost::_parseChunkSize()
 {
+	std::string number;
 	_content_length = 0;
-	for (unsigned int i = 0; i < _body.size(); i++)
-	{
-		if (std::isdigit(_body[i]) == 0)
-		{
-			if (i + 1 >= _body.size())
-				return ;
-			if (!(_body[i] == '\r' && _body[i + 1] == '\n'))
-				throw ExceptionHttpStatusCode(HTTP_400);
-			_has_size_chunk = true;
-			_body = _body.substr(i + 2, _body.size() - (i + 2));
-			break ;
-		}
-		if (_content_length > (UINT64_MAX - (_body[i] - '0')) / 10)
-			throw ExceptionHttpStatusCode(HTTP_413);
-		_content_length = _content_length * 10 + (_body[i] - '0');
-	}
+	size_t pos = _body.find_first_not_of("0123456789abcdefABCDEF");
+	if (pos != std::string::npos && pos != 0)
+		number = _body.substr(0, pos);
+	else
+		return ;
+	bool error = false;
+	_content_length = str_to_hex(number, error);
+	if (error == true)
+		throw_http_err_with_log(HTTP_413, "ERROR: chunk size too long for transfer-encoding=chuncked");
+
+	if (pos + 1 >= _body.size())
+		return ;
+	if (!(_body[pos] == '\r' && _body[pos + 1] == '\n'))
+		throw_http_err_with_log(HTTP_400, "ERROR: bad syntax for transfer-encoding=chuncked");
+	_has_size_chunk = true;
+	_body = _body.substr(pos + 2, _body.size() - (pos + 2));
+	std::cout << "chunk size :" << _content_length << std::endl;
 }
 
 bool	HttpRequestPost::_parseChunkBody()
@@ -220,13 +227,13 @@ bool	HttpRequestPost::_parseChunkBody()
 	if (_has_cgi)
 	{
 		if (_cgi.write(_body.substr(0, write_size)) == -1)
-			throw ExceptionHttpStatusCode(HTTP_500); //!not sure
+			throw_http_err_with_log(HTTP_500, "ERROR: fail to write in cgi"); //!not sure
 	}
 	else
 	{
 		_file.write(_body.c_str(), write_size);
 		if (!_file.good())
-			throw ExceptionHttpStatusCode(HTTP_500); //!not sure
+			throw_http_err_with_log(HTTP_500, "ERROR: fail to write in socket"); //!not sure
 	};
 	_chunk_read_size += write_size;
 	if (write_size == _body.size())
@@ -244,7 +251,7 @@ bool	HttpRequestPost::_parseChunkBody()
 	else
 	{
 		std::cout << _body.size() << _body << std::endl;
-		throw ExceptionHttpStatusCode(HTTP_400);
+		throw_http_err_with_log(HTTP_400, "ERROR: bad syntax for transfer-encoding=chuncked");
 	}
 	return true;
 }
@@ -298,7 +305,7 @@ void	HttpRequestPost::readBody(int fd, Socket const * const socket, bool &end)
 	std::cout << "body size: " << _read_size <<std::endl;
 	std::cout << read_size <<std::endl;
 	if (read_size <= 0)
-		throw ExceptionHttpStatusCode(HTTP_413);
+		throw_http_err_with_log(HTTP_413, "ERROR: body too long in request");
 	int ret = read(fd, buffer, read_size);
 	if (ret == -1 || ret == 0)
 	{
@@ -318,7 +325,7 @@ void	HttpRequestPost::readBody(int fd, Socket const * const socket, bool &end)
 
 void	HttpRequestPost::_handleCgi(CgiLocation const & cgi_location, Server const &server)
 {
-	_cgi.exec(cgi_location.getExecPath(), _filename, *this, server);
+	_cgi.exec(cgi_location.getExecPath(), cgi_location.getRootPath() + getTarget(), *this, server);
 }
 
 void	HttpRequestPost::_setBodyReadType(uint64_t maxClientBody)
@@ -327,7 +334,7 @@ void	HttpRequestPost::_setBodyReadType(uint64_t maxClientBody)
 	{
 		std::vector<std::string> const &encoding = getFieldValue("Transfer-Encoding");
 		if (encoding.size() != 1 || encoding[0] != "chunked")
-			throw ExceptionHttpStatusCode(HTTP_501);
+			throw_http_err_with_log(HTTP_501, "ERROR: transfer-encoding other than chuncked is not supported");
 		_chunk_body_flags = true;
 		return ;
 	}
@@ -335,13 +342,13 @@ void	HttpRequestPost::_setBodyReadType(uint64_t maxClientBody)
 	{
 		std::vector<std::string> const &content_length = getFieldValue("Content-Length");
 		if (content_length.size() != 1)
-			throw ExceptionHttpStatusCode(HTTP_400);
+			throw_http_err_with_log(HTTP_400, "ERROR: invalid content-length field");
 		e_status error = SUCCESS;
 		_content_length = ft_atoi(content_length[0], error);
 		if (error == FAILURE)
-			throw ExceptionHttpStatusCode(HTTP_400);
+			throw_http_err_with_log(HTTP_400, "ERROR: invalid content-length");
 		if (_content_length > maxClientBody)
-			throw ExceptionHttpStatusCode(HTTP_413);
+			throw_http_err_with_log(HTTP_413, "ERROR: body too long in request");
 		_content_length_flags = true;
 		return ;
 	}
@@ -355,17 +362,17 @@ void	HttpRequestPost::processHeader(Socket const * const socket)
 	if (isAcceptedMethod(location) == false)
 		return ;
 	if (!location.getCanUpload())
-		throw ExceptionHttpStatusCode(HTTP_403); //!not sure
-	_filename = getUri(location.getRootPath(), getTarget());
+		throw_http_err_with_log(HTTP_403, "ERROR: can not upload body"); //!not sure
+	_filename = getUri(location.getRootPath());
 	_setBodyReadType(socket->getServer().getClientMaxBodySize());
 	CgiLocation cgi_location;
 	_has_cgi = socket->getServer().searchCgiLocation(_filename, cgi_location);
 	if (_has_cgi)
 		return _handleCgi(cgi_location, socket->getServer());
 	if (access(_filename.c_str(), F_OK) == 0)
-		throw ExceptionHttpStatusCode(HTTP_409);
+		throw_http_err_with_log(HTTP_409, "ERROR: file already exist");
 	else if (errno == EACCES)
-		throw ExceptionHttpStatusCode(HTTP_403);
+		throw_http_err_with_log(HTTP_403, "ERROR: don't have permission to create new file");
 	_openFile();
 	bool end = false;
 	processBody(end);
@@ -388,7 +395,7 @@ void	HttpRequestPost::_initResponse( Socket const * const socket,
 	if (isAcceptedMethod(location) == false)
 	{
 		response.addAllowMethod(location.getMethods());
-		throw ExceptionHttpStatusCode(HTTP_405);
+		throw_http_err_with_log(HTTP_405, "ERROR: method not allowed");
 	}
 	if (!_has_cgi)
 		response.addField("Content-Length", "0");

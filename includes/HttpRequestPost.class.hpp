@@ -20,9 +20,11 @@ class HttpRequestPost : public HttpRequest
 		bool	hasBody() const;
 		void	readBody(int fd, Socket const * const socket, bool &end);
 		bool	hasCgi() const;
+		void	setCgi(bool has_cgi);
 		Cgi		*getCgi();
 
 		void	processBody(bool &end);
+		bool	hasContentLength() const;
 
 		static bool	isBusyFile(std::string filename);
 

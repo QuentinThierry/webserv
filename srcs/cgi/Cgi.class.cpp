@@ -1,5 +1,7 @@
 #include "Cgi.class.hpp"
 #include "HttpRequest.class.hpp"
+#include "HttpRequestPost.class.hpp"
+#include "HttpRequestGet.class.hpp"
 
 Cgi::Cgi()
 {
@@ -63,6 +65,12 @@ void	Cgi::endWrite()
 	_pipe_input[WRITE] = -1;
 }
 
+void	Cgi::endRead()
+{
+	close(getReadPipe());
+	_pipe_output[READ] = -1;
+}
+
 static char const *alloc_str(std::string str)
 {
 	unsigned int size = str.size();
@@ -112,7 +120,8 @@ static char const **create_cgi_env(HttpRequest const &request, Server const &ser
 		}
 		else
 		{
-			if (request.checkFieldExistence("Content-Length"))
+			if (dynamic_cast<HttpRequestPost const &>(request).hasContentLength()
+					&& request.checkFieldExistence("Content-Length"))
 			{
 				std::vector<std::string> vec = request.getFieldValue("Content-Length");
 				if (vec.size() != 1)
@@ -136,7 +145,10 @@ static char const **create_cgi_env(HttpRequest const &request, Server const &ser
 		env[4] = alloc_str("PATH_INFO=" + file_name);
 		env[5]  = alloc_str("PATH_TRANSLATED=" + file_name); // root/URI
 		env[6] = alloc_str("");
-		// env[6]  = alloc_str("QUERY_STRING=\"\""); // '?' arguments TODO
+		if (is_get)
+			env[6]  = alloc_str("QUERY_STRING=" + dynamic_cast<HttpRequestGet const &>(request).getQueryString()); // '?' arguments
+		else
+			env[6]  = alloc_str("QUERY_STRING=\"\""); // '?' arguments
 		env[7]  = alloc_str("REMOTE_ADDR=" + server.getHost());
 		env[8]  = alloc_str("REMOTE_HOST=" + request.getFieldValue("Host")[0]);
 		env[9]  = alloc_str("REMOTE_IDENT=none"); // identity information DEFAULT
@@ -194,7 +206,6 @@ void Cgi::exec(std::string cgi_path, std::string file_name, HttpRequest const &r
 				std::cerr << "path :" << cgi_path.c_str() <<std::endl;
 				std::cerr << "file :" << file_name.c_str() <<std::endl;
 				std::cerr << "-----------------------------execve ready------------------------------"<<std::endl;
-				fflush(stderr);
 				char const *args[3];
 				args[0] = alloc_str(cgi_path);
 				args[1] = alloc_str(file_name);
@@ -210,6 +221,11 @@ void Cgi::exec(std::string cgi_path, std::string file_name, HttpRequest const &r
 			}
 		}
 		throw Cgi::NExceptionChildFail();
+	}
+	else
+	{
+		close(_pipe_input[READ]);
+		close(_pipe_output[WRITE]);
 	}
 }
 

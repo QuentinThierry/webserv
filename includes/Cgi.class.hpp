@@ -27,6 +27,7 @@ class Cgi
 		int write(std::string to_write) const;
 		ssize_t read(std::string &buffer) const;
 		void endWrite();
+		void endRead();
 		void exec(std::string cgi_path, std::string file_name, HttpRequest const &request, Server const &server);
 		bool isAlive() const;
 

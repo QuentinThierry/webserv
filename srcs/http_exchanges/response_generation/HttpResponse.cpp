@@ -211,11 +211,11 @@ e_status_code HttpResponse::openBodyFileStream(std::string filename)
 		_close_body_file(_bodyFile, _fileOpen);
 		return HTTP_403;
 	}
-
+	
 	return HTTP_200;
 }
 
-static e_status	_extract_content_length(std::vector<HttpField> &response_fields,
+static void	_extract_content_length(std::vector<HttpField> &response_fields,
 					uint64_t &value_dest, bool &has_content_length)
 {
 	std::vector<std::string>	field_values;
@@ -224,42 +224,27 @@ static e_status	_extract_content_length(std::vector<HttpField> &response_fields,
 	atoi_error = SUCCESS;
 	if (HttpField::extract_field(response_fields, "Content-Length", field_values) == SUCCESS)
 	{
-		std::cout << "Content-Length found"<<std::endl <<std::endl;//
 		if (field_values.size() != 1)
-		{
-			// ;//TODO error code 413 
-			protected_write(g_err_log_fd, "Warning: cgi: incorrect content length size");
-			return (FAILURE);
-		}
+			throw_http_err_with_log(HTTP_500, "Warning: cgi: incorrect content length size");
 		value_dest = ft_atoi(field_values.at(0), atoi_error);
 		if (atoi_error == FAILURE )
-		{
-			// ;//TODO error code 413 
-			protected_write(g_err_log_fd, "Warning: cgi: incorrect content length format");
-			return (FAILURE);
-		}
+			throw_http_err_with_log(HTTP_413,  "Warning: cgi: incorrect content length format");
 		response_fields.push_back(HttpField("Content-Length", field_values));
 		has_content_length = true;
 	}
 	else
 		value_dest = 0;
-	return (SUCCESS);
 }
 
-static e_status	_extract_status_code(std::vector<HttpField> &response_fields,
+static void	_extract_status_code(std::vector<HttpField> &response_fields,
 					e_status_code &response_status, std::string &custom_status)
 {
 	std::vector<std::string>	field_values;
 
 	if (HttpField::extract_field(response_fields, "Status", field_values) == SUCCESS)
 	{
-		// std::cout << std::endl << "Status found" << std::endl << std::endl;//
 		if (field_values.size() == 0)
-		{
-			response_status = HTTP_502;//TODO error code (? 502) 
-			protected_write(g_err_log_fd, "cgi: empty status send in response");
-			return (FAILURE);
-		}
+			throw_http_err_with_log(HTTP_502,  "Warning: invalid status code field in cgi");
 		custom_status += field_values.at(0);
 		for (std::vector<std::string>::iterator it = field_values.begin() + 1;
 				it != field_values.end(); ++it)
@@ -267,14 +252,12 @@ static e_status	_extract_status_code(std::vector<HttpField> &response_fields,
 	}
 	else
 		response_status = HTTP_200;
-	return (SUCCESS);
 }
 
 void	HttpResponse::_extract_cgi_fields_data( void )
 {
-	if (_extract_content_length(_fields, _content_length, _content_length_flag) == FAILURE
-		|| _extract_status_code(_fields, _status_code, _custom_status) == FAILURE)
-		return ;//TODO
+	_extract_content_length(_fields, _content_length, _content_length_flag);
+	_extract_status_code(_fields, _status_code, _custom_status);
 }
 
 void	HttpResponse::parseCgiHeader(std::string header) throw(ExceptionHttpStatusCode)
@@ -287,14 +270,8 @@ void	HttpResponse::parseCgiHeader(std::string header) throw(ExceptionHttpStatusC
 
 	if (empty_sstream_in_string(_body, header_stream)== SUCCESS)
 		_extract_cgi_fields_data();
-	else //! comportement a confirmer, faire comme generateErrorResponse ?
-	{
-		_fields.clear(); 
-		_fields.push_back(HttpField("Connection", "close"));
-		_fields.push_back(HttpField("Server", SERVER_NAME));
-		_status_code = HTTP_500;
-		return ;
-	}
+	else
+		throw_http_err_with_log(HTTP_500, "ERROR: while parse cgi request");
 	if (!_content_length_flag)
 		_fields.push_back(HttpField("Transfer-Encoding", "chunked"));
 	fillHeader();
@@ -355,6 +332,7 @@ void	HttpResponse::generateErrorResponse(e_status_code status, Server const & se
 {
 	_version = --g_http_versions.end(); //!temporaire
 	_status_code = status;
+	_custom_status.clear();
 	if (!checkFieldExistence("Connection"))
 		_fields.push_back(HttpField("Connection", "close"));
 	if (!checkFieldExistence("Server"))
@@ -364,6 +342,10 @@ void	HttpResponse::generateErrorResponse(e_status_code status, Server const & se
 	if (_fileOpen == true)
 		_close_body_file(_bodyFile, _fileOpen);
 	_body.clear();
+	_content_length = 0;
+	_content_length_flag = false;
+	_end_of_file_flag = false;
+	_write_size = 0;
 	std::string path = server.getErrorPagePath(status_code_to_int(_status_code));
 	if (path.empty())
 		_generateErrorPageBody(_status_code);
@@ -388,13 +370,14 @@ void	HttpResponse::_chunkResponse()
 {
 	int size = _body.size();
 
-	_body = ft_itoa(size) + "\r\n" + _body + "\r\n";
+	_body = hex_to_str(size) + "\r\n" + _body + "\r\n";
 	if (_checkEndCgi(true))
 		_body += "0\r\n";
 }
 
 static ssize_t	send_header(int fd, std::string &header)
 {
+	std::cout << "header" <<std::endl;
 	ssize_t ret = send(fd, header.c_str(), header.size(), MSG_NOSIGNAL);
 	header.clear();
 	return ret;
@@ -402,6 +385,8 @@ static ssize_t	send_header(int fd, std::string &header)
 
 static ssize_t	send_body_file(int fd, std::ifstream &file, bool &is_open)
 {
+	std::cout << "file" <<std::endl;
+
 	char tmp[SIZE_WRITE + 1] = {0};
 	file.read(tmp, SIZE_WRITE);
 	if (file.eof() || file.fail())
@@ -413,8 +398,11 @@ static ssize_t	send_body_file(int fd, std::ifstream &file, bool &is_open)
 
 ssize_t	HttpResponse::_sendBodyString(int fd, bool has_cgi)
 {
+	std::cout << "body --" <<std::endl;
+
 	if (has_cgi && !_content_length_flag)
 		_chunkResponse();
+	std::cout << "body response:" << _body << std::endl;
 	ssize_t ret = send(fd, _body.c_str(), _body.size(), MSG_NOSIGNAL);
 	_write_size += ret; //!can send less then body.size()
 	_body.clear();
@@ -423,13 +411,16 @@ ssize_t	HttpResponse::_sendBodyString(int fd, bool has_cgi)
 
 void	HttpResponse::writeResponse(int fd, Cluster &cluster, bool has_cgi)
 {
+	std::cout << "eof: " << _end_of_file_flag <<std::endl;
 	int ret = 1;
 	if (_header.empty() == false)
 		ret = send_header(fd, _header);
 	else if (_fileOpen)
 		ret = send_body_file(fd, _bodyFile, _fileOpen);
-	else if (!_body.empty())
+	else if (!_body.empty() || _end_of_file_flag)
 		ret = _sendBodyString(fd, has_cgi);
+	else
+		std::cout << "cpucpu" << _body << std::endl;
 	if (ret == -1 || ret == 0)
 	{
 		std::cout << "error\n";

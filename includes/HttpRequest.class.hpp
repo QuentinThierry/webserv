@@ -37,7 +37,9 @@ class HttpRequest : public HttpRequestLine
 		virtual void	readBody(int fd, Socket const * const socket, bool &end) = 0;
 		virtual bool	hasBody() const = 0;
 		virtual bool	hasCgi() const = 0;
+		virtual void	setCgi(bool has_cgi) = 0;
 		virtual Cgi		*getCgi() = 0;
+		virtual std::string	getUri(std::string root);
 		
 
 		void				addStringToBody( std::string const & extra_body_content);

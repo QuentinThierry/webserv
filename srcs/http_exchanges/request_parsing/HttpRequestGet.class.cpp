@@ -41,13 +41,43 @@ bool	HttpRequestGet::hasBody() const {return (false);}
 
 bool	HttpRequestGet::hasCgi() const {return _has_cgi;}
 
+void	HttpRequestGet::setCgi(bool has_cgi) {_has_cgi = has_cgi;}
+
 Cgi		*HttpRequestGet::getCgi() {return &_cgi;}
+
+std::string const & HttpRequestGet::getQueryString() const {return _query_string;}
 
 void	HttpRequestGet::readBody(int fd, Socket const * const socket, bool &end)
 {
 	(void)socket;
 	(void)fd;
 	end = true;
+}
+
+static void	_add_content_type_field(HttpResponse & response, std::string const &target_uri)
+{
+	response.addField("Content-Type", get_MIME_type(target_uri));
+}
+
+static void	_handle_file(std::string & uri, HttpResponse & response)
+{
+	e_status_code error_code = response.openBodyFileStream(uri);
+	
+	if (error_code != HTTP_200)
+		throw ExceptionHttpStatusCode(error_code);
+	_add_content_type_field(response, uri);
+}
+
+std::string	HttpRequestGet::getUri(std::string root)
+{
+	std::string uri = root + getTarget();
+	size_t pos = uri.find_first_of('?');
+	if (pos != std::string::npos)
+	{
+		_query_string = uri.substr(pos + 1, uri.size());
+		uri = uri.substr(0, pos);
+	}
+	return (uri);
 }
 
 static void	_add_autoindex_body(HttpResponse & response, Autoindex & index)
@@ -75,6 +105,7 @@ static void	_handle_Autoindex(std::string const & location_root,
 
 		_add_autoindex_body(response, index);
 		_add_content_length_field(response);
+		_add_content_type_field(response, ".html");
 }
 
 e_status	HttpRequestGet::_handle_index_file(std::string & uri, Location const & location,
@@ -111,13 +142,13 @@ void	HttpRequestGet::_handleDirectory(std::string & uri, Location const & locati
 		_handle_Autoindex(location.getRootPath(), getTarget(), response);
 		return ;
 	}
-	throw ExceptionHttpStatusCode(HTTP_403);
+	throw_http_err_with_log(HTTP_403, "ERROR: no such file or directory");
 }
 
-void	HttpRequestGet::_handleCgi(std::string & uri, Server const & server,
+void	HttpRequestGet::_handleCgi(Server const & server,
 						CgiLocation const &cgi_location)
 {
-	_cgi.exec(cgi_location.getExecPath(), uri, *this, server);
+	_cgi.exec(cgi_location.getExecPath(), cgi_location.getRootPath() + getTarget(), *this, server);
 }
 
 void	HttpRequestGet::_handle_file(std::string & uri, HttpResponse & response,
@@ -126,7 +157,7 @@ void	HttpRequestGet::_handle_file(std::string & uri, HttpResponse & response,
 	CgiLocation cgi_location;
 	_has_cgi = server.searchCgiLocation(uri, cgi_location);
 	if (_has_cgi)
-		return _handleCgi(uri, server, cgi_location);
+		return _handleCgi(server, cgi_location);
 	e_status_code error_code = response.openBodyFileStream(uri);
 	if (error_code != HTTP_200)
 		throw ExceptionHttpStatusCode(error_code);
@@ -143,10 +174,10 @@ void	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &r
 	if (isAcceptedMethod(location) == false)
 	{
 		response.addAllowMethod(location.getMethods());
-		throw ExceptionHttpStatusCode(HTTP_405);
+		throw_http_err_with_log(HTTP_405, "ERROR: method not allowed");
 	}
 	
-	std::string uri = getUri(location.getRootPath(), getTarget());
+	std::string uri = getUri(location.getRootPath());
 
 	if (is_accessible_directory(uri.c_str()))
 		_handleDirectory(uri, location, response, socket->getServer());
