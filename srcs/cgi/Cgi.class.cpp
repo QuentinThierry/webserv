@@ -1,6 +1,7 @@
 #include "Cgi.class.hpp"
 #include "HttpRequest.class.hpp"
 #include "HttpRequestPost.class.hpp"
+#include "HttpRequestGet.class.hpp"
 
 Cgi::Cgi()
 {
@@ -144,7 +145,10 @@ static char const **create_cgi_env(HttpRequest const &request, Server const &ser
 		env[4] = alloc_str("PATH_INFO=" + file_name);
 		env[5]  = alloc_str("PATH_TRANSLATED=" + file_name); // root/URI
 		env[6] = alloc_str("");
-		// env[6]  = alloc_str("QUERY_STRING=\"\""); // '?' arguments TODO
+		if (is_get)
+			env[6]  = alloc_str("QUERY_STRING=" + dynamic_cast<HttpRequestGet const &>(request).getQueryString()); // '?' arguments
+		else
+			env[6]  = alloc_str("QUERY_STRING=\"\""); // '?' arguments
 		env[7]  = alloc_str("REMOTE_ADDR=" + server.getHost());
 		env[8]  = alloc_str("REMOTE_HOST=" + request.getFieldValue("Host")[0]);
 		env[9]  = alloc_str("REMOTE_IDENT=none"); // identity information DEFAULT

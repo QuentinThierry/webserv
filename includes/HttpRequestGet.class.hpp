@@ -26,6 +26,8 @@ class HttpRequestGet : public HttpRequest
 		bool	hasCgi() const;
 		void	setCgi(bool has_cgi);
 		Cgi		*getCgi();
+		std::string	getUri(std::string root, std::string target);
+		std::string const &getQueryString() const;
 
 	private:
 		HttpRequestGet( void );
@@ -39,8 +41,9 @@ class HttpRequestGet : public HttpRequest
 		void		_handleCgi(Server const & server, CgiLocation const &cgi_location);
 		void		_redirectDirectory(HttpResponse & response);
 
-		Cgi		_cgi;
-		bool	_has_cgi;
+		Cgi			_cgi;
+		bool		_has_cgi;
+		std::string	_query_string;
 };
 
 # endif

@@ -45,11 +45,25 @@ void	HttpRequestGet::setCgi(bool has_cgi) {_has_cgi = has_cgi;}
 
 Cgi		*HttpRequestGet::getCgi() {return &_cgi;}
 
+std::string const & HttpRequestGet::getQueryString() const {return _query_string;}
+
 void	HttpRequestGet::readBody(int fd, Socket const * const socket, bool &end)
 {
 	(void)socket;
 	(void)fd;
 	end = true;
+}
+
+std::string	HttpRequestGet::getUri(std::string root, std::string target)
+{
+	std::string uri = root + target;
+	size_t pos = uri.find_first_of('?');
+	if (pos != std::string::npos)
+	{
+		uri = uri.substr(0, pos);
+		_query_string = uri.substr(pos + 1, uri.size());
+	}
+	return (uri);
 }
 
 static void	_add_autoindex_body(HttpResponse & response, Autoindex & index)
