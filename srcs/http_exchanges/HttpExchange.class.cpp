@@ -225,7 +225,7 @@ void	HttpExchange::writeSocket(int fd, Cluster &cluster)
 			_response.writeResponse(fd, cluster, _request->hasCgi());
 	}
 	else
-	 	std::cout << " not ready" << std::endl;
+		std::cout << " not ready" << std::endl;
 }
 
 void	HttpExchange::readCgi(int fd, Cluster & cluster)
@@ -238,7 +238,12 @@ void	HttpExchange::readCgi(int fd, Cluster & cluster)
 			throw_http_err_with_log(HTTP_500, "ERROR: fail to read in cgi");
 		std::cout << "body: " <<tmp<<std::endl;
 		if (ret == 0)
+		{
+			std::cout << "end of file" << std::endl;
+			if (!_response.is_response_ready())
+				throw_http_err_with_log(HTTP_400, "ERROR: Missing empty line at the end of the cgi");
 			_response.setEndOfFile();
+		}
 		if (_response.is_response_ready())
 			_response.addBodyContent(tmp);
 		else
