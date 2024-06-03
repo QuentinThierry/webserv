@@ -59,15 +59,6 @@ static void	_add_content_type_field(HttpResponse & response, std::string const &
 	response.addField("Content-Type", get_MIME_type(target_uri));
 }
 
-static void	_handle_file(std::string & uri, HttpResponse & response)
-{
-	e_status_code error_code = response.openBodyFileStream(uri);
-	
-	if (error_code != HTTP_200)
-		throw ExceptionHttpStatusCode(error_code);
-	_add_content_type_field(response, uri);
-}
-
 std::string	HttpRequestGet::getUri(std::string root)
 {
 	std::string uri = root + getTarget();
@@ -113,7 +104,7 @@ e_status	HttpRequestGet::_handle_index_file(std::string & uri, Location const & 
 {
 	if (location.updateUriToIndex(uri) == SUCCESS)
 	{
-		_handle_file(uri, response, server);
+		_handleFile(uri, response, server);
 		return (SUCCESS);
 	}
 	else
@@ -154,7 +145,7 @@ void	HttpRequestGet::_handleCgi(Server const & server,
 	_cgi.exec(cgi_location.getExecPath(), uri, *this, server);
 }
 
-void	HttpRequestGet::_handle_file(std::string & uri, HttpResponse & response,
+void	HttpRequestGet::_handleFile(std::string & uri, HttpResponse & response,
 								Server const & server)
 {
 	CgiLocation cgi_location;
@@ -164,6 +155,7 @@ void	HttpRequestGet::_handle_file(std::string & uri, HttpResponse & response,
 	e_status_code error_code = response.openBodyFileStream(uri);
 	if (error_code != HTTP_200)
 		throw ExceptionHttpStatusCode(error_code);
+	_add_content_type_field(response, uri);
 }
 
 void	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &response )
@@ -183,7 +175,7 @@ void	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &r
 	if (is_accessible_directory(uri.c_str()))
 		_handleDirectory(uri, location, response, socket->getServer());
 	else
-		_handle_file(uri, response, socket->getServer());
+		_handleFile(uri, response, socket->getServer());
 }
 
 void	HttpRequestGet::generateResponse( Socket const * const socket, HttpResponse &response )
