@@ -71,9 +71,9 @@ void	HttpRequest::addStringToBody( std::string const & extra_body_content)
 	_body += extra_body_content;
 }
 
-std::string	HttpRequest::getUri(std::string root, std::string target)
+std::string	HttpRequest::getUri(std::string root)
 {
-	std::string uri = root + target;
+	std::string uri = root + getTarget();
 	size_t pos = uri.find_first_of('?');
 	if (pos != std::string::npos)
 		uri = uri.substr(0, pos);

@@ -363,7 +363,7 @@ void	HttpRequestPost::processHeader(Socket const * const socket)
 		return ;
 	if (!location.getCanUpload())
 		throw_http_err_with_log(HTTP_403, "ERROR: can not upload body"); //!not sure
-	_filename = getUri(location.getRootPath(), getTarget());
+	_filename = getUri(location.getRootPath());
 	_setBodyReadType(socket->getServer().getClientMaxBodySize());
 	CgiLocation cgi_location;
 	_has_cgi = socket->getServer().searchCgiLocation(_filename, cgi_location);

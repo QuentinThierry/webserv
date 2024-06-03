@@ -26,7 +26,7 @@ class HttpRequestGet : public HttpRequest
 		bool	hasCgi() const;
 		void	setCgi(bool has_cgi);
 		Cgi		*getCgi();
-		std::string	getUri(std::string root, std::string target);
+		std::string	getUri(std::string root);
 		std::string const &getQueryString() const;
 
 	private:

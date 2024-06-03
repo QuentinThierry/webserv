@@ -186,7 +186,9 @@ void	HttpExchange::_handleHeader(int fd, Cluster &cluster)
 	{
 		std::cout << "switch write no body" << std::endl;
 		_request->generateResponse(_socket, _response);
+		std::cout << "test1" << std::endl;
 		cluster.switchHttpExchangeToWrite(fd);
+		std::cout << "test2" << std::endl;
 	}
 	if (_request->hasCgi())
 		cluster.addCgi(_request->getCgi(), this);

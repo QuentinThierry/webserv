@@ -92,7 +92,7 @@ void	HttpRequestDelete::_initResponse( Socket const * const socket, HttpResponse
 		throw_http_err_with_log(HTTP_405, "ERROR: method not allowed");
 		return ;
 	}
-	std::string uri = getUri(location.getRootPath(), getTarget());
+	std::string uri = getUri(location.getRootPath());
 	response.addField("Content-Length", "0");
 	// if (remove_directory(uri))
 	// 	return FAILURE;

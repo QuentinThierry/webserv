@@ -54,9 +54,9 @@ void	HttpRequestGet::readBody(int fd, Socket const * const socket, bool &end)
 	end = true;
 }
 
-std::string	HttpRequestGet::getUri(std::string root, std::string target)
+std::string	HttpRequestGet::getUri(std::string root)
 {
-	std::string uri = root + target;
+	std::string uri = root + getTarget();
 	size_t pos = uri.find_first_of('?');
 	if (pos != std::string::npos)
 	{
@@ -162,7 +162,7 @@ void	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &r
 		throw_http_err_with_log(HTTP_405, "ERROR: method not allowed");
 	}
 	
-	std::string uri = getUri(location.getRootPath(), getTarget());
+	std::string uri = getUri(location.getRootPath());
 
 	if (is_accessible_directory(uri.c_str()))
 		_handleDirectory(uri, location, response, socket->getServer());

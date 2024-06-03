@@ -39,7 +39,7 @@ class HttpRequest : public HttpRequestLine
 		virtual bool	hasCgi() const = 0;
 		virtual void	setCgi(bool has_cgi) = 0;
 		virtual Cgi		*getCgi() = 0;
-		virtual std::string	getUri(std::string root, std::string target);
+		virtual std::string	getUri(std::string root);
 		
 
 		void				addStringToBody( std::string const & extra_body_content);
