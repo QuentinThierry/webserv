@@ -24,8 +24,6 @@ t_token_append_function define_token_var_function(std::string &token)
 		return fill_default_dir_file;
 	if (token == "can_upload")
 		return fill_can_upload;
-	if (token == "upload_path")
-		return fill_upload_path;
 	ThrowMisc("unknown field `" + token + "`");
 }
 
@@ -53,7 +51,5 @@ std::string func_ptr_to_str(t_token_append_function ptr)
 		return "index";
 	if (ptr == fill_can_upload)
 		return "can_upload";
-	if (ptr == fill_upload_path)
-		return "upload_path";
 	return "";
 }

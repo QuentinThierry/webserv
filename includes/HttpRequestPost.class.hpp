@@ -15,23 +15,34 @@ class HttpRequestPost : public HttpRequest
 		HttpRequestPost & operator= (HttpRequestPost const & model);
 		~HttpRequestPost( void );
 
-		void			processHeader( Socket const * const socket );
-		void			generateResponse( Socket const * const socket, HttpResponse &response );
-		bool			hasBody() const;
-		void			readBody(int fd, Socket const * const socket, bool &end);
-		static bool		isBusyFile(std::string filename);
+		void	processHeader( Socket const * const socket );
+		void	generateResponse( Socket const * const socket, HttpResponse &response );
+		bool	hasBody() const;
+		void	readBody(int fd, Socket const * const socket, bool &end);
+		bool	hasCgi() const;
+		void	setCgi(bool has_cgi);
+		Cgi		*getCgi();
+
+		void	processBody(bool &end);
+		bool	hasContentLength() const;
+
+		static bool	isBusyFile(std::string filename);
+
 	private:
 		HttpRequestPost( void );
-		void	_initResponse( Socket const * const socket, HttpResponse &response );
-		void			_setBodyReadType(uint64_t maxClientBody);
-		uint64_t		_getSizeToReadBody(uint64_t maxClientBody) const;
-		void			_openFile();
-		void			_closeFile();
-		void			_processBody(bool &end);
-		void			_processBodyContentLength(bool &end);
-		bool			_parseChunkBody();
-		void			_parseChunkSize();
-		static std::vector<std::string> _busyFile;
+
+		void		_initResponse( Socket const * const socket, HttpResponse &response );
+		void		_handleCgi(CgiLocation const & cgi_location, Server const &server);
+
+		void		_setBodyReadType(uint64_t maxClientBody);
+		uint64_t	_getSizeToReadBody(uint64_t maxClientBody) const;
+
+		void		_openFile();
+		void		_closeFile();
+
+		void		_processBodyContentLength(bool &end);
+		bool		_parseChunkBody();
+		void		_parseChunkSize();
 
 		std::string		_filename;
 		std::ofstream	_file;
@@ -43,6 +54,11 @@ class HttpRequestPost : public HttpRequest
 		bool		_has_size_chunk;
 		bool		_chunk_body_flags;
 		bool		_content_length_flags;
+
+		Cgi			_cgi;
+		bool		_has_cgi;
+		
+		static std::vector<std::string> _busyFile;
 };
 
 #endif

@@ -1,4 +1,38 @@
 # Webserv
+## Config file
+- Define a server scope
+
+		Server { ... }
+
+- Define a Location
+
+		Location <path> { ... }
+
+- Define a Cgi Location
+
+		Location ~ .<extension> { ... }
+
+- Define a field variable
+
+		<field identifier> <args> ...
+
+### Field identifiers :
+#### Server only :
+- listen [ \<host IP\> | localhost ][ : ]PORT<span style="color:gray"> -> define the IP and PORT of the current server scope</span>
+- server_name \<server_name\> ...<span style="color:gray"> -> match for one or more server names</span>
+- error_page \<code\> ... \<error_path_path\><span style="color:gray"> -> define a specific error page for one or more error codes</span>
+- client_max_body_size \<value\>[ K | M ]<span style="color:gray"> -> define the maximum body size for the client in the current server scope</span>
+#### Location / Server :
+- root \<path\><span style="color:gray"> -> define the starting root of each request recieved by the server in this location</span>
+- autoindex \<on | off\><span style="color:gray"> -> toggle if the request directory should list the contained files</span>
+#### Location only :
+- limit_except \<GET | POST | DELETE\> ...<span style="color:gray"> -> remove one or more methods in the current location by listing them</span>
+- return \<error_code\> \<new_uri\><span style="color:gray"> -> redirect a location on a new given uri with an error code</span><span style="color:#666666"> - this field will discard all other fields</span>
+- index \<file_name\><span style="color:gray"> -> if a directory is given in uri, redirect to the first found file from left to right</span>
+- can_upload \<on | off\><span style="color:gray"> -> toggle if the current location can or can not accept file upload</span>
+#### Cgi Location :
+- cgi_path \<absolute_cgi_path\><span style="color:gray"> -> define the path of the binary that will execute the given file in uri</span>
+- path_info \<absolute_cgi_root\><span style="color:gray"> -> define where the uri file name should be matched</span>
 
 ## New Notion
 

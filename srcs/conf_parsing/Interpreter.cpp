@@ -30,35 +30,48 @@ void	interpret_field_loop(std::string &token, std::queue<std::string> &tokens, S
 	}
 }
 
-// TODO: add fields to cgi and complete parsing
 void interpret_cgi_field_loop(std::string &token, std::queue<std::string> &tokens, CgiLocation &cgiObj)
 {
 	unsigned int arg_counter = 0;
 	std::string identifier = "";
 
+	(void)token;
+	(void)tokens;
+	(void)cgiObj;
+
 	while (!tokens.empty())
 	{
-		if (token[0] == '{' || token[0] == '}')
-			continue;
+		if (token[0] == '{')
+			continue ;
+		else if (token[0] == '}')
+			break ;
 		else if (token[0] == ';')
 		{
-			if (arg_counter != 2)
-				ThrowBadArgumentNumber("cgi_path", 2, false);
-			break;
+			if (arg_counter == 1)
+				ThrowBadArgumentNumber(identifier, 1, false);
+			break ;
 		}
 		else
 		{
-			if (arg_counter == 0) // define identifier
-				identifier = token;
-			else if (identifier == "cgi_path")
+			if (arg_counter == 0)
 			{
-				if (arg_counter != 1)
-					ThrowBadArgumentNumber("cgi location", 1, arg_counter > 2);
-				cgiObj.setExecPath(token);
+				if (token != "cgi_path" && token != "path_info")
+				{
+					define_token_var_function(token); // will throw a unknown field, except if the token exists but is in the wrong location
+					ThrowBadFieldLocation("cgi location", token);
+				}
+				identifier = token;
 			}
-			if (identifier != "cgi_path")
-				ThrowBadArgument(identifier, "cgi location");
-		}
+			else if (arg_counter == 1)
+			{
+				if (identifier == "cgi_path")
+					cgiObj.setExecPath(token);
+				else if (identifier == "path_info")
+					cgiObj.setRootPath(token);
+			}
+			else
+				ThrowBadArgumentNumber(identifier, 1, true);
+		};
 		arg_counter++;
 		token = extract_token(tokens);
 	}
@@ -86,9 +99,12 @@ void	interpret_location_loop(std::queue<std::string> &tokens, Server &server)
 			continue;
 		else if (token[0] == '}')
 		{
-			if (is_cgi_loc && !cgi_loc.is_empty_cgi_location())
+			if (is_cgi_loc)
+			{
+				cgi_loc.check_validity(); // can throw
 				server.addCgiLocation(cgi_loc);
-			else if (!is_cgi_loc && !location.isEmptyLocation(server.getDefaultLocation()))
+			}
+			else if (!location.isEmptyLocation(server.getDefaultLocation()))
 			{
 				if (location.getDefaultIndexPath().empty())
 					location.addDefaultIndexPath("index.html");

@@ -8,7 +8,7 @@
 # include <netinet/in.h> //sockaddr_in
 # include <arpa/inet.h> // htonl() htons()
 # include <unistd.h>
-# include <string.h>
+# include <string>
 # include <cstdio>
 # include <cstring>
 # include <cerrno>

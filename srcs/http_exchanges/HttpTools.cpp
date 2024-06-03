@@ -299,12 +299,3 @@ void	throw_http_err_with_log(e_status_code error_code, std::string log_msg)
 	protected_write(g_err_log_fd, log_msg);
 	throw(ExceptionHttpStatusCode(error_code));
 }
-
-std::string	get_uri(std::string root, std::string target)
-{
-	std::string uri = root + target;
-	size_t pos = uri.find_first_of('?');
-	if (pos != std::string::npos)
-		uri = uri.substr(0, pos);
-	return (uri);
-}

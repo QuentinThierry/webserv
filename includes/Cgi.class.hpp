@@ -7,7 +7,9 @@
 #include <fcntl.h>
 #include <cstdlib>
 #include <sys/wait.h>
-#include "HttpExchange.class.hpp"
+#include "Server.class.hpp"
+
+class HttpRequest;
 
 #define READ 0
 #define WRITE 1
@@ -22,11 +24,11 @@ class Cgi
 		int getWritePipe() const;
 		int getReadPipe() const;
 
-		int write() const;
 		int write(std::string to_write) const;
 		ssize_t read(std::string &buffer) const;
-		int execGet(std::string cgi_path, std::string file_name, HttpExchange const &httpExchange);
-		int	execPost(std::string cgi_path, HttpExchange const &httpExchange);
+		void endWrite();
+		void endRead();
+		void exec(std::string cgi_path, std::string file_name, HttpRequest const &request, Server const &server);
 		bool isAlive() const;
 
 		class NExceptionChildFail
@@ -37,7 +39,6 @@ class Cgi
 		~Cgi();
 
 	private:
-		int _exec(std::string cgi_path, char const * file_name, HttpExchange const &httpExchange);
 
 		int				_pipe_input[2];
 		int				_pipe_output[2];

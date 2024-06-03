@@ -12,7 +12,6 @@ Location::Location()
 	_default_index_path.clear();
 	_has_autoindex = false;
 	_can_upload = false;
-	_upload_path = "/tmp/webserv/";
 }
 
 Location::Location(Location const &ref)
@@ -32,7 +31,6 @@ Location &Location::operator=(Location const &ref)
 	_default_index_path = ref._default_index_path;
 	_has_autoindex = ref._has_autoindex;
 	_can_upload = ref._can_upload;
-	_upload_path = ref._upload_path;
 	return *this;
 }
 
@@ -45,8 +43,7 @@ bool	Location::operator==(Location const &rref) const
 		&& this->_redirect == rref._redirect
 		&& this->_default_index_path == rref._default_index_path
 		&& this->_has_autoindex == rref._has_autoindex
-		&& this->_can_upload == rref._can_upload
-		&& this->_upload_path == rref._upload_path)
+		&& this->_can_upload == rref._can_upload)
 		return true;
 	return false;
 }
@@ -60,7 +57,6 @@ std::pair<t_http_code, std::string> const &	Location::getRedirect() const {retur
 std::pair<t_http_code, std::string> &		Location::getRedirect() {return this->_redirect;}
 std::vector<std::string> const &			Location::getDefaultIndexPath() const {return this->_default_index_path;}
 bool const &								Location::getHasAutoindex() const {return this->_has_autoindex;}
-std::string const &							Location::getUploadPath() const {return this->_upload_path;}
 bool const &								Location::getCanUpload() const {return this->_can_upload;}
 
 void	Location::setLocationPath(std::string location_path) {this->_location_path = location_path;}
@@ -73,7 +69,6 @@ void	Location::setDefaultIndexPath(std::vector<std::string> default_path) {this-
 void	Location::addDefaultIndexPath(std::string default_path) {this->_default_index_path.push_back(default_path);}
 void	Location::setHasAutoindex(bool has_auto_index){this->_has_autoindex = has_auto_index;}
 void	Location::setCanUpload(bool can_upload) {this->_can_upload = can_upload;}
-void	Location::setUploadPath(std::string upload_path) {this->_upload_path = upload_path;}
 
 bool	Location::isEmptyLocation(Location &default_location) const
 {
