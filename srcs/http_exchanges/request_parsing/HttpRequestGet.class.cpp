@@ -44,11 +44,18 @@ bool	HttpRequestGet::hasBody() const
 	return (false);
 }
 
+static void	_add_content_type_field(HttpResponse & response, std::string const &target_uri)
+{
+	response.addField("Content-Type", get_MIME_type(target_uri));
+}
+
 static void	_handle_file(std::string & uri, HttpResponse & response)
 {
 	e_status_code error_code = response.openBodyFileStream(uri);
+	
 	if (error_code != HTTP_200)
 		throw ExceptionHttpStatusCode(error_code);
+	_add_content_type_field(response, uri);
 }
 
 static e_status	_handle_index_file(std::string const & target, Location const & location,
@@ -91,6 +98,7 @@ static void	_handle_Autoindex(std::string const & location_root,
 
 		_add_autoindex_body(response, index);
 		_add_content_length_field(response);
+		_add_content_type_field(response, ".html");
 }
 
 void HttpRequestGet::_redirectDirectory(HttpResponse & response)

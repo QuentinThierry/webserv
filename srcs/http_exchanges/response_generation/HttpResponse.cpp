@@ -152,7 +152,7 @@ e_status_code HttpResponse::openBodyFileStream(std::string filename)
 		_close_body_file(_bodyFile, _fileOpen);
 		return HTTP_403;
 	}
-
+	
 	return HTTP_200;
 }
 
