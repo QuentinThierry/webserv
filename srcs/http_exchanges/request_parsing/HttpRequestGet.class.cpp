@@ -60,8 +60,8 @@ std::string	HttpRequestGet::getUri(std::string root)
 	size_t pos = uri.find_first_of('?');
 	if (pos != std::string::npos)
 	{
-		uri = uri.substr(0, pos);
 		_query_string = uri.substr(pos + 1, uri.size());
+		uri = uri.substr(0, pos);
 	}
 	return (uri);
 }
@@ -133,7 +133,10 @@ void	HttpRequestGet::_handleDirectory(std::string & uri, Location const & locati
 void	HttpRequestGet::_handleCgi(Server const & server,
 						CgiLocation const &cgi_location)
 {
-	_cgi.exec(cgi_location.getExecPath(), cgi_location.getRootPath() + getTarget(), *this, server);
+	std::string uri = getUri(cgi_location.getRootPath());
+	std::cout << uri <<std::endl;
+	std::cout << _query_string <<std::endl;
+	_cgi.exec(cgi_location.getExecPath(), uri, *this, server);
 }
 
 void	HttpRequestGet::_handle_file(std::string & uri, HttpResponse & response,
@@ -161,9 +164,7 @@ void	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &r
 		response.addAllowMethod(location.getMethods());
 		throw_http_err_with_log(HTTP_405, "ERROR: method not allowed");
 	}
-	
 	std::string uri = getUri(location.getRootPath());
-
 	if (is_accessible_directory(uri.c_str()))
 		_handleDirectory(uri, location, response, socket->getServer());
 	else
