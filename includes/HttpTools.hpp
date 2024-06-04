@@ -4,8 +4,7 @@
 # include "Shared.hpp"
 # include "HttpResponseStatus.hpp"
 
-# include <vector>
-#include <map>
+# include <map>
 # include <algorithm>
 
 # define HTTP_SEPARATORS "()<>@,;:\\/[]?={} \""
@@ -13,13 +12,10 @@
 
 # define MSG_ERR_WRONG_END_OF_LINE "Error: http request: line not properly ended"
 
-extern	std::vector<std::string>							g_http_methods;
-typedef	std::vector<std::string>::const_iterator			it_method;
 extern	std::vector<std::string>							g_http_versions;
 typedef	std::vector<std::string>::const_iterator			it_version;
 extern	std::map<std::string, std::string>					g_http_content_type;
 typedef	std::map<std::string, std::string>::const_iterator	it_content_type;
-
 
 void		_init_available_http_methods_versions_type( void );
 

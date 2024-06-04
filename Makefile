@@ -24,6 +24,7 @@ FILES_CONF_PARSING		=	$(addprefix conf_parsing/, \
 FILES_HTTP_EXCHANGES	=	$(addprefix http_exchanges/, \
 								$(addprefix request_parsing/, \
 									HttpRequest.class \
+									HttpRequestHead.class \
 									HttpRequestDelete.class \
 									HttpRequestGet.class \
 									HttpRequestLine.class \

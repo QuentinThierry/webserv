@@ -1,4 +1,5 @@
 #include "ConfParser.hpp"
+#include "Shared.hpp"
 #include <algorithm>
 #include <cstdlib>
 #include <arpa/inet.h>

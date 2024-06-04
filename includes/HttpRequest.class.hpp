@@ -15,6 +15,7 @@
 
 #define READ_SIZE 5
 typedef enum{
+	HEAD,
 	GET,
 	POST,
 	DELETE,
