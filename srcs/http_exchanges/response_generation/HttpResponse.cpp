@@ -386,7 +386,9 @@ static ssize_t	send_body_file(int fd, std::ifstream &file, bool &is_open)
 {
 	char tmp[SIZE_WRITE + 1] = {0};
 	file.read(tmp, SIZE_WRITE);
-	if (file.eof() || file.fail())
+	if (file.eof())
+		_close_body_file(file, is_open);
+	else if (file.fail())
 	{
 		_close_body_file(file, is_open);
 		return -1;
