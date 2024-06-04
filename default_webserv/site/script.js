@@ -1,11 +1,14 @@
-document.addEventListener("DOMContentLoaded", function() {
-	function changeCat() {
-		var img = document.getElementById('catImage');
-		if (img.src.includes("chat_potte")) {
-			img.src = "chat_mignon.webp";
-		} else {
-			img.src = "chat_potte.jpg";
-		}
+let colorImage = document.getElementById("catImage");
+let button2 = document.getElementById("buttonCat");
+
+function changeToOtherCat() {
+
+	if (colorImage.getAttribute('src') === "chat_potte.jpg") {
+		colorImage.setAttribute('src', "chat_mignon.webp");
 	}
-	document.querySelector('button').addEventListener('click', changeCat);
-});
+	else {
+		colorImage.setAttribute('src', "chat_potte.jpg");
+	}
+}
+
+button2.addEventListener("click", changeToOtherCat);
