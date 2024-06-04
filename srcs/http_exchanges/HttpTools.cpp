@@ -15,10 +15,115 @@ static void	_init_available_http_versions( void )
 	g_http_versions.push_back("HTTP/1.1");
 }
 
-void	_init_available_http_methods_versions( void )
+
+static void _add_one_content_type(std::string extension, std::string mime_type)
+{
+	g_http_content_type.insert(std::pair<std::string, std::string>(extension, mime_type));
+}
+
+static void	_init_http_content_type( void )
+{
+	_add_one_content_type("default", "application/octet-stream");
+	_add_one_content_type(".aac", "audio/aac");
+	_add_one_content_type(".abw", "application/x-abiword");
+	_add_one_content_type(".apng", "image/apng");
+	_add_one_content_type(".arc", "application/x-freearc");
+	_add_one_content_type(".avif", "image/avif");
+	_add_one_content_type(".avi", "video/x-msvideo");
+	_add_one_content_type(".azw", "application/vnd.amazon.ebook");
+	_add_one_content_type(".bin", "application/octet-stream");
+	_add_one_content_type(".bmp", "image/bmp");
+	_add_one_content_type(".bz", "application/x-bzip");
+	_add_one_content_type(".bz2", "application/x-bzip2");
+	_add_one_content_type(".cda", "application/x-cdf");
+	_add_one_content_type(".csh", "application/x-csh");
+	_add_one_content_type(".css", "text/css; charset=utf-8");
+	_add_one_content_type(".csv", "text/csv");
+	_add_one_content_type(".doc", "application/msword");
+	_add_one_content_type(".docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+	_add_one_content_type(".eot", "application/vnd.ms-fontobject");
+	_add_one_content_type(".epub", "application/epub+zip");
+	_add_one_content_type(".gz", "application/gzip");
+	_add_one_content_type(".gif", "image/gif");
+	_add_one_content_type(".htm", "text/html; charset=utf-8");
+	_add_one_content_type(".html", "text/html; charset=utf-8");
+	_add_one_content_type(".ico", "image/vnd.microsoft.icon");
+	_add_one_content_type(".ics", "text/calendar");
+	_add_one_content_type(".jar", "application/java-archive");
+	_add_one_content_type(".jpeg, .jpg", "image/jpeg");
+	_add_one_content_type(".js", "text/javascript");
+	_add_one_content_type(".json", "application/json");
+	_add_one_content_type(".jsonld", "application/ld+json");
+	_add_one_content_type(".mid, .midi", "audio/midi, audio/x-midi");
+	_add_one_content_type(".mjs", "text/javascript");
+	_add_one_content_type(".mp3", "audio/mpeg");
+	_add_one_content_type(".mp4", "video/mp4");
+	_add_one_content_type(".mpeg", "video/mpeg");
+	_add_one_content_type(".mpkg", "application/vnd.apple.installer+xml");
+	_add_one_content_type(".odp", "application/vnd.oasis.opendocument.presentation");
+	_add_one_content_type(".ods", "application/vnd.oasis.opendocument.spreadsheet");
+	_add_one_content_type(".odt", "application/vnd.oasis.opendocument.text");
+	_add_one_content_type(".oga", "audio/ogg");
+	_add_one_content_type(".ogv", "video/ogg");
+	_add_one_content_type(".ogx", "application/ogg");
+	_add_one_content_type(".opus", "audio/opus");
+	_add_one_content_type(".otf", "font/otf");
+	_add_one_content_type(".png", "image/png");
+	_add_one_content_type(".pdf", "application/pdf");
+	_add_one_content_type(".php", "application/x-httpd-php");
+	_add_one_content_type(".ppt", "application/vnd.ms-powerpoint");
+	_add_one_content_type(".pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
+	_add_one_content_type(".rar", "application/vnd.rar");
+	_add_one_content_type(".rtf", "application/rtf");
+	_add_one_content_type(".sh", "application/x-sh");
+	_add_one_content_type(".svg", "image/svg+xml");
+	_add_one_content_type(".tar", "application/x-tar");
+	_add_one_content_type(".tif, .tiff", "image/tiff");
+	_add_one_content_type(".ts", "video/mp2t");
+	_add_one_content_type(".ttf", "font/ttf");
+	_add_one_content_type(".txt", "text/plain; charset=utf-8");
+	_add_one_content_type(".vsd", "application/vnd.visio");
+	_add_one_content_type(".wav", "audio/wav");
+	_add_one_content_type(".weba", "audio/webm");
+	_add_one_content_type(".webm", "video/webm");
+	_add_one_content_type(".webp", "image/webp");
+	_add_one_content_type(".woff", "font/woff");
+	_add_one_content_type(".woff2", "font/woff2");
+	_add_one_content_type(".xhtml", "application/xhtml+xml");
+	_add_one_content_type(".xls", "application/vnd.ms-excel");
+	_add_one_content_type(".xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+	_add_one_content_type(".xml", "application/xml");
+	_add_one_content_type(".xul", "application/vnd.mozilla.xul+xml");
+	_add_one_content_type(".zip", "application/zip");
+	_add_one_content_type(".3gp", "video/3gpp");
+	_add_one_content_type(".3g2", "video/3gpp2");
+	_add_one_content_type(".7z", "application/x-7z-compressed");
+}
+
+void	_init_available_http_methods_versions_type( void )
 {
 	_init_available_http_methods();
 	_init_available_http_versions();
+	_init_http_content_type();
+}
+
+std::string get_MIME_type(std::string const &file_uri)
+{
+	size_t		extension_start;
+
+
+	extension_start = file_uri.find_last_of(".");
+	if (extension_start != std::string::npos)
+	{
+		try
+		{
+			return (g_http_content_type.at(file_uri.substr(extension_start)));
+		}
+		catch (std::out_of_range &e)
+		{
+		}
+	}
+	return (g_http_content_type.at("default"));
 }
 
 
@@ -29,21 +134,6 @@ bool	str_contains_a_colon(std::string const & str, size_t first_colon_pos)
 	return (first_colon_pos != std::string::npos);
 }
 
-static bool	_str_contains_multiple_colon(std::string const & str,
-				size_t first_colon_pos = std::string::npos)
-{
-	if (first_colon_pos == std::string::npos)
-		first_colon_pos = str.find(':');
-	return (str_contains_a_colon(str, first_colon_pos) && first_colon_pos != str.find_last_of(":") );
-}
-
-bool	str_contains_one_single_colon(std::string const & str,
-			size_t first_colon_pos)
-{
-	if (first_colon_pos == std::string::npos)
-		first_colon_pos = str.find(':');
-	return (str_contains_a_colon(str, first_colon_pos) && ! _str_contains_multiple_colon(str, first_colon_pos));
-}
 
 //after a getline, if the line ended with \n it must be preceded by a \r
 bool	is_line_properly_ended(std::stringstream & stream, std::string & line)
@@ -208,13 +298,4 @@ void	throw_http_err_with_log(e_status_code error_code, std::string log_msg)
 {
 	protected_write(g_err_log_fd, log_msg);
 	throw(ExceptionHttpStatusCode(error_code));
-}
-
-std::string	getUri(std::string root, std::string target)
-{
-	std::string uri = root + target;
-	size_t pos = uri.find_first_of('?');
-	if (pos != std::string::npos)
-		uri = uri.substr(0, pos);
-	return (uri);
 }

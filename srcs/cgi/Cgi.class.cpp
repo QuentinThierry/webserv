@@ -1,5 +1,7 @@
 #include "Cgi.class.hpp"
-#include "HttpExchange.class.hpp"
+#include "HttpRequest.class.hpp"
+#include "HttpRequestPost.class.hpp"
+#include "HttpRequestGet.class.hpp"
 
 Cgi::Cgi()
 {
@@ -53,8 +55,20 @@ ssize_t	Cgi::read(std::string &buffer) const
 		return -1;
 	if (size == 0)
 		return 0;
-	buffer = buf;
+	buffer = std::string(buf, size);
 	return size;
+}
+
+void	Cgi::endWrite()
+{
+	close(getWritePipe());
+	_pipe_input[WRITE] = -1;
+}
+
+void	Cgi::endRead()
+{
+	close(getReadPipe());
+	_pipe_output[READ] = -1;
 }
 
 static char const *alloc_str(std::string str)
@@ -79,7 +93,7 @@ static void free_env(char const **env)
 	delete[] env;
 }
 
-static char const **create_cgi_env(HttpExchange const &httpExchange, char const *file_name)
+static char const **create_cgi_env(HttpRequest const &request, Server const &server, std::string file_name)
 {
 	std::string str;
 	bool	is_get = false;
@@ -87,28 +101,29 @@ static char const **create_cgi_env(HttpExchange const &httpExchange, char const 
 	try
 	{
 		env = new char const *[NB_ENV_VARIABLE];
-		env[11] = alloc_str("REQUEST_METHOD=" + *httpExchange.getRequest().getMethod()); // method
-		if (*httpExchange.getRequest().getMethod() == "GET")
+		env[11] = alloc_str("REQUEST_METHOD=" + *request.getMethod()); // method
+		if (*request.getMethod() == "GET")
 			is_get = true;
 
 		env[0] = alloc_str("AUTH_TYPE=Basic"); // DEFAULT
 		if (is_get)
 		{
-			if (httpExchange.getResponse().checkFieldExistence("Content-Length"))
-			{
-				std::vector<std::string> vec = httpExchange.getResponse().getFieldValue("Content-Length");
-				if (vec.size() != 1)
-					throw ExceptionHttpStatusCode(HTTP_500);
-				env[1] = alloc_str("CONTENT_LENGTH=" + vec[0]);
-			}
-			else
-				env[1] = alloc_str("");
+			// if (httpExchange.getResponse().checkFieldExistence("Content-Length"))
+			// {
+			// 	std::vector<std::string> vec = httpExchange.getResponse().getFieldValue("Content-Length");
+			// 	if (vec.size() != 1)
+			// 		throw ExceptionHttpStatusCode(HTTP_500);
+			// 	env[1] = alloc_str("CONTENT_LENGTH=" + vec[0]);
+			// }
+			// else
+			env[1] = alloc_str("");
 		}
 		else
 		{
-			if (httpExchange.getRequest().checkFieldExistence("Content-Length"))
+			if (dynamic_cast<HttpRequestPost const &>(request).hasContentLength()
+					&& request.checkFieldExistence("Content-Length"))
 			{
-				std::vector<std::string> vec = httpExchange.getRequest().getFieldValue("Content-Length");
+				std::vector<std::string> vec = request.getFieldValue("Content-Length");
 				if (vec.size() != 1)
 					throw ExceptionHttpStatusCode(HTTP_500);
 				env[1] = alloc_str("CONTENT_LENGTH=" + vec[0]);
@@ -117,27 +132,31 @@ static char const **create_cgi_env(HttpExchange const &httpExchange, char const 
 				env[1] = alloc_str("");
 		}
 
-		if (!is_get && httpExchange.getRequest().checkFieldExistence("Content-Type"))
+		if (!is_get && request.checkFieldExistence("Content-Type"))
 		{
-			std::vector<std::string> vec = httpExchange.getRequest().getFieldValue("Content-Type");
+			std::vector<std::string> vec = request.getFieldValue("Content-Type");
 			if (vec.size() != 1)
 				throw ExceptionHttpStatusCode(HTTP_400);
 			env[2] = alloc_str("CONTENT_TYPE=" + vec[0]);
 		}
 		else
 			env[2] = alloc_str("");
-		env[3]  = "GATEWAY_INTERFACE=CGI/1.1"; // DEFAULT
-		env[4] = alloc_str("PATH_INFO=" + getUri(httpExchange.getSocket().getServer().searchLocation(httpExchange.getRequest().getTarget()).getRootPath(), httpExchange.getRequest().getTarget()));
-		env[5]  = alloc_str(env[4]); // root/URI
-		env[6]  = "QUERY_STRING=\"\""; // '?' arguments TODO
-		env[7]  = alloc_str("REMOTE_ADDR=" + httpExchange.getSocket().getServer().getHost());
-		env[8]  = alloc_str("REMOTE_HOST=" + httpExchange.getRequest().getFieldValue("Host")[0]);
+		env[3]  = alloc_str("GATEWAY_INTERFACE=CGI/1.1"); // DEFAULT
+		env[4] = alloc_str("PATH_INFO=" + file_name);
+		env[5]  = alloc_str("PATH_TRANSLATED=" + file_name); // root/URI
+		env[6] = alloc_str("");
+		if (is_get)
+			env[6]  = alloc_str("QUERY_STRING=" + dynamic_cast<HttpRequestGet const &>(request).getQueryString()); // '?' arguments
+		else
+			env[6]  = alloc_str("QUERY_STRING=\"\""); // '?' arguments
+		env[7]  = alloc_str("REMOTE_ADDR=" + server.getHost());
+		env[8]  = alloc_str("REMOTE_HOST=" + request.getFieldValue("Host")[0]);
 		env[9]  = alloc_str("REMOTE_IDENT=none"); // identity information DEFAULT
 		env[10] = alloc_str("REMOTE_USER=none"); // user identification DEFAULT (?)
-		env[12] = alloc_str(std::string("SCRIPT_FILENAME=") + file_name); // URI path without root
+		env[12] = alloc_str("SCRIPT_FILENAME=" + file_name); // URI path without root
 		env[13] = alloc_str("SERVER_NAME=" SERVER_NAME); // server name DEFAULT
-		env[14] = alloc_str("SERVER_PORT=" + ft_itoa(httpExchange.getSocket().getServer().getPort())); // port request
-		env[15] = alloc_str("SERVER_PROTOCOL=" + *httpExchange.getRequest().getVersion()); // http protocol version
+		env[14] = alloc_str("SERVER_PORT=" + ft_itoa(server.getPort())); // port request
+		env[15] = alloc_str("SERVER_PROTOCOL=" + *request.getVersion()); // http protocol version
 		env[16] = alloc_str("SERVER_SOFTWARE=Unix"); // server OS of request TODO (in User-agent)
 		env[17] = alloc_str("REDIRECT_STATUS=true"); // add to serve some cgi requirement (php-cgi) TRUE
 		env[18] = NULL;
@@ -154,17 +173,20 @@ static char const **create_cgi_env(HttpExchange const &httpExchange, char const 
  * 1 -> execve failed, path is not good, 502 Bad Gateway
  * 2 -> pipe or fork error, 500 Internal Server Error
 */
-int Cgi::_exec(std::string cgi_path, char const *file_name, HttpExchange const &httpExchange)
+void Cgi::exec(std::string cgi_path, std::string file_name, HttpRequest const &request, Server const &server)
 {
+	std::cout<<"----exec cgi------" << std::endl;
 	if (access(cgi_path.c_str(), X_OK))
-		return 1;
+		throw ExceptionHttpStatusCode(HTTP_502);
 	if (pipe(this->_pipe_input) == -1)
-		return 2;
+		throw ExceptionHttpStatusCode(HTTP_500);
 	if (pipe(this->_pipe_output) == -1)
-		return 2;
+		throw ExceptionHttpStatusCode(HTTP_500);
+	std::cout<<"----exec cgi reussi------" << std::endl;
 	this->_pid = fork();
 	if (this->_pid == -1)
-		return 2;
+		throw ExceptionHttpStatusCode(HTTP_500);
+
 	else if (this->_pid == 0) // child
 	{
 		bool error = false;
@@ -176,28 +198,35 @@ int Cgi::_exec(std::string cgi_path, char const *file_name, HttpExchange const &
 		close(this->_pipe_output[WRITE]);
 		if (!error)
 		{
-			char const **env = create_cgi_env(httpExchange, file_name);
+			char const **env = create_cgi_env(request, server, file_name);
+			for (uint16_t i = 0; i < 18; i++)
+				std::cerr << env[i] << std::endl;
 			if (env)
 			{
-				execve(cgi_path.c_str(),
-					(char **)(char const * const []){cgi_path.c_str(), file_name, NULL},
-					(char **)env);
+				std::cerr << "path :" << cgi_path.c_str() <<std::endl;
+				std::cerr << "file :" << file_name.c_str() <<std::endl;
+				std::cerr << "-----------------------------execve ready------------------------------"<<std::endl;
+				char const *args[3];
+				args[0] = alloc_str(cgi_path);
+				args[1] = alloc_str(file_name);
+				args[2] = NULL;
+
+				std::cerr << execve(cgi_path.c_str(), (char * const *)args,
+					(char **)env) <<std::endl;
+				perror("");
+				std::cerr << "-----------------------------end------------------------------"<<std::endl;
 				free_env(env);
+				delete(args[0]);
+				delete(args[1]);
 			}
 		}
 		throw Cgi::NExceptionChildFail();
 	}
-	return 0;
-}
-
-int	Cgi::execPost(std::string cgi_path, HttpExchange const &httpExchange)
-{
-	return this->_exec(cgi_path, NULL, httpExchange);
-}
-
-int Cgi::execGet(std::string cgi_path, std::string file_name, HttpExchange const &httpExchange)
-{
-	return this->_exec(cgi_path, file_name.c_str(), httpExchange);
+	else
+	{
+		close(_pipe_input[READ]);
+		close(_pipe_output[WRITE]);
+	}
 }
 
 Cgi::~Cgi()

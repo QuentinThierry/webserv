@@ -8,8 +8,9 @@
 int const	g_err_log_fd = STDERR_FILENO;
 bool g_exit = false;
 
-std::vector<std::string>	g_http_methods;
-std::vector<std::string>	g_http_versions;
+std::vector<std::string>			g_http_methods;
+std::vector<std::string>			g_http_versions;
+std::map<std::string, std::string>	g_http_content_type;
 
 void cltr_c(int sig)
 {
@@ -30,10 +31,11 @@ char const * get_config(int argc, char **argv)
 int main(int argc, char **argv)
 {
 	std::vector<Server> servers;
+	std::srand(time(NULL));
 	std::signal(SIGINT, cltr_c);
 	try
 	{
-		_init_available_http_methods_versions();
+		_init_available_http_methods_versions_type();
 		servers = parse_config(get_config(argc, argv));
 	}
 	catch (std::exception &e)

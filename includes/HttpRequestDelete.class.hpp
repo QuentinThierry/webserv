@@ -17,11 +17,13 @@ class HttpRequestDelete : public HttpRequest
 		HttpRequestDelete & operator= (HttpRequestDelete const & model);
 		~HttpRequestDelete( void );
 
-		void				processHeader( Socket const * const socket );
-		void				generateResponse( Socket const * const socket, HttpResponse &response );
-		bool				hasBody() const;
-		void				readBody(int fd, Socket const * const socket, bool &end);
-
+		void	processHeader( Socket const * const socket );
+		void	generateResponse( Socket const * const socket, HttpResponse &response );
+		bool	hasBody() const;
+		void	readBody(int fd, Socket const * const socket, bool &end);
+		bool	hasCgi() const;
+		void	setCgi(bool has_cgi);
+		Cgi		*getCgi();
 	private:
 		void	_initResponse( Socket const * const socket, HttpResponse &response );
 		HttpRequestDelete( void );
