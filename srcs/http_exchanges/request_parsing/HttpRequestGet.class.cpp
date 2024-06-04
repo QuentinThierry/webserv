@@ -1,5 +1,4 @@
 #include "HttpRequestGet.class.hpp"
-#include <sys/stat.h>
 
 HttpRequestGet::HttpRequestGet (std::string const & str_request)
 	throw (ExceptionHttpStatusCode)
