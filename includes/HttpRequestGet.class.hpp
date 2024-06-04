@@ -4,7 +4,9 @@
 # include "HttpRequest.class.hpp"
 # include "HttpTools.hpp"
 
-#include "Autoindex.class.hpp"
+# include "Autoindex.class.hpp"
+
+# include <sys/stat.h>
 
 # define MSG_ERR_HTTPGET_SSTREAM_FAIL "ERROR: internal: stringstream failure in the get request construction"
 # define MSG_ERR_HTTPGET_WRONG_METHOD "ERROR: internal: call to the wrong HTTP method constructor (GET)"
