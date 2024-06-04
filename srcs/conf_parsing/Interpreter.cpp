@@ -28,6 +28,16 @@ void	interpret_field_loop(std::string &token, std::queue<std::string> &tokens, S
 		arg_counter++;
 		token = extract_token(tokens);
 	}
+	void fill_error_page(std::string &token, Server &server, Location *location, unsigned int arg_counter);
+	std::string		ft_itoa( uint64_t number );
+	if (token_identifier == fill_error_page)
+	{
+		for (std::map<t_http_code, std::string>::iterator it = server.getErrorPagePath().begin(); it != server.getErrorPagePath().end(); it++)
+		{
+			if (it->second == "") // fill the second part of the map for each error code
+				ThrowMisc(std::string("missing error path for error code `") + ft_itoa(it->first) + "' in field `error_page'");
+		}
+	}
 }
 
 void interpret_cgi_field_loop(std::string &token, std::queue<std::string> &tokens, CgiLocation &cgiObj)

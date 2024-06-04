@@ -125,9 +125,11 @@ void fill_error_page(std::string &token, Server &server, Location *location, uns
 	if (arg_counter == 1)
 		has_error_path = false;
 	if (has_error_path == true)
-		ThrowMisc("error_path acepts only one path");
+		ThrowMisc("error_path accepts only one path");
 	if (does_http_code_exist(token) == false)
 	{
+		if (server.getErrorPagePath().empty())
+			ThrowMisc("missing error code in field `error_page'");
 		has_error_path = true;
 		for (std::map<t_http_code, std::string>::iterator it = server.getErrorPagePath().begin(); it != server.getErrorPagePath().end(); it++)
 		{

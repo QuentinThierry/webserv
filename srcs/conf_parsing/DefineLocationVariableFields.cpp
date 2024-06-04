@@ -9,6 +9,8 @@ void	_parse_method(std::string &token, Location &loc)
 	it = std::find(loc.getMethods().begin(), loc.getMethods().end(), token);
 	if (it != loc.getMethods().end())
 		loc.getMethods().erase(it);
+	else
+		ThrowMisc("duplicated `" + token + "' in field `limit_except'");
 }
 
 // only in location
