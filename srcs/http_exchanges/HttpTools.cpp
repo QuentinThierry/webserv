@@ -2,6 +2,7 @@
 
 static void	_init_available_http_methods( void )
 {
+	g_http_methods.push_back("HEAD");
 	g_http_methods.push_back("GET");
 	g_http_methods.push_back("POST");
 	g_http_methods.push_back("DELETE");

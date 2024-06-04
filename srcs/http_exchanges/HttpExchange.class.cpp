@@ -3,6 +3,7 @@
 #include "HttpRequestPost.class.hpp"
 #include "HttpRequestGet.class.hpp"
 #include "HttpRequestDelete.class.hpp"
+#include "HttpRequestHead.class.hpp"
 
 #include "Cluster.class.hpp"
 #include "utils.hpp"
@@ -52,6 +53,9 @@ void HttpExchange::_copyRequest(e_http_method method, HttpRequest const * reques
 {
 	switch (method)
 	{
+		case HEAD:
+			_request = ::new HttpRequestHead(*((HttpRequestHead*)request));
+			break;
 		case GET:
 			_request = ::new HttpRequestGet(*((HttpRequestGet*)request));
 			break;
@@ -98,10 +102,10 @@ void	HttpExchange::_setRightSocket(Cluster const &cluster)
 
 e_http_method	HttpExchange::_findMethod(std::string const & cmp)
 {
-	std::string method_name[3] = {"GET", "POST", "DELETE"};
-	e_http_method method_value[3] = {GET, POST, DELETE};
+	std::string method_name[4] = {"GET", "POST", "DELETE", "HEAD"};
+	e_http_method method_value[4] = {GET, POST, DELETE, HEAD};
 
-	for (unsigned int i = 0; i < 3; i++)
+	for (unsigned int i = 0; i < 4; i++)
 	{
 		for (unsigned int j = 0; j < method_name[i].size(); j++)
 		{
@@ -120,6 +124,9 @@ void	HttpExchange::_initRequest(e_http_method method)
 {
 	switch (method)
 	{
+		case HEAD:
+			_request = ::new HttpRequestHead(_buffer_read);
+			break;
 		case GET:
 			_request = ::new HttpRequestGet(_buffer_read);
 			break;

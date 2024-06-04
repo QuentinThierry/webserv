@@ -161,11 +161,11 @@ void	HttpResponse::displayHeader()
 		_fields.at(i).display_field();
 }
 
-static void	_close_body_file(std::ifstream &response_bodyFile, bool &response_fileOpen)
+void	HttpResponse::closeBodyFile(void)
 {
-	response_fileOpen = false;
-	if (response_bodyFile.is_open())
-		response_bodyFile.close();
+	_fileOpen = false;
+	if (_bodyFile.is_open())
+		_bodyFile.close();
 }
 
 static e_status_code	_openFileStream(std::string & filename,
@@ -208,7 +208,7 @@ e_status_code HttpResponse::openBodyFileStream(std::string filename)
 
 	if (_set_content_length_field(filename, _fields) == FAILURE)
 	{
-		_close_body_file(_bodyFile, _fileOpen);
+		closeBodyFile();
 		return HTTP_403;
 	}
 	
@@ -340,7 +340,7 @@ void	HttpResponse::generateErrorResponse(e_status_code status, Server const & se
 	if (checkFieldExistence("Content-Length"))
 		HttpField::erase_field(_fields, "Content-Length");
 	if (_fileOpen == true)
-		_close_body_file(_bodyFile, _fileOpen);
+		closeBodyFile();
 	_body.clear();
 	_content_length = 0;
 	_content_length_flag = false;
@@ -382,19 +382,19 @@ static ssize_t	send_header(int fd, std::string &header)
 	return ret;
 }
 
-static ssize_t	send_body_file(int fd, std::ifstream &file, bool &is_open)
+ssize_t		HttpResponse::_sendBodyFile(int fd)
 {
 	char tmp[SIZE_WRITE + 1] = {0};
-	file.read(tmp, SIZE_WRITE);
-	if (file.eof())
-		_close_body_file(file, is_open);
-	else if (file.fail())
+	_bodyFile.read(tmp, SIZE_WRITE);
+	if (_bodyFile.eof())
+		closeBodyFile();
+	else if (_bodyFile.fail())
 	{
-		_close_body_file(file, is_open);
+		closeBodyFile();
 		return -1;
 	}
-	file.gcount();
-	ssize_t ret = send(fd, tmp, file.gcount(), MSG_NOSIGNAL);
+	_bodyFile.gcount();
+	ssize_t ret = send(fd, tmp, _bodyFile.gcount(), MSG_NOSIGNAL);
 	return ret;
 }
 
@@ -414,14 +414,14 @@ void	HttpResponse::writeResponse(int fd, Cluster &cluster, bool has_cgi)
 	if (_header.empty() == false)
 		ret = send_header(fd, _header);
 	else if (_fileOpen)
-		ret = send_body_file(fd, _bodyFile, _fileOpen);
+		ret = _sendBodyFile(fd);
 	else if (!_body.empty() || _end_of_file_flag)
 		ret = _sendBodyString(fd, has_cgi);
 	if (ret == -1 || ret == 0)
 	{
 		std::cout << "error\n";
 		if (_fileOpen == true)
-			_close_body_file(_bodyFile, _fileOpen);
+			closeBodyFile();
 		cluster.closeConnection(fd);
 		return ;
 	}

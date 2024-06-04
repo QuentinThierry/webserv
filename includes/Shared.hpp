@@ -13,9 +13,13 @@ typedef enum e_status
 # include <exception>
 # include <unistd.h>
 # include <stdint.h>
+# include <vector>
 
 extern int const	g_err_log_fd;
 extern bool 		g_exit;
+
+extern	std::vector<std::string>							g_http_methods;
+typedef	std::vector<std::string>::const_iterator			it_method;
 
 // randomized errors path
 #define RANDOMIZED_ERROR_PAGE_PATHS {\
