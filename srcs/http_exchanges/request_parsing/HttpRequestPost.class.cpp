@@ -215,7 +215,7 @@ void	HttpRequestPost::_parseChunkSize()
 		throw_http_err_with_log(HTTP_400, "ERROR: bad syntax for transfer-encoding=chuncked");
 	_has_size_chunk = true;
 	_body = _body.substr(pos + 2, _body.size() - (pos + 2));
-	std::cout << "chunk size :" << _content_length << std::endl;
+	////std::cout << "chunk size :" << _content_length << std::endl;
 }
 
 bool	HttpRequestPost::_parseChunkBody()
@@ -250,7 +250,7 @@ bool	HttpRequestPost::_parseChunkBody()
 	}
 	else
 	{
-		std::cout << _body.size() << _body << std::endl;
+		////std::cout << _body.size() << _body << std::endl;
 		throw_http_err_with_log(HTTP_400, "ERROR: bad syntax for transfer-encoding=chuncked");
 	}
 	return true;
@@ -302,8 +302,8 @@ void	HttpRequestPost::readBody(int fd, Socket const * const socket, bool &end)
 	end = false;
 	char buffer[READ_SIZE + 1] = {0};
 	int read_size = _getSizeToReadBody(socket->getServer().getClientMaxBodySize());
-	std::cout << "body size: " << _read_size <<std::endl;
-	std::cout << read_size <<std::endl;
+	////std::cout << "body size: " << _read_size <<std::endl;
+	////std::cout << read_size <<std::endl;
 	if (read_size <= 0)
 		throw_http_err_with_log(HTTP_413, "ERROR: body too long in request");
 	int ret = read(fd, buffer, read_size);

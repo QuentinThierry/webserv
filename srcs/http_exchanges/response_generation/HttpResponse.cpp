@@ -40,7 +40,7 @@ HttpResponse & HttpResponse::operator=(HttpResponse const & model )
 {
 	if (this != &model)
 	{
-		std::cout <<"COPY RESPONSE WARNING\n";
+		////std::cout <<"COPY RESPONSE WARNING\n";
 		_version = model._version;
 		_status_code = model._status_code;
 		_fields = model._fields;
@@ -144,7 +144,7 @@ void	HttpResponse::fillHeader()
 		_header += _fields.at(i).getFields();
 	_header += "\r\n";
 	_response_ready = true;
-	displayHeader();
+	////displayHeader();
 }
 
 void	HttpResponse::displayHeader()
@@ -262,7 +262,7 @@ void	HttpResponse::_extract_cgi_fields_data( void )
 
 void	HttpResponse::parseCgiHeader(std::string header) throw(ExceptionHttpStatusCode)
 {
-	std::cout << header << std::endl;
+	////std::cout << header << std::endl;
 
 	std::stringstream header_stream(header);
 
@@ -414,7 +414,7 @@ void	HttpResponse::writeResponse(int fd, Cluster &cluster, bool has_cgi)
 		ret = _sendBodyString(fd, has_cgi);
 	if (ret == -1 || ret == 0)
 	{
-		std::cout << "error\n";
+		////std::cout << "error\n";
 		if (_fileOpen == true)
 			_close_body_file(_bodyFile, _fileOpen);
 		cluster.closeConnection(fd);
@@ -424,7 +424,7 @@ void	HttpResponse::writeResponse(int fd, Cluster &cluster, bool has_cgi)
 			&& _fileOpen == false && _content_length == _write_size)
 		|| _checkEndCgi(has_cgi))
 	{
-		std::cout << "end\n";
+		////std::cout << "end\n";
 		cluster.closeConnection(fd);
 	}
 }

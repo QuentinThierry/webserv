@@ -175,14 +175,14 @@ static char const **create_cgi_env(HttpRequest const &request, Server const &ser
 */
 void Cgi::exec(std::string cgi_path, std::string file_name, HttpRequest const &request, Server const &server)
 {
-	std::cout<<"----exec cgi------" << std::endl;
+	////std::cout<<"----exec cgi------" << std::endl;
 	if (access(cgi_path.c_str(), X_OK))
 		throw ExceptionHttpStatusCode(HTTP_502);
 	if (pipe(this->_pipe_input) == -1)
 		throw ExceptionHttpStatusCode(HTTP_500);
 	if (pipe(this->_pipe_output) == -1)
 		throw ExceptionHttpStatusCode(HTTP_500);
-	std::cout<<"----exec cgi reussi------" << std::endl;
+	////std::cout<<"----exec cgi reussi------" << std::endl;
 	this->_pid = fork();
 	if (this->_pid == -1)
 		throw ExceptionHttpStatusCode(HTTP_500);

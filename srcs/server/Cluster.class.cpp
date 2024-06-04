@@ -158,7 +158,7 @@ void Cluster::runServer()
 		timeout.tv_sec = 3;
 		timeout.tv_usec = 0;
 		_initSetFds(&readfds, &writefds);
-		std::cout << " ----- SELECT() ---- " << std::endl;
+		////std::cout << " ----- SELECT() ---- " << std::endl;
 		int nb_fds = select(_max_fd + 1, &readfds, &writefds, NULL, &timeout);
 		if (nb_fds == -1)
 			ThrowMisc(strerror(errno));
@@ -168,7 +168,7 @@ void Cluster::runServer()
 		{
 			if (FD_ISSET(it->getFd(), &readfds))
 			{
-				std::cout << "new connection" << std::endl;
+				////std::cout << "new connection" << std::endl;
 				_acceptNewConnection(*it);
 				break;
 			}
@@ -177,14 +177,14 @@ void Cluster::runServer()
 		{
 			if (FD_ISSET(it->first->getReadPipe(), &readfds))
 			{
-				std::cout << "read cgi "<<it->first->getReadPipe() << std::endl;
+				////std::cout << "read cgi "<<it->first->getReadPipe() << std::endl;
 				it->second->readCgi(findFd(_map_sockets, it->second), *this);
 				break;
 			}
 			else if (*it->second->getRequest().getMethod() == "POST"
 					&& FD_ISSET(it->first->getWritePipe(), &writefds))
 			{
-				std::cout << "write cgi "<<it->first->getWritePipe() << std::endl;
+				////std::cout << "write cgi "<<it->first->getWritePipe() << std::endl;
 				it->second->writeCgi(findFd(_map_sockets, it->second), *this);
 				break;
 			}
@@ -199,13 +199,13 @@ void Cluster::runServer()
 			}
 			if (FD_ISSET(_map_sockets.at(i).first, &writefds))
 			{
-				std::cout << "write data" << std::endl;
+				////std::cout << "write data" << std::endl;
 				_map_sockets.at(i).second.writeSocket(_map_sockets.at(i).first, *this);
 				break ;
 			}
 			else if (FD_ISSET(_map_sockets.at(i).first, &readfds))
 			{
-				std::cout << "read data" << std::endl;
+				////std::cout << "read data" << std::endl;
 				_map_sockets.at(i).second.readSocket(_map_sockets.at(i).first, *this);
 				break ;
 			}
@@ -267,7 +267,7 @@ static void remove_cgi(HttpExchange *exchange, t_map_cgi & map_cgi)
 
 void Cluster::closeConnection(int fd)
 {
-	std::cout << "close connection\n";
+	////std::cout << "close connection\n";
 	std::vector<int>::iterator pos = std::find(_fd_write.begin(), _fd_write.end(), fd);
 	if (pos != _fd_write.end())
 	{
@@ -291,7 +291,7 @@ void Cluster::closeConnection(int fd)
 
 void Cluster::addCgi(Cgi *cgi, HttpExchange *httpExchange)
 {
-	std::cout << "add cgi" << std::endl;
+	////std::cout << "add cgi" << std::endl;
 	if (cgi->getReadPipe() > _max_fd)
 		_max_fd = cgi->getReadPipe();
 	if (cgi->getWritePipe() > _max_fd)
