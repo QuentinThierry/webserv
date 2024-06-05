@@ -62,8 +62,6 @@ void	HttpResponse::setStatusCode(e_status_code code){_status_code = code;}
 
 void	HttpResponse::setEndOfFile() {_end_of_file_flag = true;}
 
-void	HttpResponse::setSendBody( bool send_body) {_send_body = send_body;}
-
 void	HttpResponse::addBodyContent(std::string str) {_body += str;}
 
 void	HttpResponse::addField(std::string name, std::string value)
@@ -356,11 +354,6 @@ void	HttpResponse::generateErrorResponse(e_status_code status, Server const & se
 	if (method != g_http_versions.end() && *method == "HEAD")
 		removeBody();
 	fillHeader();
-	if (!_send_body)
-	{
-		_body.clear();
-		closeBodyFile();
-	}
 }
 
 bool	HttpResponse::_checkEndCgi(bool has_cgi) const
