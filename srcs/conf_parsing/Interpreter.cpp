@@ -190,7 +190,7 @@ void	_check_server_is_unique(std::vector<Server> &servers)
 
 	for (unsigned int i = 0; i < servers.size() - 1; i++)
 	{
-		if (!servers[i].is_equal(servers.back()))
+		if (!servers[i].isEqual(servers.back()))
 			continue;
 		it = servers[i].getServerName().begin();
 		while (it != servers[i].getServerName().end())

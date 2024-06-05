@@ -186,7 +186,6 @@ void Cgi::exec(std::string cgi_path, std::string file_name, HttpRequest const &r
 	this->_pid = fork();
 	if (this->_pid == -1)
 		throw ExceptionHttpStatusCode(HTTP_500);
-
 	else if (this->_pid == 0) // child
 	{
 		bool error = false;
