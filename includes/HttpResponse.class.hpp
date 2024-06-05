@@ -34,6 +34,7 @@ class HttpResponse
 		void		addAllowMethod(std::vector<std::string> const &);
 		void		addField(std::string name, std::string value);
 		void		addBodyContent(std::string str);
+		void		removeBody();
 		std::string const &getBody(void) const;
 		bool		is_response_ready() const;
 
@@ -43,7 +44,7 @@ class HttpResponse
 
 		void			writeResponse(int fd, Cluster &cluster, bool has_cgi);
 
-		void			generateErrorResponse(e_status_code status, Server const & server);
+		void			generateErrorResponse(e_status_code status, Server const & server, it_version method);
 		void			parseCgiHeader(std::string header) throw(ExceptionHttpStatusCode);
 		bool			handle_redirect(Location const &);
 		void			fillHeader(void);

@@ -14,7 +14,7 @@ HttpRequestHead::HttpRequestHead (std::string const & str_request)
 }
 
 HttpRequestHead::HttpRequestHead ( HttpRequestHead const & model)
-	: HttpRequest(model), _cgi(model._cgi), _has_cgi(model._has_cgi)
+	: HttpRequest(model), _cgi(model._cgi), _has_cgi(model._has_cgi), _query_string(model._query_string)
 {}
 
 HttpRequestHead::HttpRequestHead( void ): _cgi(), _has_cgi(false)
@@ -27,6 +27,7 @@ HttpRequestHead & HttpRequestHead::operator= (HttpRequestHead const & model)
 		HttpRequest::operator=(model);
 		_cgi = model._cgi;
 		_has_cgi = model._has_cgi;
+		_query_string = model._query_string;
 	}
 	return (*this);
 }

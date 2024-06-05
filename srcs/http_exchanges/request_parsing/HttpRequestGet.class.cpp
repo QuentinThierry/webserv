@@ -14,7 +14,7 @@ HttpRequestGet::HttpRequestGet (std::string const & str_request)
 }
 
 HttpRequestGet::HttpRequestGet ( HttpRequestGet const & model)
-	: HttpRequest(model), _cgi(model._cgi), _has_cgi(model._has_cgi)
+	: HttpRequest(model), _cgi(model._cgi), _has_cgi(model._has_cgi), _query_string(model._query_string)
 {}
 
 HttpRequestGet::HttpRequestGet( void ): _cgi(), _has_cgi(false)
@@ -27,6 +27,7 @@ HttpRequestGet & HttpRequestGet::operator= (HttpRequestGet const & model)
 		HttpRequest::operator=(model);
 		_cgi = model._cgi;
 		_has_cgi = model._has_cgi;
+		_query_string = model._query_string;
 	}
 	return (*this);
 }

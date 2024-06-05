@@ -94,6 +94,18 @@ void		HttpResponse::setBody(std::string &body_content)
 	_content_length = _body.size();
 }
 
+void	HttpResponse::removeBody()
+{
+	_body.clear();
+	_content_length = 0;
+	_content_length_flag = true;
+	_end_of_file_flag = false;
+	_write_size = 0;
+	if (_bodyFile.is_open())
+		_bodyFile.close();
+	_fileOpen = false;
+}
+
 bool	HttpResponse::checkFieldExistence(std::string const & field_name) const
 {
 	std::vector<HttpField>::const_iterator it;
@@ -328,7 +340,7 @@ void	HttpResponse::_generateErrorPageBody(e_status_code error_code)
 	_content_length = _body.size();
 }
 
-void	HttpResponse::generateErrorResponse(e_status_code status, Server const & server)
+void	HttpResponse::generateErrorResponse(e_status_code status, Server const & server, it_version method)
 {
 	_version = --g_http_versions.end(); //!temporaire
 	_status_code = status;
@@ -351,6 +363,8 @@ void	HttpResponse::generateErrorResponse(e_status_code status, Server const & se
 		_generateErrorPageBody(_status_code);
 	else if (openBodyFileStream(path) != HTTP_200)
 		_fields.push_back(HttpField("Content-Length", "0"));
+	if (method != g_http_versions.end() && *method == "HEAD")
+		removeBody();
 	fillHeader();
 }
 
