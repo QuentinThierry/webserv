@@ -28,6 +28,16 @@ void	interpret_field_loop(std::string &token, std::queue<std::string> &tokens, S
 		arg_counter++;
 		token = extract_token(tokens);
 	}
+	void fill_error_page(std::string &token, Server &server, Location *location, unsigned int arg_counter);
+	std::string		ft_itoa( uint64_t number );
+	if (token_identifier == fill_error_page)
+	{
+		for (std::map<t_http_code, std::string>::iterator it = server.getErrorPagePath().begin(); it != server.getErrorPagePath().end(); it++)
+		{
+			if (it->second == "") // fill the second part of the map for each error code
+				ThrowMisc(std::string("missing error path for error code `") + ft_itoa(it->first) + "' in field `error_page'");
+		}
+	}
 }
 
 void interpret_cgi_field_loop(std::string &token, std::queue<std::string> &tokens, CgiLocation &cgiObj)
@@ -49,7 +59,7 @@ void interpret_cgi_field_loop(std::string &token, std::queue<std::string> &token
 		{
 			if (arg_counter == 1)
 				ThrowBadArgumentNumber(identifier, 1, false);
-			break ;
+			break;
 		}
 		else
 		{
@@ -190,7 +200,7 @@ void	_check_server_is_unique(std::vector<Server> &servers)
 
 	for (unsigned int i = 0; i < servers.size() - 1; i++)
 	{
-		if (!servers[i].is_equal(servers.back()))
+		if (!servers[i].isEqual(servers.back()))
 			continue;
 		it = servers[i].getServerName().begin();
 		while (it != servers[i].getServerName().end())

@@ -20,20 +20,20 @@ class Cluster;
 class HttpResponse
 {
 	public:
-		HttpResponse( HttpResponse const & model);
-		HttpResponse( it_version const & version);
+		HttpResponse( HttpResponse const & model );
 		~HttpResponse( void );
 		HttpResponse( void );
-		HttpResponse & operator=(HttpResponse const & model );
+		HttpResponse & operator=( HttpResponse const & model );
 
 
 		void		setStatusCode(e_status_code code);
 		void		setVersion(it_version version);
 		void		setBody(std::string &body_content);
-		void		setEndOfFile();
+		void		setEndOfFile( void );
 		void		addAllowMethod(std::vector<std::string> const &);
 		void		addField(std::string name, std::string value);
 		void		addBodyContent(std::string str);
+		void		removeBody();
 		std::string const &getBody(void) const;
 		bool		is_response_ready() const;
 
@@ -41,14 +41,15 @@ class HttpResponse
 		std::vector<std::string> const &getFieldValue(std::string const & field_name)
 								const throw(ExceptionHttpStatusCode);
 
-		void		writeResponse(int fd, Cluster &cluster, bool has_cgi);
+		void			writeResponse(int fd, Cluster &cluster, bool has_cgi);
 
-		void		generateErrorResponse(e_status_code status, Server const & server);
-		void		parseCgiHeader(std::string header) throw(ExceptionHttpStatusCode);
-		bool		handle_redirect(Location const &);
-		void		fillHeader();
-		void		displayHeader();
+		void			generateErrorResponse(e_status_code status, Server const & server, it_version method);
+		void			parseCgiHeader(std::string header) throw(ExceptionHttpStatusCode);
+		bool			handle_redirect(Location const &);
+		void			fillHeader(void);
+		void			displayHeader(void);
 		e_status_code	openBodyFileStream(std::string filename);
+		void			closeBodyFile(void);
 
 	private:
 		ssize_t		_sendBodyString(int fd, bool has_cgi);
@@ -56,6 +57,7 @@ class HttpResponse
 		bool		_checkEndCgi(bool has_cgi) const;
 		void		_generateErrorPageBody(e_status_code error_code);
 		void		_removeField(std::string const &);
+		ssize_t		_sendBodyFile(int fd);
 		
 		void		_extract_cgi_fields_data( void );
 

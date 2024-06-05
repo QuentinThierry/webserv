@@ -61,12 +61,12 @@ void	Server::addLocations(Location location)
 			{this->_locations.push_back(location);}
 void	Server::addCgiLocation(CgiLocation cgi_loc)
 			{this->_cgi_locations.push_back(cgi_loc);}
-void	Server::_setHasListen(bool has_listen)
+void	Server::setHasListen(bool has_listen)
 			{this->__has_listen = has_listen;}
 
 
 // return if the server has the same host and port
-bool	Server::is_equal(Server const &ref) const
+bool	Server::isEqual(Server const &ref) const
 {
 	if (this->getHost() != ref.getHost())
 		return false;

@@ -3,6 +3,7 @@
 #include "HttpRequestPost.class.hpp"
 #include "HttpRequestGet.class.hpp"
 #include "HttpRequestDelete.class.hpp"
+#include "HttpRequestHead.class.hpp"
 
 #include "Cluster.class.hpp"
 #include "utils.hpp"
@@ -52,6 +53,9 @@ void HttpExchange::_copyRequest(e_http_method method, HttpRequest const * reques
 {
 	switch (method)
 	{
+		case HEAD:
+			_request = ::new HttpRequestHead(*((HttpRequestHead*)request));
+			break;
 		case GET:
 			_request = ::new HttpRequestGet(*((HttpRequestGet*)request));
 			break;
@@ -98,10 +102,10 @@ void	HttpExchange::_setRightSocket(Cluster const &cluster)
 
 e_http_method	HttpExchange::_findMethod(std::string const & cmp)
 {
-	std::string method_name[3] = {"GET", "POST", "DELETE"};
-	e_http_method method_value[3] = {GET, POST, DELETE};
+	std::string method_name[4] = {"GET", "POST", "DELETE", "HEAD"};
+	e_http_method method_value[4] = {GET, POST, DELETE, HEAD};
 
-	for (unsigned int i = 0; i < 3; i++)
+	for (unsigned int i = 0; i < 4; i++)
 	{
 		for (unsigned int j = 0; j < method_name[i].size(); j++)
 		{
@@ -120,6 +124,9 @@ void	HttpExchange::_initRequest(e_http_method method)
 {
 	switch (method)
 	{
+		case HEAD:
+			_request = ::new HttpRequestHead(_buffer_read);
+			break;
 		case GET:
 			_request = ::new HttpRequestGet(_buffer_read);
 			break;
@@ -138,7 +145,10 @@ void	HttpExchange::_initRequest(e_http_method method)
 
 void	HttpExchange::_handleError(int fd, Cluster &cluster, e_status_code error)
 {
-	_response.generateErrorResponse(error, _socket->getServer());
+	if (_request != NULL)
+		_response.generateErrorResponse(error, _socket->getServer(), _request->getMethod());
+	else
+		_response.generateErrorResponse(error, _socket->getServer(), g_http_versions.end());
 	cluster.switchHttpExchangeToWrite(fd);
 }
 
@@ -228,6 +238,17 @@ void	HttpExchange::writeSocket(int fd, Cluster &cluster)
 	//// 	std::cout << " not ready" << std::endl;
 }
 
+static void	_handle_cgi_error(HttpRequest & request, HttpResponse &response,
+				e_status_code error, Server const &server, Cluster &cluster, int fd)
+{
+	request.setCgi(false);
+	request.getCgi()->endRead();
+	if (!response.is_response_ready())
+		response.generateErrorResponse(error, server, request.getMethod());
+	else
+		cluster.closeConnection(fd);
+}
+
 void	HttpExchange::readCgi(int fd, Cluster & cluster)
 {
 	try
@@ -242,7 +263,7 @@ void	HttpExchange::readCgi(int fd, Cluster & cluster)
 				throw_http_err_with_log(HTTP_400, "ERROR: Missing empty line at the end of the cgi");
 			_response.setEndOfFile();
 		}
-		if (_response.is_response_ready())
+		if (_response.is_response_ready() && *_request->getMethod() != "HEAD")
 			_response.addBodyContent(tmp);
 		else
 		{
@@ -251,30 +272,24 @@ void	HttpExchange::readCgi(int fd, Cluster & cluster)
 			{
 				_response.parseCgiHeader(_buffer_read);
 				_buffer_read.clear();
+				if (*_request->getMethod() == "HEAD")
+				{
+					_response.removeBody();
+				}
 			}
 		}
 	}
 	catch(ExceptionHttpStatusCode &e)
 	{
 		e.display_error();
-		_request->setCgi(false);
-		_request->getCgi()->endRead();
-		if (!_response.is_response_ready())
-			_response.generateErrorResponse(e.get_status_code(), _socket->getServer());
-		else
-			cluster.closeConnection(fd);
+		_handle_cgi_error(*_request, _response, e.get_status_code(), _socket->getServer(), cluster, fd);
 		return;
 	}
 	catch(std::exception &e)
 	{
 		protected_write(g_err_log_fd, error_message_server(_socket->getServer(),
 				std::string("Error: ") + std::strerror(errno) + " at"));
-		_request->setCgi(false);
-		_request->getCgi()->endRead();
-		if (!_response.is_response_ready())
-			_response.generateErrorResponse(HTTP_500, _socket->getServer());
-		else
-			cluster.closeConnection(fd);
+		_handle_cgi_error(*_request, _response, HTTP_500, _socket->getServer(), cluster, fd);
 		return;
 	}
 }

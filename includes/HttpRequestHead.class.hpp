@@ -1,25 +1,24 @@
-#ifndef HTTPREQUESTGET_CLASS_HPP
-# define HTTPREQUESTGET_CLASS_HPP
+#ifndef HTTPREQUESTHEAD_CLASS_HPP
+# define HTTPREQUESTHEAD_CLASS_HPP
 
 # include "HttpRequest.class.hpp"
 # include "HttpTools.hpp"
-
 # include "Autoindex.class.hpp"
 
 # include <sys/stat.h>
 
-# define MSG_ERR_HTTPGET_SSTREAM_FAIL "ERROR: internal: stringstream failure in the get request construction"
-# define MSG_ERR_HTTPGET_WRONG_METHOD "ERROR: internal: call to the wrong HTTP method constructor (GET)"
+# define MSG_ERR_HTTPHEAD_SSTREAM_FAIL "ERROR: internal: stringstream failure in the get request construction"
+# define MSG_ERR_HTTPHEAD_WRONG_METHOD "ERROR: internal: call to the wrong HTTP method constructor (HEAD)"
 
 class HttpResponse;
 
-class HttpRequestGet : public HttpRequest
+class HttpRequestHead : public HttpRequest
 {
 	public:
-		HttpRequestGet (std::string const & str_request) throw (ExceptionHttpStatusCode);
-		HttpRequestGet ( HttpRequestGet const & model);
-		HttpRequestGet & operator= (HttpRequestGet const & model);
-		~HttpRequestGet( void );
+		HttpRequestHead (std::string const & str_request) throw (ExceptionHttpStatusCode);
+		HttpRequestHead ( HttpRequestHead const & model);
+		HttpRequestHead & operator= (HttpRequestHead const & model);
+		~HttpRequestHead( void );
 
 		void	processHeader( Socket const * const socket );
 		void	generateResponse( Socket const * const socket, HttpResponse &response );
@@ -32,7 +31,7 @@ class HttpRequestGet : public HttpRequest
 		std::string const &getQueryString() const;
 
 	private:
-		HttpRequestGet( void );
+		HttpRequestHead( void );
 
 		void		_initResponse( Socket const * const socket, HttpResponse &response);
 		void		_handleDirectory(std::string & uri, Location const & location,

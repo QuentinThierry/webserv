@@ -2,6 +2,7 @@
 #include "HttpRequest.class.hpp"
 #include "HttpRequestPost.class.hpp"
 #include "HttpRequestGet.class.hpp"
+#include "HttpRequestHead.class.hpp"
 
 Cgi::Cgi()
 {
@@ -102,20 +103,12 @@ static char const **create_cgi_env(HttpRequest const &request, Server const &ser
 	{
 		env = new char const *[NB_ENV_VARIABLE];
 		env[11] = alloc_str("REQUEST_METHOD=" + *request.getMethod()); // method
-		if (*request.getMethod() == "GET")
+		if (*request.getMethod() == "GET" || *request.getMethod() == "HEAD")
 			is_get = true;
 
 		env[0] = alloc_str("AUTH_TYPE=Basic"); // DEFAULT
 		if (is_get)
 		{
-			// if (httpExchange.getResponse().checkFieldExistence("Content-Length"))
-			// {
-			// 	std::vector<std::string> vec = httpExchange.getResponse().getFieldValue("Content-Length");
-			// 	if (vec.size() != 1)
-			// 		throw ExceptionHttpStatusCode(HTTP_500);
-			// 	env[1] = alloc_str("CONTENT_LENGTH=" + vec[0]);
-			// }
-			// else
 			env[1] = alloc_str("");
 		}
 		else
@@ -145,8 +138,10 @@ static char const **create_cgi_env(HttpRequest const &request, Server const &ser
 		env[4] = alloc_str("PATH_INFO=" + file_name);
 		env[5]  = alloc_str("PATH_TRANSLATED=" + file_name); // root/URI
 		env[6] = alloc_str("");
-		if (is_get)
+		if (is_get && *request.getMethod() == "GET")
 			env[6]  = alloc_str("QUERY_STRING=" + dynamic_cast<HttpRequestGet const &>(request).getQueryString()); // '?' arguments
+		if (is_get && *request.getMethod() == "HEAD")
+			env[6]  = alloc_str("QUERY_STRING=" + dynamic_cast<HttpRequestHead const &>(request).getQueryString()); // '?' arguments
 		else
 			env[6]  = alloc_str("QUERY_STRING=\"\""); // '?' arguments
 		env[7]  = alloc_str("REMOTE_ADDR=" + server.getHost());
@@ -186,7 +181,6 @@ void Cgi::exec(std::string cgi_path, std::string file_name, HttpRequest const &r
 	this->_pid = fork();
 	if (this->_pid == -1)
 		throw ExceptionHttpStatusCode(HTTP_500);
-
 	else if (this->_pid == 0) // child
 	{
 		bool error = false;

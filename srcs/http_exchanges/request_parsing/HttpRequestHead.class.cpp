@@ -1,26 +1,26 @@
-#include "HttpRequestGet.class.hpp"
+#include "HttpRequestHead.class.hpp"
 
-HttpRequestGet::HttpRequestGet (std::string const & str_request)
+HttpRequestHead::HttpRequestHead (std::string const & str_request)
 	throw (ExceptionHttpStatusCode)
 	: HttpRequest(), _cgi(), _has_cgi(false)
 {
 	std::stringstream	stream_request (str_request);
 
 	if (stream_request.bad())
-		throw_http_err_with_log(HTTP_500, MSG_ERR_HTTPGET_SSTREAM_FAIL);
+		throw_http_err_with_log(HTTP_500, MSG_ERR_HTTPHEAD_SSTREAM_FAIL);
 	HttpRequest::init(stream_request);
-	if (*getMethod() != "GET")
-		throw_http_err_with_log(HTTP_500, MSG_ERR_HTTPGET_WRONG_METHOD);
+	if (*getMethod() != "HEAD")
+		throw_http_err_with_log(HTTP_500, MSG_ERR_HTTPHEAD_WRONG_METHOD);
 }
 
-HttpRequestGet::HttpRequestGet ( HttpRequestGet const & model)
+HttpRequestHead::HttpRequestHead ( HttpRequestHead const & model)
 	: HttpRequest(model), _cgi(model._cgi), _has_cgi(model._has_cgi), _query_string(model._query_string)
 {}
 
-HttpRequestGet::HttpRequestGet( void ): _cgi(), _has_cgi(false)
+HttpRequestHead::HttpRequestHead( void ): _cgi(), _has_cgi(false)
 {}
 
-HttpRequestGet & HttpRequestGet::operator= (HttpRequestGet const & model)
+HttpRequestHead & HttpRequestHead::operator= (HttpRequestHead const & model)
 {
 	if (&model != this)
 	{
@@ -32,22 +32,22 @@ HttpRequestGet & HttpRequestGet::operator= (HttpRequestGet const & model)
 	return (*this);
 }
 
-HttpRequestGet::~HttpRequestGet( void )
+HttpRequestHead::~HttpRequestHead( void )
 {}
 
-void	HttpRequestGet::processHeader( Socket const * const socket ) {(void)socket;}
+void	HttpRequestHead::processHeader( Socket const * const socket ) {(void)socket;}
 
-bool	HttpRequestGet::hasBody() const {return (false);}
+bool	HttpRequestHead::hasBody() const {return (false);}
 
-bool	HttpRequestGet::hasCgi() const {return _has_cgi;}
+bool	HttpRequestHead::hasCgi() const {return _has_cgi;}
 
-void	HttpRequestGet::setCgi(bool has_cgi) {_has_cgi = has_cgi;}
+void	HttpRequestHead::setCgi(bool has_cgi) {_has_cgi = has_cgi;}
 
-Cgi		*HttpRequestGet::getCgi() {return &_cgi;}
+Cgi		*HttpRequestHead::getCgi() {return &_cgi;}
 
-std::string const & HttpRequestGet::getQueryString() const {return _query_string;}
+std::string const & HttpRequestHead::getQueryString() const {return _query_string;}
 
-void	HttpRequestGet::readBody(int fd, Socket const * const socket, bool &end)
+void	HttpRequestHead::readBody(int fd, Socket const * const socket, bool &end)
 {
 	(void)socket;
 	(void)fd;
@@ -59,7 +59,7 @@ static void	_add_content_type_field(HttpResponse & response, std::string const &
 	response.addField("Content-Type", get_MIME_type(target_uri));
 }
 
-std::string	HttpRequestGet::getUri(std::string root)
+std::string	HttpRequestHead::getUri(std::string root)
 {
 	std::string uri = root + getTarget();
 	size_t pos = uri.find_first_of('?');
@@ -71,35 +71,26 @@ std::string	HttpRequestGet::getUri(std::string root)
 	return (uri);
 }
 
-static void	_add_autoindex_body(HttpResponse & response, Autoindex & index)
-{
-	std::string body_content;
-
-	body_content = index.generateAutoIndexBody();
-	response.setBody(body_content);
-}
-
-static void _add_content_length_field(HttpResponse & response)
+static void _add_content_length_field(HttpResponse & response,size_t length)
 {
 	std::string	field_name;
-	std::string length;
+	std::string length_str;
 
 	field_name = "Content-Length";
-	length = ft_itoa(response.getBody().length());
-	response.addField(field_name, length);
+	length_str = ft_itoa(length);
+	response.addField(field_name, length_str);
 }
 
 static void	_handle_Autoindex(std::string const & location_root,
 				std::string const & target, HttpResponse & response)
 {
-		Autoindex index(location_root, target);
+		Autoindex	index(location_root, target);
 
-		_add_autoindex_body(response, index);
-		_add_content_length_field(response);
+		_add_content_length_field(response, index.generateAutoIndexBody().length());
 		_add_content_type_field(response, ".html");
 }
 
-e_status	HttpRequestGet::_handle_index_file(std::string & uri, Location const & location,
+e_status	HttpRequestHead::_handle_index_file(std::string & uri, Location const & location,
 				HttpResponse & response,  Server const & server)
 {
 	if (location.updateUriToIndex(uri) == SUCCESS)
@@ -111,7 +102,7 @@ e_status	HttpRequestGet::_handle_index_file(std::string & uri, Location const & 
 		return (FAILURE);
 }
 
-void	HttpRequestGet::_redirectDirectory(HttpResponse & response)
+void	HttpRequestHead::_redirectDirectory(HttpResponse & response)
 {
 	std::string location = "http://";
 	location += getFieldValue("Host")[0];
@@ -121,7 +112,7 @@ void	HttpRequestGet::_redirectDirectory(HttpResponse & response)
 	throw ExceptionHttpStatusCode(HTTP_301);
 }
 
-void	HttpRequestGet::_handleDirectory(std::string & uri, Location const & location,
+void	HttpRequestHead::_handleDirectory(std::string & uri, Location const & location,
 				HttpResponse & response, Server const & server)
 {
 	if (*(uri.end() - 1) != '/')
@@ -136,16 +127,16 @@ void	HttpRequestGet::_handleDirectory(std::string & uri, Location const & locati
 	throw_http_err_with_log(HTTP_403, "ERROR: no such file or directory");
 }
 
-void	HttpRequestGet::_handleCgi(Server const & server,
+void	HttpRequestHead::_handleCgi(Server const & server,
 						CgiLocation const &cgi_location)
 {
 	std::string uri = getUri(cgi_location.getRootPath());
-	////std::cout << uri <<std::endl;
-	////std::cout << _query_string <<std::endl;
+	std::cout << uri <<std::endl;
+	std::cout << _query_string <<std::endl;
 	_cgi.exec(cgi_location.getExecPath(), uri, *this, server);
 }
 
-void	HttpRequestGet::_handleFile(std::string & uri, HttpResponse & response,
+void	HttpRequestHead::_handleFile(std::string & uri, HttpResponse & response,
 								Server const & server)
 {
 	CgiLocation cgi_location;
@@ -153,12 +144,13 @@ void	HttpRequestGet::_handleFile(std::string & uri, HttpResponse & response,
 	if (_has_cgi)
 		return _handleCgi(server, cgi_location);
 	e_status_code error_code = response.openBodyFileStream(uri);
+	response.closeBodyFile();
 	if (error_code != HTTP_200)
 		throw ExceptionHttpStatusCode(error_code);
 	_add_content_type_field(response, uri);
 }
 
-void	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &response )
+void	HttpRequestHead::_initResponse( Socket const * const socket, HttpResponse &response )
 {
 	response.setVersion(getVersion());
 
@@ -176,9 +168,10 @@ void	HttpRequestGet::_initResponse( Socket const * const socket, HttpResponse &r
 		_handleDirectory(uri, location, response, socket->getServer());
 	else
 		_handleFile(uri, response, socket->getServer());
+	_body.clear();
 }
 
-void	HttpRequestGet::generateResponse( Socket const * const socket, HttpResponse &response )
+void	HttpRequestHead::generateResponse( Socket const * const socket, HttpResponse &response )
 {
 	_initResponse(socket, response);
 	if (!_has_cgi)

@@ -4,11 +4,13 @@ void	_parse_method(std::string &token, Location &loc)
 {
 	std::vector<std::string>::iterator it;
 
-	if (token != "GET" && token != "DELETE" && token != "POST")
+	if (std::find(g_http_methods.begin(), g_http_methods.end(), token) == g_http_methods.end())
 		ThrowBadArgument(token, "limit_except");
 	it = std::find(loc.getMethods().begin(), loc.getMethods().end(), token);
 	if (it != loc.getMethods().end())
 		loc.getMethods().erase(it);
+	else
+		ThrowMisc("duplicated `" + token + "' in field `limit_except'");
 }
 
 // only in location

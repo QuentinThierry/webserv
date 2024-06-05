@@ -163,6 +163,8 @@ void	HttpRequestPost::_openFile()
 
 void HttpRequestPost::_processBodyContentLength(bool &end)
 {
+	if (_body.empty())
+		return ;
 	if (_content_length == 0)
 	{
 		if (_has_cgi)
@@ -224,12 +226,12 @@ bool	HttpRequestPost::_parseChunkBody()
 
 	if (_chunk_read_size + _body.size() > _content_length)
 		write_size = _content_length - _chunk_read_size;
-	if (_has_cgi)
+	if (_has_cgi && write_size != 0)
 	{
 		if (_cgi.write(_body.substr(0, write_size)) == -1)
 			throw_http_err_with_log(HTTP_500, "ERROR: fail to write in cgi"); //!not sure
 	}
-	else
+	else if (write_size != 0)
 	{
 		_file.write(_body.c_str(), write_size);
 		if (!_file.good())
@@ -277,7 +279,7 @@ void	HttpRequestPost::processBody(bool &end)
 				return ;
 			}
 		}
-		if (_has_size_chunk)
+		if (_has_size_chunk && !_body.empty())
 		{
 			if (!_parseChunkBody())
 				return ;

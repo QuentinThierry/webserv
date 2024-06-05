@@ -7,24 +7,11 @@ HttpResponse::HttpResponse( HttpResponse const & model)
 	*this = model;
 }
 
-HttpResponse::HttpResponse( it_version const & version)
-{
-	_version = version;
-	_status_code = HTTP_200;
-	_fields.push_back(HttpField("Connection", "close"));
-	_fields.push_back(HttpField("Server", SERVER_NAME));
-	_fileOpen = false;
-	_response_ready = false;
-	_content_length = 0;
-	_content_length_flag = false;
-	_end_of_file_flag = false;
-	_write_size = 0;
-}
-
 HttpResponse::HttpResponse( void )
 {
 	_version = --g_http_versions.end();
 	_status_code = HTTP_200;
+	_custom_status = "";
 	_fields.push_back(HttpField("Connection", "close"));
 	_fields.push_back(HttpField("Server", SERVER_NAME));
 	_fileOpen = false;
@@ -43,6 +30,7 @@ HttpResponse & HttpResponse::operator=(HttpResponse const & model )
 		////std::cout <<"COPY RESPONSE WARNING\n";
 		_version = model._version;
 		_status_code = model._status_code;
+		_custom_status = model._custom_status;
 		_fields = model._fields;
 		_header = model._header;
 
@@ -92,6 +80,18 @@ void		HttpResponse::setBody(std::string &body_content)
 {
 	_body = body_content;
 	_content_length = _body.size();
+}
+
+void	HttpResponse::removeBody()
+{
+	_body.clear();
+	_content_length = 0;
+	_content_length_flag = true;
+	_end_of_file_flag = false;
+	_write_size = 0;
+	if (_bodyFile.is_open())
+		_bodyFile.close();
+	_fileOpen = false;
 }
 
 bool	HttpResponse::checkFieldExistence(std::string const & field_name) const
@@ -161,11 +161,11 @@ void	HttpResponse::displayHeader()
 		_fields.at(i).display_field();
 }
 
-static void	_close_body_file(std::ifstream &response_bodyFile, bool &response_fileOpen)
+void	HttpResponse::closeBodyFile(void)
 {
-	response_fileOpen = false;
-	if (response_bodyFile.is_open())
-		response_bodyFile.close();
+	_fileOpen = false;
+	if (_bodyFile.is_open())
+		_bodyFile.close();
 }
 
 static e_status_code	_openFileStream(std::string & filename,
@@ -208,7 +208,7 @@ e_status_code HttpResponse::openBodyFileStream(std::string filename)
 
 	if (_set_content_length_field(filename, _fields) == FAILURE)
 	{
-		_close_body_file(_bodyFile, _fileOpen);
+		closeBodyFile();
 		return HTTP_403;
 	}
 	
@@ -328,7 +328,7 @@ void	HttpResponse::_generateErrorPageBody(e_status_code error_code)
 	_content_length = _body.size();
 }
 
-void	HttpResponse::generateErrorResponse(e_status_code status, Server const & server)
+void	HttpResponse::generateErrorResponse(e_status_code status, Server const & server, it_version method)
 {
 	_version = --g_http_versions.end(); //!temporaire
 	_status_code = status;
@@ -340,7 +340,7 @@ void	HttpResponse::generateErrorResponse(e_status_code status, Server const & se
 	if (checkFieldExistence("Content-Length"))
 		HttpField::erase_field(_fields, "Content-Length");
 	if (_fileOpen == true)
-		_close_body_file(_bodyFile, _fileOpen);
+		closeBodyFile();
 	_body.clear();
 	_content_length = 0;
 	_content_length_flag = false;
@@ -351,6 +351,8 @@ void	HttpResponse::generateErrorResponse(e_status_code status, Server const & se
 		_generateErrorPageBody(_status_code);
 	else if (openBodyFileStream(path) != HTTP_200)
 		_fields.push_back(HttpField("Content-Length", "0"));
+	if (method != g_http_versions.end() && *method == "HEAD")
+		removeBody();
 	fillHeader();
 }
 
@@ -382,14 +384,19 @@ static ssize_t	send_header(int fd, std::string &header)
 	return ret;
 }
 
-static ssize_t	send_body_file(int fd, std::ifstream &file, bool &is_open)
+ssize_t		HttpResponse::_sendBodyFile(int fd)
 {
 	char tmp[SIZE_WRITE + 1] = {0};
-	file.read(tmp, SIZE_WRITE);
-	if (file.eof() || file.fail())
-		_close_body_file(file, is_open);
-	file.gcount();
-	ssize_t ret = send(fd, tmp, file.gcount(), MSG_NOSIGNAL);
+	_bodyFile.read(tmp, SIZE_WRITE);
+	if (_bodyFile.eof())
+		closeBodyFile();
+	else if (_bodyFile.fail())
+	{
+		closeBodyFile();
+		return -1;
+	}
+	_bodyFile.gcount();
+	ssize_t ret = send(fd, tmp, _bodyFile.gcount(), MSG_NOSIGNAL);
 	return ret;
 }
 
@@ -409,14 +416,14 @@ void	HttpResponse::writeResponse(int fd, Cluster &cluster, bool has_cgi)
 	if (_header.empty() == false)
 		ret = send_header(fd, _header);
 	else if (_fileOpen)
-		ret = send_body_file(fd, _bodyFile, _fileOpen);
+		ret = _sendBodyFile(fd);
 	else if (!_body.empty() || _end_of_file_flag)
 		ret = _sendBodyString(fd, has_cgi);
 	if (ret == -1 || ret == 0)
 	{
 		////std::cout << "error\n";
 		if (_fileOpen == true)
-			_close_body_file(_bodyFile, _fileOpen);
+			closeBodyFile();
 		cluster.closeConnection(fd);
 		return ;
 	}

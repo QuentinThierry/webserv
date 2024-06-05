@@ -3,9 +3,8 @@
 Location::Location()
 {
 	_location_path = "";
-	_accepted_methods.push_back("GET");
-	_accepted_methods.push_back("POST");
-	_accepted_methods.push_back("DELETE");
+	for (it_method it = g_http_methods.begin(); it != g_http_methods.end(); ++it)
+		_accepted_methods.push_back(*it);
 	_root_path = "/tmp/webserv/";
 	_has_redirect = false;
 	_redirect = std::pair<int, std::string>();
