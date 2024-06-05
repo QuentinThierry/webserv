@@ -7,24 +7,11 @@ HttpResponse::HttpResponse( HttpResponse const & model)
 	*this = model;
 }
 
-HttpResponse::HttpResponse( it_version const & version)
-{
-	_version = version;
-	_status_code = HTTP_200;
-	_fields.push_back(HttpField("Connection", "close"));
-	_fields.push_back(HttpField("Server", SERVER_NAME));
-	_fileOpen = false;
-	_response_ready = false;
-	_content_length = 0;
-	_content_length_flag = false;
-	_end_of_file_flag = false;
-	_write_size = 0;
-}
-
 HttpResponse::HttpResponse( void )
 {
 	_version = --g_http_versions.end();
 	_status_code = HTTP_200;
+	_custom_status = "";
 	_fields.push_back(HttpField("Connection", "close"));
 	_fields.push_back(HttpField("Server", SERVER_NAME));
 	_fileOpen = false;
@@ -43,6 +30,7 @@ HttpResponse & HttpResponse::operator=(HttpResponse const & model )
 		std::cout <<"COPY RESPONSE WARNING\n";
 		_version = model._version;
 		_status_code = model._status_code;
+		_custom_status = model._custom_status;
 		_fields = model._fields;
 		_header = model._header;
 
