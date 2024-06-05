@@ -107,6 +107,8 @@ e_http_method	HttpExchange::_findMethod(std::string const & cmp)
 
 	for (unsigned int i = 0; i < 4; i++)
 	{
+		if (cmp == method_name[i])
+			return method_value[i];
 		for (unsigned int j = 0; j < method_name[i].size(); j++)
 		{
 			if (method_name[i][j] != cmp[j])
