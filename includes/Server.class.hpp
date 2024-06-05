@@ -37,10 +37,10 @@ class Server
 		void	setLocations(std::vector<Location> locations);
 		void	addLocations(Location location);
 		void	addCgiLocation(CgiLocation cgi_loc);
-		void	_setHasListen(bool has_listen);
+		void	setHasListen(bool has_listen);
 
 		void	removeDuplicatedLocation();
-		bool	is_equal(Server const &ref) const;
+		bool	isEqual(Server const &ref) const;
 
 		Location const &searchLocation(std::string path) const;
 		bool searchCgiLocation(std::string path, CgiLocation &cgi_loc) const;

@@ -106,7 +106,7 @@ void fill_listen(std::string &token, Server &server, Location *location, unsigne
 	if (server.getHasListen() == true)
 		ThrowMisc("Too much listen arguments");
 	_parse_listen_argument(token, server);
-	server._setHasListen(true);
+	server.setHasListen(true);
 }
 
 void fill_server_name(std::string &token, Server &server, Location *location, unsigned int arg_counter)

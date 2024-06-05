@@ -20,17 +20,16 @@ class Cluster;
 class HttpResponse
 {
 	public:
-		HttpResponse( HttpResponse const & model);
-		HttpResponse( it_version const & version);
+		HttpResponse( HttpResponse const & model );
 		~HttpResponse( void );
 		HttpResponse( void );
-		HttpResponse & operator=(HttpResponse const & model );
+		HttpResponse & operator=( HttpResponse const & model );
 
 
 		void		setStatusCode(e_status_code code);
 		void		setVersion(it_version version);
 		void		setBody(std::string &body_content);
-		void		setEndOfFile();
+		void		setEndOfFile( void );
 		void		addAllowMethod(std::vector<std::string> const &);
 		void		addField(std::string name, std::string value);
 		void		addBodyContent(std::string str);
