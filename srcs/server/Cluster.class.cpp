@@ -64,8 +64,6 @@ void Cluster::_addServer(Server const &server)
 					"Error: Too many servers, ignore"));
 			return ;
 		}
-		if (new_socket.getFd() > _max_fd)
-			_max_fd = new_socket.getFd();
 		_sockets.push_back(new_socket);
 	}
 	else
@@ -146,6 +144,60 @@ static int findFd(t_map_sockets const & map_socket, HttpExchange *exchange)
 	return -1;
 }
 
+void Cluster::_setMaxFd()
+{
+	_max_fd = 0;
+	for (t_const_iter_sockets it = _sockets.begin(); it != _sockets.end(); it++)
+		if (it->getFd() > _max_fd)
+			_max_fd = it->getFd();
+	for (t_const_iter_map_sockets it = _map_sockets.begin(); it != _map_sockets.end(); it++)
+	{
+		if (it->first > _max_fd)
+			_max_fd = it->first;
+	}
+	for (t_const_iter_map_cgi it = _map_cgi.begin(); it != _map_cgi.end(); it++)
+	{
+		if (it->first->getReadPipe() > _max_fd)
+			_max_fd = it->first->getReadPipe();
+		if (*it->second->getRequest().getMethod() == "POST")
+			if (it->first->getWritePipe() > _max_fd)
+				_max_fd = it->first->getWritePipe();
+	}
+}
+
+static void _display_fd_valid(t_map_cgi & cgi, t_map_sockets &map_sockets, t_sockets &socket)
+{
+	std::cout << "----------------------------------------------------------------"<<std::endl;
+	std::cout << "fd accept: ";
+	for (t_const_iter_sockets it = socket.begin(); it != socket.end(); it++)
+	{
+		std::cout << it->getFd() << " ";
+		if (fcntl(it->getFd(), F_GETFD) == -1)
+			std::cout << "bad fd accept :" << it->getFd() << std::endl;
+	}
+	std::cout << std::endl << "fd read or write: ";
+	for (t_const_iter_map_sockets it = map_sockets.begin(); it != map_sockets.end(); it++)
+	{
+		std::cout << it->first << " ";
+		if (fcntl(it->first, F_GETFD) == -1)
+			std::cout << "bad fd read or write :" << it->first << std::endl;
+	}
+	std::cout << std::endl << "fd pipe: ";
+	for (t_const_iter_map_cgi it = cgi.begin(); it != cgi.end(); it++)
+	{
+		std::cout <<it->first->getReadPipe() << "(R) ";
+		if (fcntl(it->first->getReadPipe(), F_GETFD) == -1)
+			std::cout << "bad fd read pipe:" << it->first->getReadPipe() << std::endl;
+		if (*it->second->getRequest().getMethod() == "POST")
+		{
+			std::cout <<it->first->getReadPipe() << "(W) ";
+			if (fcntl(it->first->getWritePipe(), F_GETFD) == -1)
+				std::cout << "bad fd write pipe :" << it->first->getWritePipe() << std::endl;
+		}
+	}
+	std::cout << std::endl;
+}
+
 void Cluster::runServer()
 {
 	fd_set readfds;
@@ -156,11 +208,11 @@ void Cluster::runServer()
 		timeout.tv_sec = 3;
 		timeout.tv_usec = 0;
 		_initSetFds(&readfds, &writefds);
+		_setMaxFd();
 		std::cout << " ----- SELECT() ---- " << std::endl;
 		int nb_fds = select(_max_fd + 1, &readfds, &writefds, NULL, &timeout);
 		if (nb_fds == -1)
 		{
-			std::cout << "coucou error select --------------------------------" << std::endl;
 			ThrowMisc(strerror(errno));
 		}
 		if (nb_fds == 0)
@@ -226,8 +278,6 @@ void Cluster::_acceptNewConnection(Socket const & socket)
 					"Error: Too many servers, ignore new connection to"));
 		return ;
 	}
-	if (new_fd > _max_fd)
-		_max_fd = new_fd;
 	_map_sockets.push_back(std::make_pair(new_fd, HttpExchange(socket)));
 }
 
@@ -282,10 +332,5 @@ void Cluster::closeConnection(int fd)
 
 void Cluster::addCgi(Cgi *cgi, HttpExchange *httpExchange)
 {
-	// std::cout << "add cgi" << std::endl;
-	if (cgi->getReadPipe() > _max_fd)
-		_max_fd = cgi->getReadPipe();
-	if (cgi->getWritePipe() > _max_fd)
-		_max_fd = cgi->getWritePipe();
 	_map_cgi.push_back(std::make_pair(cgi, httpExchange));
 }
