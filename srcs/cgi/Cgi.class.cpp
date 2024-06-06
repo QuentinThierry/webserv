@@ -193,22 +193,21 @@ void Cgi::exec(std::string cgi_path, std::string file_name, HttpRequest const &r
 		if (!error)
 		{
 			char const **env = create_cgi_env(request, server, file_name);
-			for (uint16_t i = 0; i < 18; i++)
-				std::cerr << env[i] << std::endl;
+			// for (uint16_t i = 0; i < 18; i++)
+			// 	std::cerr << env[i] << std::endl;
 			if (env)
 			{
-				std::cerr << "path :" << cgi_path.c_str() <<std::endl;
-				std::cerr << "file :" << file_name.c_str() <<std::endl;
-				std::cerr << "-----------------------------execve ready------------------------------"<<std::endl;
+				// std::cerr << "path :" << cgi_path.c_str() <<std::endl;
+				// std::cerr << "file :" << file_name.c_str() <<std::endl;
+				// std::cerr << "-----------------------------execve ready------------------------------"<<std::endl;
 				char const *args[3];
 				args[0] = alloc_str(cgi_path);
 				args[1] = alloc_str(file_name);
 				args[2] = NULL;
 
-				std::cerr << execve(cgi_path.c_str(), (char * const *)args,
-					(char **)env) <<std::endl;
-				perror("");
-				std::cerr << "-----------------------------end------------------------------"<<std::endl;
+				execve(cgi_path.c_str(), (char * const *)args, (char **)env);
+				// perror("");
+				// std::cerr << "-----------------------------end------------------------------"<<std::endl;
 				free_env(env);
 				delete(args[0]);
 				delete(args[1]);

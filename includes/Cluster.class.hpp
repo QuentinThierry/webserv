@@ -7,7 +7,7 @@
 
 # include <sys/time.h>
 # include <vector>
-# include <deque>
+# include <list>
 # include <algorithm>
 
 # define TIMEOUT_SEC 30
@@ -17,13 +17,13 @@ typedef std::vector<Socket>::const_iterator							t_const_iter_sockets;
 typedef std::vector<Socket>::iterator								t_iter_sockets;
 typedef std::vector<Socket>											t_sockets;
 
-typedef std::deque<std::pair<int, HttpExchange> >::const_iterator	t_const_iter_map_sockets;
-typedef std::deque<std::pair<int, HttpExchange> >::iterator			t_iter_map_sockets;
-typedef std::deque<std::pair<int, HttpExchange> >					t_map_sockets;
+typedef std::list<std::pair<int, HttpExchange> >::const_iterator	t_const_iter_map_sockets;
+typedef std::list<std::pair<int, HttpExchange> >::iterator			t_iter_map_sockets;
+typedef std::list<std::pair<int, HttpExchange> >					t_map_sockets;
 
-typedef std::deque<std::pair<Cgi *, HttpExchange *> >::const_iterator	t_const_iter_map_cgi;
-typedef std::deque<std::pair<Cgi *, HttpExchange *> >::iterator			t_iter_map_cgi;
-typedef std::deque<std::pair<Cgi *, HttpExchange *> >					t_map_cgi;
+typedef std::list<std::pair<Cgi *, HttpExchange *> >::const_iterator	t_const_iter_map_cgi;
+typedef std::list<std::pair<Cgi *, HttpExchange *> >::iterator			t_iter_map_cgi;
+typedef std::list<std::pair<Cgi *, HttpExchange *> >					t_map_cgi;
 
 class Cluster
 {
@@ -54,7 +54,6 @@ class Cluster
 		std::vector<int>	_fd_write; //fd create with accept => write
 		t_map_cgi			_map_cgi;
 		int					_max_fd;
-		bool				_close_connection;
 };
 
 #endif

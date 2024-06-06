@@ -2,7 +2,7 @@
 #include "ConfException.class.hpp"
 #include "utils.hpp"
 
-Cluster::Cluster():_max_fd(0), _close_connection(false){};
+Cluster::Cluster():_max_fd(0) {};
 
 Cluster::Cluster(Cluster const &copy)
 {
@@ -17,7 +17,6 @@ Cluster & Cluster::operator=(Cluster const &copy)
 		_map_sockets = copy._map_sockets;
 		_fd_write = copy._fd_write;
 		_max_fd = copy._max_fd;
-		_close_connection = copy._close_connection;
 	}
 	return *this;
 }
@@ -35,7 +34,6 @@ Cluster::~Cluster()
 Cluster::Cluster(std::vector<Server> servers)
 {
 	_max_fd = 0;
-	_close_connection = false;
 	for (unsigned int i = 0; i < servers.size(); i++)
 		_addServer(servers[i]);
 }
@@ -127,13 +125,13 @@ void Cluster::_checkTimeout()
 		protected_write(g_err_log_fd, std::string("Error: ") + std::strerror(errno));
 		throw ExceptionHttpStatusCode(HTTP_500);
 	}
-	for (unsigned int i = 0; i < _map_sockets.size(); i++)
+	for (t_const_iter_map_sockets it = _map_sockets.begin(); it != _map_sockets.end(); it++)
 	{
-		if (_map_sockets.at(i).second.getAcceptRequestTime().tv_sec + TIMEOUT_SEC < time.tv_sec)
+		if (it->second.getAcceptRequestTime().tv_sec + TIMEOUT_SEC < time.tv_sec)
 		{
-			protected_write(g_err_log_fd, error_message_server(_map_sockets.at(i).second.getSocket().getServer(),
+			protected_write(g_err_log_fd, error_message_server(it->second.getSocket().getServer(),
 					std::string("Error: Request timeout")));
-			closeConnection(_map_sockets.at(i).first);
+			closeConnection(it->first);
 		}
 	}
 }
@@ -161,7 +159,10 @@ void Cluster::runServer()
 		std::cout << " ----- SELECT() ---- " << std::endl;
 		int nb_fds = select(_max_fd + 1, &readfds, &writefds, NULL, &timeout);
 		if (nb_fds == -1)
+		{
+			std::cout << "coucou error select --------------------------------" << std::endl;
 			ThrowMisc(strerror(errno));
+		}
 		if (nb_fds == 0)
 			continue ;
 		for (t_iter_sockets it = _sockets.begin(); it != _sockets.end(); it++)
@@ -189,24 +190,18 @@ void Cluster::runServer()
 				break;
 			}
 		}
-		for (unsigned int i = 0; i < _map_sockets.size() + (_close_connection == true); i++)
+		for (t_iter_map_sockets it = _map_sockets.begin(); it != _map_sockets.end(); it++)
 		{
-			if (_close_connection == true)
-			{
-				if (i > 0)
-					i--;
-				_close_connection = false;
-			}
-			if (FD_ISSET(_map_sockets.at(i).first, &writefds))
+			if (FD_ISSET(it->first, &writefds))
 			{
 				std::cout << "write data" << std::endl;
-				_map_sockets.at(i).second.writeSocket(_map_sockets.at(i).first, *this);
+				it->second.writeSocket(it->first, *this);
 				break ;
 			}
-			else if (FD_ISSET(_map_sockets.at(i).first, &readfds))
+			else if (FD_ISSET(it->first, &readfds))
 			{
 				std::cout << "read data" << std::endl;
-				_map_sockets.at(i).second.readSocket(_map_sockets.at(i).first, *this);
+				it->second.readSocket(it->first, *this);
 				break ;
 			}
 		}
@@ -279,11 +274,7 @@ void Cluster::closeConnection(int fd)
 		{
 			remove_cgi(&it->second, _map_cgi);
 			close(it->first);
-			if (it == _map_sockets.begin())
-				_map_sockets.pop_front();
-			else
-				_map_sockets.erase(it);
-			_close_connection = true;
+			_map_sockets.erase(it);
 			break;
 		}
 	}
@@ -291,7 +282,7 @@ void Cluster::closeConnection(int fd)
 
 void Cluster::addCgi(Cgi *cgi, HttpExchange *httpExchange)
 {
-	std::cout << "add cgi" << std::endl;
+	// std::cout << "add cgi" << std::endl;
 	if (cgi->getReadPipe() > _max_fd)
 		_max_fd = cgi->getReadPipe();
 	if (cgi->getWritePipe() > _max_fd)
