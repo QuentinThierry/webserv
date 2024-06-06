@@ -159,10 +159,7 @@ void Cluster::runServer()
 		////std::cout << " ----- SELECT() ---- " << std::endl;
 		int nb_fds = select(_max_fd + 1, &readfds, &writefds, NULL, &timeout);
 		if (nb_fds == -1)
-		{
-			std::cout << "coucou error select --------------------------------" << std::endl;
 			ThrowMisc(strerror(errno));
-		}
 		if (nb_fds == 0)
 			continue ;
 		for (t_iter_sockets it = _sockets.begin(); it != _sockets.end(); it++)
