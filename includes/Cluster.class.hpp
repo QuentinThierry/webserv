@@ -48,6 +48,7 @@ class Cluster
 		void			_printSet(fd_set *fds, std::string str) const;
 		void			_acceptNewConnection(Socket const & socket);
 		void			_checkTimeout();
+		void			_setMaxFd();
 
 		t_sockets			_sockets; //fd listening
 		t_map_sockets		_map_sockets; //fd create with accept => read and write

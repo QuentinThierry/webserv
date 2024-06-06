@@ -170,14 +170,12 @@ static char const **create_cgi_env(HttpRequest const &request, Server const &ser
 */
 void Cgi::exec(std::string cgi_path, std::string file_name, HttpRequest const &request, Server const &server)
 {
-	std::cout<<"----exec cgi------" << std::endl;
 	if (access(cgi_path.c_str(), X_OK))
 		throw ExceptionHttpStatusCode(HTTP_502);
 	if (pipe(this->_pipe_input) == -1)
 		throw ExceptionHttpStatusCode(HTTP_500);
 	if (pipe(this->_pipe_output) == -1)
 		throw ExceptionHttpStatusCode(HTTP_500);
-	std::cout<<"----exec cgi reussi------" << std::endl;
 	this->_pid = fork();
 	if (this->_pid == -1)
 		throw ExceptionHttpStatusCode(HTTP_500);
@@ -187,9 +185,13 @@ void Cgi::exec(std::string cgi_path, std::string file_name, HttpRequest const &r
 		if (dup2(this->_pipe_input[READ], 0) == -1) error = true;
 		if (dup2(this->_pipe_output[WRITE], 1) == -1) error = true;
 		close(this->_pipe_input[READ]);
+		_pipe_input[READ] = -1;
 		close(this->_pipe_input[WRITE]);
+		_pipe_input[WRITE] = -1;
 		close(this->_pipe_output[READ]);
+		_pipe_output[READ] = -1;
 		close(this->_pipe_output[WRITE]);
+		_pipe_output[WRITE] = -1;
 		if (!error)
 		{
 			char const **env = create_cgi_env(request, server, file_name);
@@ -218,12 +220,15 @@ void Cgi::exec(std::string cgi_path, std::string file_name, HttpRequest const &r
 	else
 	{
 		close(_pipe_input[READ]);
+		_pipe_input[READ] = -1;
 		close(_pipe_output[WRITE]);
+		_pipe_output[WRITE] = -1;
 	}
 }
 
 Cgi::~Cgi()
 {
+	std::cout << "cgi" << _pid << std::endl;
 	if (this->_pipe_input[READ] != -1)
 		close(this->_pipe_input[READ]);
 	if (this->_pipe_input[WRITE] != -1)
@@ -232,6 +237,12 @@ Cgi::~Cgi()
 		close(this->_pipe_output[READ]);
 	if (this->_pipe_output[WRITE] != -1)
 		close(this->_pipe_output[WRITE]);
-	if (this->_pid > 0 && kill(this->_pid, 0))
-		kill(this->_pid, SIGTERM);
+	if (this->_pid > 0 && kill(this->_pid, 0) == 0)
+	{
+		if (kill(this->_pid, SIGTERM) == -1)
+			std::cout << "error kill" <<std::endl;
+		std::cout << "kill :" << _pid << " " << getpid() << std::endl;
+	}
+	else
+		perror("ERROR");
 }
