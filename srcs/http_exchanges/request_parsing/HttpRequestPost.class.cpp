@@ -34,6 +34,7 @@ HttpRequestPost::HttpRequestPost (std::string const & str_request)
 HttpRequestPost::HttpRequestPost ( HttpRequestPost const & model)
 	: HttpRequest(model)
 {
+	std::cout << "WARNING COPY CONSTRUCTOR POST REQUEST" << std::endl;
 	_filename = model._filename;
 
 	_content_length = model._content_length;
@@ -65,6 +66,7 @@ HttpRequestPost & HttpRequestPost::operator= (HttpRequestPost const & model)
 {
 	if (&model != this)
 	{
+		std::cout << "WARNING = POST REQUEST" << std::endl;
 		HttpRequest::operator=(model);
 		_filename = model._filename;
 
