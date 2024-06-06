@@ -165,38 +165,38 @@ void Cluster::_setMaxFd()
 	}
 }
 
-static void _display_fd_valid(t_map_cgi & cgi, t_map_sockets &map_sockets, t_sockets &socket)
-{
-	std::cout << "----------------------------------------------------------------"<<std::endl;
-	std::cout << "fd accept: ";
-	for (t_const_iter_sockets it = socket.begin(); it != socket.end(); it++)
-	{
-		std::cout << it->getFd() << " ";
-		if (fcntl(it->getFd(), F_GETFD) == -1)
-			std::cout << "bad fd accept :" << it->getFd() << std::endl;
-	}
-	std::cout << std::endl << "fd read or write: ";
-	for (t_const_iter_map_sockets it = map_sockets.begin(); it != map_sockets.end(); it++)
-	{
-		std::cout << it->first << " ";
-		if (fcntl(it->first, F_GETFD) == -1)
-			std::cout << "bad fd read or write :" << it->first << std::endl;
-	}
-	std::cout << std::endl << "fd pipe: ";
-	for (t_const_iter_map_cgi it = cgi.begin(); it != cgi.end(); it++)
-	{
-		std::cout <<it->first->getReadPipe() << "(R) ";
-		if (fcntl(it->first->getReadPipe(), F_GETFD) == -1)
-			std::cout << "bad fd read pipe:" << it->first->getReadPipe() << std::endl;
-		if (*it->second->getRequest().getMethod() == "POST")
-		{
-			std::cout <<it->first->getReadPipe() << "(W) ";
-			if (fcntl(it->first->getWritePipe(), F_GETFD) == -1)
-				std::cout << "bad fd write pipe :" << it->first->getWritePipe() << std::endl;
-		}
-	}
-	std::cout << std::endl;
-}
+// static void _display_fd_valid(t_map_cgi & cgi, t_map_sockets &map_sockets, t_sockets &socket)
+// {
+// 	std::cout << "----------------------------------------------------------------"<<std::endl;
+// 	std::cout << "fd accept: ";
+// 	for (t_const_iter_sockets it = socket.begin(); it != socket.end(); it++)
+// 	{
+// 		std::cout << it->getFd() << " ";
+// 		if (fcntl(it->getFd(), F_GETFD) == -1)
+// 			std::cout << "bad fd accept :" << it->getFd() << std::endl;
+// 	}
+// 	std::cout << std::endl << "fd read or write: ";
+// 	for (t_const_iter_map_sockets it = map_sockets.begin(); it != map_sockets.end(); it++)
+// 	{
+// 		std::cout << it->first << " ";
+// 		if (fcntl(it->first, F_GETFD) == -1)
+// 			std::cout << "bad fd read or write :" << it->first << std::endl;
+// 	}
+// 	std::cout << std::endl << "fd pipe: ";
+// 	for (t_const_iter_map_cgi it = cgi.begin(); it != cgi.end(); it++)
+// 	{
+// 		std::cout <<it->first->getReadPipe() << "(R) ";
+// 		if (fcntl(it->first->getReadPipe(), F_GETFD) == -1)
+// 			std::cout << "bad fd read pipe:" << it->first->getReadPipe() << std::endl;
+// 		if (*it->second->getRequest().getMethod() == "POST")
+// 		{
+// 			std::cout <<it->first->getReadPipe() << "(W) ";
+// 			if (fcntl(it->first->getWritePipe(), F_GETFD) == -1)
+// 				std::cout << "bad fd write pipe :" << it->first->getWritePipe() << std::endl;
+// 		}
+// 	}
+// 	std::cout << std::endl;
+// }
 
 void Cluster::runServer()
 {
