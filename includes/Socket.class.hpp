@@ -14,7 +14,7 @@
 # include <cerrno>
 
 
-# define NB_QUEUE_PORT 5
+# define NB_QUEUE_PORT 50
 
 class Socket{
 	public:

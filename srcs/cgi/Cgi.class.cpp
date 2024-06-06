@@ -140,7 +140,7 @@ static char const **create_cgi_env(HttpRequest const &request, Server const &ser
 		env[6] = alloc_str("");
 		if (is_get && *request.getMethod() == "GET")
 			env[6]  = alloc_str("QUERY_STRING=" + dynamic_cast<HttpRequestGet const &>(request).getQueryString()); // '?' arguments
-		if (is_get && *request.getMethod() == "HEAD")
+		else if (is_get && *request.getMethod() == "HEAD")
 			env[6]  = alloc_str("QUERY_STRING=" + dynamic_cast<HttpRequestHead const &>(request).getQueryString()); // '?' arguments
 		else
 			env[6]  = alloc_str("QUERY_STRING=\"\""); // '?' arguments
