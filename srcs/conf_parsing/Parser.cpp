@@ -20,6 +20,8 @@ static bool is_good_extension(std::string extension)
 		return false;
 	if (extension.find("..") != std::string::npos)
 		return false;
+	if (extension.find("/") != std::string::npos)
+		return false;
 	return true;
 }
 
