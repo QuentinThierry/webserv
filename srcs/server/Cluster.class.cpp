@@ -123,14 +123,18 @@ void Cluster::_checkTimeout()
 		protected_write(g_err_log_fd, std::string("Error: ") + std::strerror(errno));
 		throw ExceptionHttpStatusCode(HTTP_500);
 	}
-	for (t_const_iter_map_sockets it = _map_sockets.begin(); it != _map_sockets.end(); it++)
+	t_const_iter_map_sockets it = _map_sockets.begin();
+	while(it != _map_sockets.end())
 	{
+		t_const_iter_map_sockets next_connect = ++it;
+		it--;
 		if (it->second.getAcceptRequestTime().tv_sec + TIMEOUT_SEC < time.tv_sec)
 		{
 			protected_write(g_err_log_fd, error_message_server(it->second.getSocket().getServer(),
 					std::string("Error: Request timeout")));
 			closeConnection(it->first);
 		}
+		it = next_connect;
 	}
 }
 
