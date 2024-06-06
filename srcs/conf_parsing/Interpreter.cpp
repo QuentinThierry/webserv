@@ -192,34 +192,51 @@ Server	interpret_server_loop(std::queue<std::string> &tokens)
 	return server;
 }
 
+bool	_remove_duplicated_server_names(Server &server, Server &new_serv)
+{
+	for (std::vector<std::string>::iterator it_serv = server.getServerName().begin(); it_serv != server.getServerName().end(); it_serv++)
+	{
+		for (std::vector<std::string>::iterator it_new = new_serv.getServerName().begin(); it_new != new_serv.getServerName().end(); )
+		{
+			if (*it_serv == *it_new)
+			{
+				it_new = new_serv.getServerName().erase(it_new);
+			}
+			else
+				it_new++;
+		}
+	}
+	if (new_serv.getServerName().empty())
+		return true;
+	return false;
+}
+
 void	_check_server_is_unique(std::vector<Server> &servers)
 {
-	std::vector<std::string> &to_test = servers.back().getServerName();
-	std::vector<std::string>::iterator it;
-	std::vector<std::string>::iterator it_to_test;
+	Server &new_server = servers.back();
 
-	for (unsigned int i = 0; i < servers.size() - 1; i++)
+	for (std::vector<Server>::iterator it_serv = servers.begin(); it_serv != servers.end() - 1; it_serv++)
 	{
-		if (!servers[i].isEqual(servers.back()))
+		if (!new_server.isEqual(*it_serv))
 			continue;
-		it = servers[i].getServerName().begin();
-		while (it != servers[i].getServerName().end())
+		if (new_server.getServerName() == it_serv->getServerName() || new_server.getServerName().size() == 0)
 		{
-			for (it_to_test = to_test.begin(); it_to_test != to_test.end();)
-			{
-				if (*it == *it_to_test)
-				{
-					it_to_test = to_test.erase(it_to_test);
-					if (to_test.empty())
-						return ;
-				}
-				else
-					it_to_test++;
-			}
-			it++;
-		}
-		if (to_test.empty())
+			servers.erase(servers.end() - 1);
+			protected_write(g_err_log_fd, WARNING_MSG_DUPLICATE_SERV);
 			return ;
+		}
+		if (it_serv->getServerName().size() == 0)
+		{
+			servers.erase(it_serv);
+			protected_write(g_err_log_fd, WARNING_MSG_DUPLICATE_SERV);
+			return ;
+		}
+		if (_remove_duplicated_server_names(*it_serv, new_server))
+		{
+			servers.erase(servers.end() - 1);
+			protected_write(g_err_log_fd, WARNING_MSG_DUPLICATE_SERV);
+			return ;
+		}
 	}
 }
 
