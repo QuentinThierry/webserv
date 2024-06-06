@@ -210,6 +210,7 @@ void	_check_server_is_unique(std::vector<Server> &servers)
 				if (*it == *it_to_test)
 				{
 					it_to_test = to_test.erase(it_to_test);
+					protected_write(g_err_log_fd, WARNING_MSG_DUPLICATE_SERV);
 					if (to_test.empty())
 						return ;
 				}
