@@ -1,11 +1,6 @@
 #ifndef SHARED_HPP
 # define SHARED_HPP
 
-typedef enum e_status
-{
-	SUCCESS,
-	FAILURE
-} e_status;
 
 # include <string>
 # include <iostream>
@@ -15,11 +10,11 @@ typedef enum e_status
 # include <stdint.h>
 # include <vector>
 
-extern int const	g_err_log_fd;
-extern bool 		g_exit;
+# ifndef LOG_FILE_NAME
+#  define LOG_FILE_NAME "webserv.log"
+# endif
 
-extern	std::vector<std::string>							g_http_methods;
-typedef	std::vector<std::string>::const_iterator			it_method;
+# define WARNING_MSG_LOG_FAIL "Warning: Server: Fail to open the log file, running without log" 
 
 // randomized errors path
 #define RANDOMIZED_ERROR_PAGE_PATHS {\
@@ -38,12 +33,19 @@ typedef	std::vector<std::string>::const_iterator			it_method;
 #define ERROR_418_PATH "http://douceuretdetente.d.o.pic.centerblog.net/f4ef4eb7.jpg"
 #define ERROR_500_PATH "https://i.pinimg.com/originals/f0/e8/b7/f0e8b7f3120f06619fa6a2750476d3d6.jpg"
 
-int protected_write(int const fd, std::string const str);
 
-class ExceptionCltrC: public std::exception
+typedef enum e_status
 {
-	public:
-		char const *what() const throw() {return "Interrupt signal received";}
-};
+	SUCCESS,
+	FAILURE
+} e_status;
+
+extern int 	g_err_log_fd;
+extern bool g_exit;
+
+extern	std::vector<std::string>							g_http_methods;
+typedef	std::vector<std::string>::const_iterator			it_method;
+
+int protected_write(int const fd, std::string const str);
 
 #endif
