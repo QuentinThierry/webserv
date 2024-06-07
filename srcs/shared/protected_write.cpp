@@ -21,8 +21,6 @@ int protected_write_no_endl(int const fd, std::string const & str)
 	if (fd >= 0)
 	{
 		n = write(fd, str.c_str(), str.size());
-		if (n >= 0)
-			(write(fd, "\n", 1) == 1) ? ++n:n = -1 ;
 	}
 	return (n);
 }
