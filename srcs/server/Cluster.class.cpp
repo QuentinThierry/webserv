@@ -213,7 +213,6 @@ void Cluster::runServer()
 		timeout.tv_usec = 0;
 		_initSetFds(&readfds, &writefds);
 		_setMaxFd();
-		////std::cout << " ----- SELECT() ---- " << std::endl;
 		int nb_fds = select(_max_fd + 1, &readfds, &writefds, NULL, &timeout);
 		if (nb_fds == -1)
 			ThrowMisc(strerror(errno));
@@ -223,7 +222,6 @@ void Cluster::runServer()
 		{
 			if (FD_ISSET(it->getFd(), &readfds))
 			{
-				////std::cout << "new connection" << std::endl;
 				_acceptNewConnection(*it);
 				break;
 			}
@@ -232,14 +230,12 @@ void Cluster::runServer()
 		{
 			if (FD_ISSET(it->first->getReadPipe(), &readfds))
 			{
-				////std::cout << "read cgi "<<it->first->getReadPipe() << std::endl;
 				it->second->readCgi(findFd(_map_sockets, it->second), *this);
 				break;
 			}
 			else if (*it->second->getRequest().getMethod() == "POST"
 					&& FD_ISSET(it->first->getWritePipe(), &writefds))
 			{
-				////std::cout << "write cgi "<<it->first->getWritePipe() << std::endl;
 				it->second->writeCgi(findFd(_map_sockets, it->second), *this);
 				break;
 			}
@@ -248,13 +244,11 @@ void Cluster::runServer()
 		{
 			if (FD_ISSET(it->first, &writefds))
 			{
-				////std::cout << "write data" << std::endl;
 				it->second.writeSocket(it->first, *this);
 				break ;
 			}
 			else if (FD_ISSET(it->first, &readfds))
 			{
-				////std::cout << "read data" << std::endl;
 				it->second.readSocket(it->first, *this);
 				break ;
 			}
@@ -270,7 +264,7 @@ void Cluster::_acceptNewConnection(Socket const & socket)
 	if (new_fd == -1)
 	{
 		protected_write_log(error_message_server(socket.getServer(),
-					std::string("Error: accept() new connection ") + std::strerror(errno)));
+					std::string("Error: accept() failure for a new connection: ") + std::strerror(errno)));
 		return;
 	}
 	if (new_fd >= FD_SETSIZE)
@@ -317,7 +311,6 @@ static void remove_cgi(HttpExchange *exchange, t_map_cgi & map_cgi)
 
 void Cluster::closeConnection(int fd)
 {
-	////std::cout << "close connection\n";
 	std::vector<int>::iterator pos = std::find(_fd_write.begin(), _fd_write.end(), fd);
 	if (pos != _fd_write.end())
 	{

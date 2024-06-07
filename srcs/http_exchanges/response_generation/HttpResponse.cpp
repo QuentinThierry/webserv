@@ -143,7 +143,6 @@ void	HttpResponse::fillHeader()
 		_header += _fields.at(i).getFields();
 	_header += "\r\n";
 	_response_ready = true;
-	////displayHeader();
 }
 
 void	HttpResponse::displayHeader()
@@ -259,8 +258,6 @@ void	HttpResponse::_extract_cgi_fields_data( void )
 
 void	HttpResponse::parseCgiHeader(std::string header) throw(ExceptionHttpStatusCode)
 {
-	////std::cout << header << std::endl;
-
 	std::stringstream header_stream(header);
 
 	HttpField::fill_fields(header_stream, _fields);
@@ -418,7 +415,6 @@ void	HttpResponse::writeResponse(int fd, Cluster &cluster, bool has_cgi)
 		ret = _sendBodyString(fd, has_cgi);
 	if (ret == -1 || ret == 0)
 	{
-		////std::cout << "error\n";
 		if (_fileOpen == true)
 			closeBodyFile();
 		cluster.closeConnection(fd);
@@ -426,9 +422,6 @@ void	HttpResponse::writeResponse(int fd, Cluster &cluster, bool has_cgi)
 	}
 	if ((!has_cgi && _header.empty() && _body.empty()
 			&& _fileOpen == false && _content_length == _write_size)
-		|| _checkEndCgi(has_cgi))
-	{
-		////std::cout << "end\n";
+			|| _checkEndCgi(has_cgi))
 		cluster.closeConnection(fd);
-	}
 }

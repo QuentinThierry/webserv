@@ -131,8 +131,6 @@ void	HttpRequestHead::_handleCgi(Server const & server,
 						CgiLocation const &cgi_location)
 {
 	std::string uri = getUri(cgi_location.getRootPath());
-	////std::cout << uri <<std::endl;
-	////std::cout << _query_string <<std::endl;
 	_cgi.exec(cgi_location.getExecPath(), uri, *this, server);
 }
 

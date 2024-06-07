@@ -164,7 +164,6 @@ void	HttpExchange::readSocket(int fd, Cluster &cluster)
 			_request->readBody(fd, _socket, end);
 			if (end == true)
 			{
-				//////std::cout << "switch write" << std::endl;
 				_request->generateResponse(_socket, _response);
 				cluster.switchHttpExchangeToWrite(fd);
 			}
@@ -190,13 +189,12 @@ void	HttpExchange::readSocket(int fd, Cluster &cluster)
 void	HttpExchange::_handleHeader(int fd, Cluster &cluster)
 {
 	_initRequest(_findMethod(_buffer_read));
-	////_request->displayRequest();
+	_request->displayRequest();
 	_setRightSocket(cluster);
 	_buffer_read.clear();
 	_request->processHeader(_socket);
 	if (_request->hasBody() == false)
 	{
-		////std::cout << "switch write no body" << std::endl;
 		_request->generateResponse(_socket, _response);
 		cluster.switchHttpExchangeToWrite(fd);
 	}
@@ -236,8 +234,6 @@ void	HttpExchange::writeSocket(int fd, Cluster &cluster)
 		else
 			_response.writeResponse(fd, cluster, _request->hasCgi());
 	}
-	//// else
-	//// 	std::cout << " not ready" << std::endl;
 }
 
 static void	_handle_cgi_error(HttpRequest & request, HttpResponse &response,
@@ -306,7 +302,6 @@ void	HttpExchange::writeCgi(int fd, Cluster & cluster)
 		dynamic_cast<HttpRequestPost*>(_request)->processBody(end);
 		if (end == true)
 		{
-			////std::cout << "switch write cgi" << std::endl;
 			_request->generateResponse(_socket, _response);
 			cluster.switchHttpExchangeToWrite(fd);
 		}
