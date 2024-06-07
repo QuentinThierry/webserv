@@ -14,7 +14,7 @@
 
 - Define a field variable
 
-		<field identifier> <args> ...
+		<field identifier> <args> ... ;
 
 ### Field identifiers :
 #### Server only :
