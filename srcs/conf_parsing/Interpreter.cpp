@@ -222,19 +222,19 @@ void	_check_server_is_unique(std::vector<Server> &servers)
 		if (new_server.getServerName() == it_serv->getServerName() || new_server.getServerName().size() == 0)
 		{
 			servers.erase(servers.end() - 1);
-			protected_write(g_err_log_fd, WARNING_MSG_DUPLICATE_SERV);
+			protected_write_log(WARNING_MSG_DUPLICATE_SERV);
 			return ;
 		}
 		if (it_serv->getServerName().size() == 0)
 		{
 			servers.erase(it_serv);
-			protected_write(g_err_log_fd, WARNING_MSG_DUPLICATE_SERV);
+			protected_write_log(WARNING_MSG_DUPLICATE_SERV);
 			return ;
 		}
 		if (_remove_duplicated_server_names(*it_serv, new_server))
 		{
 			servers.erase(servers.end() - 1);
-			protected_write(g_err_log_fd, WARNING_MSG_DUPLICATE_SERV);
+			protected_write_log(WARNING_MSG_DUPLICATE_SERV);
 			return ;
 		}
 	}

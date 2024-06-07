@@ -188,17 +188,15 @@ void	HttpField::mergeFieldValues( HttpField &to_merge)
 
 void	HttpField::display_field ( void ) const
 {
-	std::cout << _name << ": ";
+	protected_write_log_no_endl(_name + ": ");
 	if (_values.size())
 	{
-		std::cout << _values[0];
+		protected_write_log_no_endl(_values[0]);
 		for (std::vector<std::string>::const_iterator it = ++(_values.begin());
 			it != _values.end(); ++it)
-		{
-			std::cout << ", " << *it;
-		}
+			protected_write_log_no_endl(std::string (", ") + *it);
 	}
-	std::cout << std::endl;
+	protected_write_log("");
 }
 
 std::string	HttpField::getFields( void ) const

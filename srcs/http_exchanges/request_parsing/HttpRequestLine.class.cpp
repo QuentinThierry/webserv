@@ -137,5 +137,5 @@ void	HttpRequestLine::_fill_request_line_with_stream( std::stringstream & reques
 
 void	HttpRequestLine::displayRequest_line( void ) const
 {
-	std::cout << *_method << " " << _target << " " << *_version << std::endl;
+	protected_write_log(*_method + " " + _target + " " + *_version);
 }

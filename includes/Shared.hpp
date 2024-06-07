@@ -46,6 +46,10 @@ extern bool g_exit;
 extern	std::vector<std::string>							g_http_methods;
 typedef	std::vector<std::string>::const_iterator			it_method;
 
-int protected_write(int const fd, std::string const str);
+int protected_write(int const fd, std::string const &str);
+int protected_write_no_endl(int const fd, std::string const &str);
+
+int protected_write_log(std::string const str);
+int protected_write_log_no_endl(std::string const str);
 
 #endif

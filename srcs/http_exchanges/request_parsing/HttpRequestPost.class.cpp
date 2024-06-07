@@ -34,7 +34,6 @@ HttpRequestPost::HttpRequestPost (std::string const & str_request)
 HttpRequestPost::HttpRequestPost ( HttpRequestPost const & model)
 	: HttpRequest(model)
 {
-	std::cout << "WARNING COPY CONSTRUCTOR POST REQUEST" << std::endl;
 	_filename = model._filename;
 
 	_content_length = model._content_length;
@@ -66,7 +65,6 @@ HttpRequestPost & HttpRequestPost::operator= (HttpRequestPost const & model)
 {
 	if (&model != this)
 	{
-		std::cout << "WARNING = POST REQUEST" << std::endl;
 		HttpRequest::operator=(model);
 		_filename = model._filename;
 
@@ -314,10 +312,10 @@ void	HttpRequestPost::readBody(int fd, Socket const * const socket, bool &end)
 	if (ret == -1 || ret == 0)
 	{
 		if (ret == -1)
-			protected_write(g_err_log_fd, error_message_server(socket->getServer(),
+			protected_write_log(error_message_server(socket->getServer(),
 					std::string("Error: read() ") + std::strerror(errno) + "at"));
 		else
-			protected_write(g_err_log_fd, error_message_server(socket->getServer(),
+			protected_write_log(error_message_server(socket->getServer(),
 				std::string("Error: read() end of file before the end of the body at")));
 		throw ExceptionHttpStatusCode(HTTP_500); //!not sure
 	}

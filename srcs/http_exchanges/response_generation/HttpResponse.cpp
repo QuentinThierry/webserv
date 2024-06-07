@@ -149,14 +149,12 @@ void	HttpResponse::fillHeader()
 
 void	HttpResponse::displayHeader()
 {
-	std::cout << "------------ HttpResponse ------------" << std::endl;
-	std::cout << *_version << " ";
-	if (_custom_status.empty()) 
-		std::cout << ft_itoa(status_code_to_int(_status_code)) << " "
-			<< get_error_reason_phrase(_status_code);
+	protected_write_log("------------ HttpResponse ------------");
+	if (_custom_status.empty())
+		protected_write_log(ft_itoa(status_code_to_int(_status_code))
+			+ " " + get_error_reason_phrase(_status_code));
 	else
-	 	std::cout << _custom_status;
-	std::cout << std::endl;
+	 	protected_write (g_err_log_fd, _custom_status);
 	for (unsigned int i = 0; i < _fields.size(); i++)
 		_fields.at(i).display_field();
 }

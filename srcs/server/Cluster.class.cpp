@@ -60,7 +60,7 @@ void Cluster::_addServer(Server const &server)
 		if (new_socket.getFd() >= FD_SETSIZE)
 		{
 			close(new_socket.getFd());
-			protected_write(g_err_log_fd, error_message_server(new_socket.getServer(),
+			protected_write_log(error_message_server(new_socket.getServer(),
 					"Error: Too many servers, ignore"));
 			return ;
 		}
@@ -120,7 +120,7 @@ void Cluster::_checkTimeout()
 
 	if (gettimeofday(&time, NULL) == -1)
 	{
-		protected_write(g_err_log_fd, std::string("Error: ") + std::strerror(errno));
+		protected_write_log(std::string("Error: ") + std::strerror(errno));
 		throw ExceptionHttpStatusCode(HTTP_500);
 	}
 	t_const_iter_map_sockets it = _map_sockets.begin();
@@ -130,7 +130,7 @@ void Cluster::_checkTimeout()
 		it--;
 		if (it->second.getAcceptRequestTime().tv_sec + TIMEOUT_SEC < time.tv_sec)
 		{
-			protected_write(g_err_log_fd, error_message_server(it->second.getSocket().getServer(),
+			protected_write_log(error_message_server(it->second.getSocket().getServer(),
 					std::string("Error: Request timeout")));
 			closeConnection(it->first);
 		}
@@ -269,14 +269,14 @@ void Cluster::_acceptNewConnection(Socket const & socket)
 			(socklen_t*)&socket.getSizeAddress());
 	if (new_fd == -1)
 	{
-		protected_write(g_err_log_fd, error_message_server(socket.getServer(),
+		protected_write_log(error_message_server(socket.getServer(),
 					std::string("Error: accept() new connection ") + std::strerror(errno)));
 		return;
 	}
 	if (new_fd >= FD_SETSIZE)
 	{
 		close(new_fd);
-		protected_write(g_err_log_fd, error_message_server(socket.getServer(),
+		protected_write_log(error_message_server(socket.getServer(),
 					"Error: Too many servers, ignore new connection to"));
 		return ;
 	}
