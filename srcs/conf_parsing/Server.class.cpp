@@ -68,7 +68,7 @@ void	Server::setHasListen(bool has_listen)
 // return if the server has the same host and port
 bool	Server::isEqual(Server const &ref) const
 {
-	if (this->getHost() != ref.getHost())
+	if (this->getHostUint() != ref.getHostUint())
 		return false;
 	if (this->getPort() != ref.getPort())
 		return false;
