@@ -209,7 +209,7 @@ void Cluster::runServer()
 	struct timeval timeout;
 	while (g_exit == false)
 	{
-		timeout.tv_sec = 3;
+		timeout.tv_sec = 1;
 		timeout.tv_usec = 0;
 		_initSetFds(&readfds, &writefds);
 		_setMaxFd();
