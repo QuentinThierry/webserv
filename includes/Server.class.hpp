@@ -8,8 +8,8 @@
 
 #define ONE_MEGABIT 1048576
 
-#define WARNING_MSG_DUPLICATE_LOC "Warning: Server configuration: duplicated location ignored"
-#define WARNING_MSG_DUPLICATE_SERV "Warning: Server configuration: duplicated server ignored"
+#define WARNING_MSG_DUPLICATE_LOC "WARNING: Server configuration: duplicated location ignored"
+#define WARNING_MSG_DUPLICATE_SERV "WARNING: Server configuration: duplicated server ignored"
 
 class Server
 {

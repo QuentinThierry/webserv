@@ -91,7 +91,7 @@ inline static std::string to_string(int val)
 	return s.str();
 }
 
-#define ERROR std::string("Error : ")
+#define ERROR std::string("ERROR : ")
 
 #define ThrowBadArgument(token, field) throw BadArgumentException((ERROR + "`" + (token) + "' is not reconized in field `" + field + "'"))
 

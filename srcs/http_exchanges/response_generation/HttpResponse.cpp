@@ -221,10 +221,10 @@ static void	_extract_content_length(std::vector<HttpField> &response_fields,
 	if (HttpField::extract_field(response_fields, "Content-Length", field_values) == SUCCESS)
 	{
 		if (field_values.size() != 1)
-			throw_http_err_with_log(HTTP_500, "Warning: cgi: incorrect content length size");
+			throw_http_err_with_log(HTTP_500, "WARNING: cgi: incorrect content length size");
 		value_dest = ft_atoi(field_values.at(0), atoi_error);
 		if (atoi_error == FAILURE )
-			throw_http_err_with_log(HTTP_413,  "Warning: cgi: incorrect content length format");
+			throw_http_err_with_log(HTTP_413,  "WARNING: cgi: incorrect content length format");
 		response_fields.push_back(HttpField("Content-Length", field_values));
 		has_content_length = true;
 	}
@@ -240,7 +240,7 @@ static void	_extract_status_code(std::vector<HttpField> &response_fields,
 	if (HttpField::extract_field(response_fields, "Status", field_values) == SUCCESS)
 	{
 		if (field_values.size() == 0)
-			throw_http_err_with_log(HTTP_502,  "Warning: invalid status code field in cgi");
+			throw_http_err_with_log(HTTP_502,  "WARNING: invalid status code field in cgi");
 		custom_status += field_values.at(0);
 		for (std::vector<std::string>::iterator it = field_values.begin() + 1;
 				it != field_values.end(); ++it)

@@ -14,7 +14,7 @@
 #  define LOG_FILE_NAME "webserv.log"
 # endif
 
-# define WARNING_MSG_LOG_FAIL "Warning: Server: Fail to open the log file, running without log" 
+# define WARNING_MSG_LOG_FAIL "WARNING: Server: Fail to open the log file, running without log" 
 
 // randomized errors path
 #define RANDOMIZED_ERROR_PAGE_PATHS {\

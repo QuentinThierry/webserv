@@ -28,14 +28,14 @@ Socket::Socket(Server const &server):_server(server)
 	if (_fd == -1)
 	{
 		protected_write_log(error_message_server(server,
-					std::string("Error: socket() ") + std::strerror(errno)));
+					std::string("ERROR: socket() ") + std::strerror(errno)));
 		return;
 	}
 	const int tmp = 1;
 	if (setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &tmp, sizeof(int)) < 0)
 	{
 		protected_write_log(error_message_server(server,
-					std::string("Error: setsockopt() ") + std::strerror(errno)));
+					std::string("ERROR: setsockopt() ") + std::strerror(errno)));
 		close(_fd);
 		_fd = -1;
 		return;
@@ -48,7 +48,7 @@ Socket::Socket(Server const &server):_server(server)
 	if (bind(_fd, (const sockaddr*)&_addr, _sizeaddr) == -1)
 	{
 		protected_write_log(error_message_server(server,
-					std::string("Error: bind() ") + std::strerror(errno)));
+					std::string("ERROR: bind() ") + std::strerror(errno)));
 		close(_fd);
 		_fd = -1;
 		return;
@@ -56,7 +56,7 @@ Socket::Socket(Server const &server):_server(server)
 	if (listen(_fd, NB_QUEUE_PORT) == -1)
 	{
 		protected_write_log(error_message_server(server,
-					std::string("Error: listen() ") + std::strerror(errno)));
+					std::string("ERROR: listen() ") + std::strerror(errno)));
 		close(_fd);
 		_fd = -1;
 		return;

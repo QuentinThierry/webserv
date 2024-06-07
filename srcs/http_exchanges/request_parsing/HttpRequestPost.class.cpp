@@ -309,10 +309,10 @@ void	HttpRequestPost::readBody(int fd, Socket const * const socket, bool &end)
 	{
 		if (ret == -1)
 			protected_write_log(error_message_server(socket->getServer(),
-					std::string("Error: read() ") + std::strerror(errno) + "at"));
+					std::string("ERROR: read() ") + std::strerror(errno) + "at"));
 		else
 			protected_write_log(error_message_server(socket->getServer(),
-				std::string("Error: read() end of file before the end of the body at")));
+				std::string("ERROR: read() end of file before the end of the body at")));
 		throw ExceptionHttpStatusCode(HTTP_500); //!not sure
 	}
 	_body += std::string(buffer, ret);

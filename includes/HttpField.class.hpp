@@ -5,12 +5,12 @@
 
 # include <vector>
 
-# define MSG_ERR_FIELD_NO_SEPARATOR			"Error: HTTP request: a field does not contain a ':' separator"
-# define MSG_ERR_FIELD_NO_VALUE				"Error: HTTP request: a field does not contain any value"
-# define MSG_ERR_FIELD_NO_NAME				"Error: HTTP request: a field does not contain any name"
-# define MSG_ERR_FIELD_QUOTE_NOT_CLOSED		"Error: HTTP request: quote note closed in a field"
-# define MSG_ERR_FIELD_INVALID_CHARACTER	"Error: HTTP request: invalid character in a field"
-# define MSG_ERR_FIELD_EMPTY_ADDED_VALUE	"Error: HTTP request: attempted to add an empty value to a field"
+# define MSG_ERR_FIELD_NO_SEPARATOR			"ERROR: HTTP request: a field does not contain a ':' separator"
+# define MSG_ERR_FIELD_NO_VALUE				"ERROR: HTTP request: a field does not contain any value"
+# define MSG_ERR_FIELD_NO_NAME				"ERROR: HTTP request: a field does not contain any name"
+# define MSG_ERR_FIELD_QUOTE_NOT_CLOSED		"ERROR: HTTP request: quote note closed in a field"
+# define MSG_ERR_FIELD_INVALID_CHARACTER	"ERROR: HTTP request: invalid character in a field"
+# define MSG_ERR_FIELD_EMPTY_ADDED_VALUE	"ERROR: HTTP request: attempted to add an empty value to a field"
 
 
 class HttpField

@@ -204,7 +204,7 @@ void Cgi::exec(std::string cgi_path, std::string file_name, HttpRequest const &r
 
 				std::cerr << execve(cgi_path.c_str(), (char * const *)args,
 					(char **)env) <<std::endl;
-				protected_write_log("Error: cgi execution fail");
+				protected_write_log("ERROR: cgi execution fail");
 				free_env(env);
 				delete(args[0]);
 				delete(args[1]);
@@ -234,6 +234,6 @@ Cgi::~Cgi()
 	if (this->_pid > 0 && kill(this->_pid, 0) == 0)
 	{
 		if (kill(this->_pid, SIGTERM) == -1)
-			protected_write_log("Error: cgi: kill fail");
+			protected_write_log("ERROR: cgi: kill fail");
 	}
 }

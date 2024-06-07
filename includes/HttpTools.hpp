@@ -10,7 +10,7 @@
 # define HTTP_SEPARATORS "()<>@,;:\\/[]?={} \""
 # define HTTP_WHITESPACES " \t"
 
-# define MSG_ERR_WRONG_END_OF_LINE "Error: http request: line not properly ended"
+# define MSG_ERR_WRONG_END_OF_LINE "ERROR: http request: line not properly ended"
 
 extern	std::vector<std::string>							g_http_versions;
 typedef	std::vector<std::string>::const_iterator			it_version;

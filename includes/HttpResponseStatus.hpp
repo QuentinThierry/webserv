@@ -89,7 +89,7 @@ class ExceptionHttpStatusCode : public std::exception
 	public:
 		ExceptionHttpStatusCode( e_status_code status_code ) throw (ExceptionUnknownStatusCode) : _status_code (status_code) {}
 		e_status_code const &	get_status_code( void ) const { return (_status_code);}
-		void					display_error() const { protected_write(g_err_log_fd, std::string("Error: ") + ft_itoa(get_status_code()) + " " + get_error_reason_phrase(_status_code));}
+		void					display_error() const { protected_write(g_err_log_fd, std::string("ERROR: ") + ft_itoa(get_status_code()) + " " + get_error_reason_phrase(_status_code));}
 
 	private:
 		ExceptionHttpStatusCode( void ) {}
