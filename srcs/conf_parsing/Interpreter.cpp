@@ -77,7 +77,11 @@ void interpret_cgi_field_loop(std::string &token, std::queue<std::string> &token
 				if (identifier == "cgi_path")
 					cgiObj.setExecPath(token);
 				else if (identifier == "path_info")
+				{
+					if (token[0] != '/')
+						ThrowMisc("field `path_info' must be an abolute path");
 					cgiObj.setRootPath(token);
+				}
 			}
 			else
 				ThrowBadArgumentNumber(identifier, 1, true);
