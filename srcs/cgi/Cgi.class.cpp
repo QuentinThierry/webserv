@@ -102,11 +102,11 @@ static char const **create_cgi_env(HttpRequest const &request, Server const &ser
 	try
 	{
 		env = new char const *[NB_ENV_VARIABLE];
-		env[11] = alloc_str("REQUEST_METHOD=" + *request.getMethod()); // method
+		env[11] = alloc_str("REQUEST_METHOD=" + *request.getMethod());
 		if (*request.getMethod() == "GET" || *request.getMethod() == "HEAD")
 			is_get = true;
 
-		env[0] = alloc_str("AUTH_TYPE=Basic"); // DEFAULT
+		env[0] = alloc_str("AUTH_TYPE=Basic");
 		if (is_get)
 		{
 			env[1] = alloc_str("");
@@ -134,26 +134,26 @@ static char const **create_cgi_env(HttpRequest const &request, Server const &ser
 		}
 		else
 			env[2] = alloc_str("");
-		env[3]  = alloc_str("GATEWAY_INTERFACE=CGI/1.1"); // DEFAULT
+		env[3]  = alloc_str("GATEWAY_INTERFACE=CGI/1.1");
 		env[4] = alloc_str("PATH_INFO=" + file_name);
-		env[5]  = alloc_str("PATH_TRANSLATED=" + file_name); // root/URI
+		env[5]  = alloc_str("PATH_TRANSLATED=" + file_name);
 		env[6] = alloc_str("");
 		if (is_get && *request.getMethod() == "GET")
-			env[6]  = alloc_str("QUERY_STRING=" + dynamic_cast<HttpRequestGet const &>(request).getQueryString()); // '?' arguments
+			env[6]  = alloc_str("QUERY_STRING=" + dynamic_cast<HttpRequestGet const &>(request).getQueryString());
 		else if (is_get && *request.getMethod() == "HEAD")
-			env[6]  = alloc_str("QUERY_STRING=" + dynamic_cast<HttpRequestHead const &>(request).getQueryString()); // '?' arguments
+			env[6]  = alloc_str("QUERY_STRING=" + dynamic_cast<HttpRequestHead const &>(request).getQueryString());
 		else
-			env[6]  = alloc_str("QUERY_STRING=\"\""); // '?' arguments
+			env[6]  = alloc_str("QUERY_STRING=\"\"");
 		env[7]  = alloc_str("REMOTE_ADDR=" + server.getHost());
 		env[8]  = alloc_str("REMOTE_HOST=" + request.getFieldValue("Host")[0]);
-		env[9]  = alloc_str("REMOTE_IDENT=none"); // identity information DEFAULT
-		env[10] = alloc_str("REMOTE_USER=none"); // user identification DEFAULT (?)
-		env[12] = alloc_str("SCRIPT_FILENAME=" + file_name); // URI path without root
-		env[13] = alloc_str("SERVER_NAME=" SERVER_NAME); // server name DEFAULT
-		env[14] = alloc_str("SERVER_PORT=" + ft_itoa(server.getPort())); // port request
-		env[15] = alloc_str("SERVER_PROTOCOL=" + *request.getVersion()); // http protocol version
-		env[16] = alloc_str("SERVER_SOFTWARE=Unix"); // server OS of request TODO (in User-agent)
-		env[17] = alloc_str("REDIRECT_STATUS=true"); // add to serve some cgi requirement (php-cgi) TRUE
+		env[9]  = alloc_str("REMOTE_IDENT=none");
+		env[10] = alloc_str("REMOTE_USER=none");
+		env[12] = alloc_str("SCRIPT_FILENAME=" + file_name);
+		env[13] = alloc_str("SERVER_NAME=" SERVER_NAME);
+		env[14] = alloc_str("SERVER_PORT=" + ft_itoa(server.getPort()));
+		env[15] = alloc_str("SERVER_PROTOCOL=" + *request.getVersion());
+		env[16] = alloc_str("SERVER_SOFTWARE=Unix");
+		env[17] = alloc_str("REDIRECT_STATUS=true");
 		env[18] = NULL;
 	}
 	catch (std::exception &e)
@@ -179,7 +179,7 @@ void Cgi::exec(std::string cgi_path, std::string file_name, HttpRequest const &r
 	this->_pid = fork();
 	if (this->_pid == -1)
 		throw ExceptionHttpStatusCode(HTTP_500);
-	else if (this->_pid == 0) // child
+	else if (this->_pid == 0)
 	{
 		bool error = false;
 		if (dup2(this->_pipe_input[READ], 0) == -1) error = true;

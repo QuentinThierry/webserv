@@ -7,7 +7,6 @@ bool HttpRequest::isAcceptedMethod(Location const & location) const
 
 HttpRequest::HttpRequest ( void ) : HttpRequestLine()
 {
-	// a call to HttpRequest::init must be done after calling this constructor
 }
 
 HttpRequest::HttpRequest ( HttpRequest const & model ) :

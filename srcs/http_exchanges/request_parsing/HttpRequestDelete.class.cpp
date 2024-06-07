@@ -22,7 +22,7 @@ HttpRequestDelete::HttpRequestDelete ( HttpRequestDelete const & model)
 {
 }
 
-HttpRequestDelete::HttpRequestDelete( void ) //unused
+HttpRequestDelete::HttpRequestDelete( void )
 {
 }
 
@@ -54,17 +54,6 @@ void	HttpRequestDelete::readBody(int fd, Socket const * const socket, bool &end)
 	end = true;
 }
 
-// static bool	remove_directory(std::string const & uri)
-// {
-// 	int fd = open(uri.c_str(), O_DIRECTORY);
-// 	if (fd == -1)
-// 		return false;
-// 	close(fd);
-// 	//remove dir
-// 	throw ExceptionHttpStatusCode(HTTP_403);
-// 	return true;
-// }
-
 static void	remove_file(std::string const & uri)
 {
 	if (HttpRequestPost::isBusyFile(uri))
@@ -94,8 +83,6 @@ void	HttpRequestDelete::_initResponse( Socket const * const socket, HttpResponse
 	}
 	std::string uri = getUri(location.getRootPath());
 	response.addField("Content-Length", "0");
-	// if (remove_directory(uri))
-	// 	return FAILURE;
 	remove_file(uri);
 }
 

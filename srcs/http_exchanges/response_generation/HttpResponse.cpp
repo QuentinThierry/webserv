@@ -22,7 +22,7 @@ HttpResponse::HttpResponse( void )
 	_write_size = 0;
 }
 
-//! Can't copy open file(_bodyFile) during the operation
+// Can't copy open file(_bodyFile) during the operation
 HttpResponse & HttpResponse::operator=(HttpResponse const & model )
 {
 	if (this != &model)
@@ -34,7 +34,6 @@ HttpResponse & HttpResponse::operator=(HttpResponse const & model )
 		_header = model._header;
 
 		_body = model._body;
-		// _bodyFile = model._bodyFile;
 		_fileOpen = false;
 		_response_ready = model._response_ready;
 		_content_length = model._content_length;
@@ -173,7 +172,7 @@ static e_status_code	_openFileStream(std::string & filename,
 			return HTTP_404;
 		else if (errno == EACCES)
 			return HTTP_403;
-		return HTTP_500; //! not sure
+		return HTTP_500;
 	}
 	if (HttpRequestPost::isBusyFile(filename))
 		return HTTP_404;
@@ -324,7 +323,7 @@ void	HttpResponse::_generateErrorPageBody(e_status_code error_code)
 
 void	HttpResponse::generateErrorResponse(e_status_code status, Server const & server, it_version method)
 {
-	_version = --g_http_versions.end(); //!temporaire
+	_version = --g_http_versions.end();
 	_status_code = status;
 	_custom_status.clear();
 	if (!checkFieldExistence("Connection"))
@@ -399,7 +398,7 @@ ssize_t	HttpResponse::_sendBodyString(int fd, bool has_cgi)
 	if (has_cgi && !_content_length_flag)
 		_chunkResponse();
 	ssize_t ret = send(fd, _body.c_str(), _body.size(), MSG_NOSIGNAL);
-	_write_size += ret; //!can send less then body.size()
+	_write_size += ret;
 	_body.clear();
 	return ret;
 }
