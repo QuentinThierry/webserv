@@ -285,6 +285,9 @@ void Cluster::_acceptNewConnection(Socket const & socket)
 
 Socket const *Cluster::getMatchingSocket(int fd, std::string server_name) const
 {
+	size_t pos = server_name.find(':');
+	if (pos != std::string::npos)
+		server_name = server_name.substr(0, pos);
 	for (t_const_iter_sockets it = _sockets.begin(); it != _sockets.end(); it++)
 	{
 		std::vector<std::string> names = it->getServer().getServerName();
