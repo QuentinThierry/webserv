@@ -49,6 +49,15 @@ static void _open_log_file(int argc, char **argv)
 	}
 }
 
+static void _close_log_file()
+{
+	if (g_err_log_fd >= 0)
+	{
+		protected_write_log("====== END ======\n\n");
+		close(g_err_log_fd);
+	}
+}
+
 int main(int argc, char **argv)
 {
 	std::vector<Server> servers;
@@ -64,6 +73,7 @@ int main(int argc, char **argv)
 	catch (std::exception &e)
 	{
 		std::cout << e.what() << std::endl;
+		_close_log_file();
 		return 1;
 	}
 	std::cout << "Server(s) running..." << std::endl;
@@ -76,6 +86,7 @@ int main(int argc, char **argv)
 		}
 		catch (Cgi::NExceptionChildFail &e)
 		{
+			_close_log_file();
 			return 0;
 		}
 		catch (std::exception &e)
@@ -83,10 +94,6 @@ int main(int argc, char **argv)
 			protected_write_log(e.what());
 		}
 	}
-	if (g_err_log_fd >= 0)
-	{
-		protected_write_log("====== END ======\n\n");
-		close(g_err_log_fd);
-	}
+	_close_log_file();
 	return 0;
 }
