@@ -43,7 +43,7 @@ e_status empty_sstream_in_string(std::string &dest, std::stringstream &stream_to
 	{
 		if (!std::getline(stream_to_empty, body_content))
 		{
-			protected_write(g_err_log_fd, "Error: internal: getline failure");
+			protected_write_log("Error: internal: getline failure");
 			return (FAILURE);
 		}
 		dest += body_content;

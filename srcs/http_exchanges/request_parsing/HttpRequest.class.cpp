@@ -49,15 +49,19 @@ HttpRequest::~HttpRequest( void )
 
 void	HttpRequest::displayRequest( void ) const
 {
-	std::cout << "------------ HttpRequest ------------" << std::endl;
+
+	protected_write_log("------------ HttpRequest ------------");
 	displayRequest_line();
 	for (std::vector<HttpField>::const_iterator it = _fields.begin();
 			it != _fields.end(); ++it)
-	{
 		it->display_field();
+	if (!_body.empty() && g_err_log_fd)
+	{
+		write(g_err_log_fd, "\r\n", 2);
+		write(g_err_log_fd, _body.c_str(), _body.size());
 	}
-	if (!_body.empty())
-		std::cout << std::endl << _body << std::endl;
+	protected_write_log("");
+
 }
 
 

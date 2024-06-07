@@ -41,11 +41,11 @@ static void _open_log_file(int argc, char **argv)
 		g_err_log_fd = open(LOG_FILE_NAME, O_RDWR | O_APPEND | O_CREAT, 0662);
 		if (g_err_log_fd == -1)
 			std::cerr << WARNING_MSG_LOG_FAIL << std::endl;
-		protected_write(g_err_log_fd, "====== START ======");
+		protected_write_log("====== START ======");
 		if (argc == 1)
-			protected_write(g_err_log_fd, std::string("Default configuration: ") + DEFAULT_CONFIG);
+			protected_write_log(std::string("Default configuration: ") + DEFAULT_CONFIG);
 		else
-			protected_write(g_err_log_fd, std::string("Configuration file: ") + argv[1]);
+			protected_write_log(std::string("Configuration file: ") + argv[1]);
 	}
 }
 
@@ -80,12 +80,12 @@ int main(int argc, char **argv)
 		}
 		catch (std::exception &e)
 		{
-			protected_write(g_err_log_fd, e.what());
+			protected_write_log(e.what());
 		}
 	}
 	if (g_err_log_fd >= 0)
 	{
-		protected_write(g_err_log_fd, "====== END ======\n\n");
+		protected_write_log("====== END ======\n\n");
 		close(g_err_log_fd);
 	}
 	return 0;

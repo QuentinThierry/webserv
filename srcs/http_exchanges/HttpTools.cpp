@@ -297,6 +297,6 @@ e_status find_end_word(std::string const & str, size_t start_idx,
 
 void	throw_http_err_with_log(e_status_code error_code, std::string log_msg)
 {
-	protected_write(g_err_log_fd, log_msg);
+	protected_write_log(log_msg);
 	throw(ExceptionHttpStatusCode(error_code));
 }

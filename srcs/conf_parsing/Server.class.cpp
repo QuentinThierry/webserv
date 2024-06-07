@@ -170,7 +170,7 @@ void	Server::removeDuplicatedLocation()
 			if (loc_path == this->getLocations()[j].getLocationPath())
 			{
 				this->_locations.erase(this->_locations.begin() + j);
-				protected_write(g_err_log_fd, WARNING_MSG_DUPLICATE_LOC);
+				protected_write_log(WARNING_MSG_DUPLICATE_LOC);
 			}
 			j++;
 		}
@@ -181,7 +181,7 @@ void	Server::removeDuplicatedLocation()
 			if (loc_path == this->getLocations()[j].getLocationPath())
 			{
 				this->_locations.erase(this->_locations.begin() + j);
-				protected_write(g_err_log_fd, WARNING_MSG_DUPLICATE_LOC);
+				protected_write_log(WARNING_MSG_DUPLICATE_LOC);
 			}
 			j++;
 		}
