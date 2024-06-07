@@ -60,7 +60,10 @@ u_int16_t	str_to_short(std::string str)
 	}
 	if (str.size() > 5)
 		ThrowMisc("host format denied");
-	return std::atoi(str.c_str());
+	unsigned int val = std::atoi(str.c_str());
+	if (val > UINT16_MAX)
+		ThrowMisc("host format denied");
+	return val;
 }
 
 void	_parse_listen_argument(std::string &token, Server &server)
