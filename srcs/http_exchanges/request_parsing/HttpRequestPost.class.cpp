@@ -163,8 +163,6 @@ void	HttpRequestPost::_openFile()
 
 void HttpRequestPost::_processBodyContentLength(bool &end)
 {
-	if (_body.empty())
-		return ;
 	if (_content_length == 0)
 	{
 		if (_has_cgi)
@@ -174,6 +172,8 @@ void HttpRequestPost::_processBodyContentLength(bool &end)
 		end = true;
 		return ;
 	}
+	if (_body.empty())
+		return ;
 	if (_has_cgi)
 	{
 		if (_cgi.write(_body) == -1)
