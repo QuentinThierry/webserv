@@ -230,7 +230,6 @@ void Cgi::exec(std::string cgi_path, std::string file_name, HttpRequest const &r
 
 Cgi::~Cgi()
 {
-	std::cout << "cgi" << _pid << std::endl;
 	if (this->_pipe_input[READ] != -1)
 		close(this->_pipe_input[READ]);
 	if (this->_pipe_input[WRITE] != -1)
@@ -240,11 +239,5 @@ Cgi::~Cgi()
 	if (this->_pipe_output[WRITE] != -1)
 		close(this->_pipe_output[WRITE]);
 	if (this->_pid > 0 && kill(this->_pid, 0) == 0)
-	{
-		if (kill(this->_pid, SIGTERM) == -1)
-			std::cout << "error kill" <<std::endl;
-		std::cout << "kill :" << _pid << " " << getpid() << std::endl;
-	}
-	else
-		perror("ERROR");
+		kill(this->_pid, SIGTERM);
 }

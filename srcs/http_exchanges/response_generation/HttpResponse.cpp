@@ -27,7 +27,6 @@ HttpResponse & HttpResponse::operator=(HttpResponse const & model )
 {
 	if (this != &model)
 	{
-		////std::cout <<"COPY RESPONSE WARNING\n";
 		_version = model._version;
 		_status_code = model._status_code;
 		_custom_status = model._custom_status;
