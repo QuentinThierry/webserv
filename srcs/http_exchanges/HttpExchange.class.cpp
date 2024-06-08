@@ -122,7 +122,7 @@ e_http_method	HttpExchange::_findMethod(std::string const & cmp)
 	return NONE;
 }
 
-void	HttpExchange::_initRequest(e_http_method method)
+void	HttpExchange::_initRequest(e_http_method method,Cluster & cluster)
 {
 	switch (method)
 	{
@@ -130,10 +130,10 @@ void	HttpExchange::_initRequest(e_http_method method)
 			_request = ::new HttpRequestHead(_buffer_read);
 			break;
 		case GET:
-			_request = ::new HttpRequestGet(_buffer_read);
+			_request = ::new HttpRequestGet(_buffer_read, cluster);
 			break;
 		case POST:
-			_request = ::new HttpRequestPost(_buffer_read);
+			_request = ::new HttpRequestPost(_buffer_read, cluster);
 			break;
 		case DELETE:
 			_request = ::new HttpRequestDelete(_buffer_read);
@@ -188,7 +188,7 @@ void	HttpExchange::readSocket(int fd, Cluster &cluster)
 
 void	HttpExchange::_handleHeader(int fd, Cluster &cluster)
 {
-	_initRequest(_findMethod(_buffer_read));
+	_initRequest(_findMethod(_buffer_read), cluster);
 	_request->displayRequest();
 	_setRightSocket(cluster);
 	_buffer_read.clear();

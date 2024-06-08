@@ -16,7 +16,7 @@ class HttpResponse;
 class HttpRequestGet : public HttpRequest
 {
 	public:
-		HttpRequestGet (std::string const & str_request) throw (ExceptionHttpStatusCode);
+		HttpRequestGet (std::string const & str_request, Cluster &cluster) throw (ExceptionHttpStatusCode);
 		HttpRequestGet ( HttpRequestGet const & model);
 		HttpRequestGet & operator= (HttpRequestGet const & model);
 		~HttpRequestGet( void );

@@ -10,7 +10,7 @@
 class HttpRequestPost : public HttpRequest
 {
 	public:
-		HttpRequestPost (std::string const & str_request) throw (ExceptionHttpStatusCode);
+		HttpRequestPost (std::string const & str_request, Cluster & cluster) throw (ExceptionHttpStatusCode);
 		HttpRequestPost ( HttpRequestPost const & model);
 		HttpRequestPost & operator= (HttpRequestPost const & model);
 		~HttpRequestPost( void );

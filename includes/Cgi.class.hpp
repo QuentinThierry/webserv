@@ -10,6 +10,7 @@
 #include "Server.class.hpp"
 
 class HttpRequest;
+class Cluster;
 
 #define READ 0
 #define WRITE 1
@@ -19,6 +20,7 @@ class Cgi
 {
 	public:
 		Cgi();
+		Cgi(Cluster &cluster);
 
 		int getPid() const;
 		int getWritePipe() const;
@@ -43,6 +45,7 @@ class Cgi
 		int				_pipe_input[2];
 		int				_pipe_output[2];
 		pid_t			_pid;
+		Cluster			*_cluster;
 };
 
 #endif

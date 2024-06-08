@@ -32,7 +32,7 @@ class HttpExchange{
 		HttpResponse		_response;
 		struct timeval		_accept_request_time;
 
-		void			_initRequest(e_http_method method);
+		void			_initRequest(e_http_method method, Cluster &cluster);
 		void			_copyRequest(e_http_method method, HttpRequest const * request);
 		e_http_method	_findMethod(std::string const & cmp);
 		void			_setRightSocket(Cluster const &cluster);

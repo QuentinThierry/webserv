@@ -43,8 +43,8 @@ Socket::Socket(Server const &server):_server(server)
 	_sizeaddr = sizeof(_addr);
 	memset(&_addr, 0, _sizeaddr);
 	_addr.sin_family = AF_INET;
-	_addr.sin_addr.s_addr = htonl(server.getHostUint()); //uint32_t
-	_addr.sin_port = htons(server.getPort()); //uint16_t
+	_addr.sin_addr.s_addr = htonl(server.getHostUint());
+	_addr.sin_port = htons(server.getPort());
 	if (bind(_fd, (const sockaddr*)&_addr, _sizeaddr) == -1)
 	{
 		protected_write_log(error_message_server(server,

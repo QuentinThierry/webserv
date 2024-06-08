@@ -2,7 +2,6 @@
 
 HttpRequestLine::HttpRequestLine( void )
 {
-	//always call HttpRequestLine::_fill_request_line after calling this constructor
 }
 
 HttpRequestLine::HttpRequestLine( std::stringstream & request_stream)

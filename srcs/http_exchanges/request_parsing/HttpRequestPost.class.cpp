@@ -4,9 +4,9 @@
 
 std::vector<std::string> HttpRequestPost::_busyFile = std::vector<std::string>();
 
-HttpRequestPost::HttpRequestPost (std::string const & str_request)
+HttpRequestPost::HttpRequestPost (std::string const & str_request, Cluster & cluster)
 	throw (ExceptionHttpStatusCode)
-	: HttpRequest(), _cgi()
+	: HttpRequest(), _cgi(cluster)
 {
 	std::stringstream	stream_request (str_request);
 
@@ -48,7 +48,7 @@ HttpRequestPost::HttpRequestPost ( HttpRequestPost const & model)
 	_has_cgi = model._has_cgi;
 }
 
-HttpRequestPost::HttpRequestPost( void ) //unused
+HttpRequestPost::HttpRequestPost( void )
 {
 	_content_length = 0;
 	_chunk_read_size = 0;
@@ -177,14 +177,13 @@ void HttpRequestPost::_processBodyContentLength(bool &end)
 	if (_has_cgi)
 	{
 		if (_cgi.write(_body) == -1)
-			throw_http_err_with_log(HTTP_500, "ERROR: fail to write in cgi"); //!not sure
+			throw_http_err_with_log(HTTP_500, "ERROR: fail to write in cgi");
 	}
 	else
 	{
 		_file.write(_body.c_str(), _body.size());
 		if (!_file.good())
-			throw_http_err_with_log(HTTP_500, "ERROR: fail to write in socket"); //!not sure
- //!not sure
+			throw_http_err_with_log(HTTP_500, "ERROR: fail to write in socket");
 	}
 	if (_read_size == _content_length)
 	{
@@ -228,13 +227,13 @@ bool	HttpRequestPost::_parseChunkBody()
 	if (_has_cgi && write_size != 0)
 	{
 		if (_cgi.write(_body.substr(0, write_size)) == -1)
-			throw_http_err_with_log(HTTP_500, "ERROR: fail to write in cgi"); //!not sure
+			throw_http_err_with_log(HTTP_500, "ERROR: fail to write in cgi");
 	}
 	else if (write_size != 0)
 	{
 		_file.write(_body.c_str(), write_size);
 		if (!_file.good())
-			throw_http_err_with_log(HTTP_500, "ERROR: fail to write in socket"); //!not sure
+			throw_http_err_with_log(HTTP_500, "ERROR: fail to write in socket");
 	};
 	_chunk_read_size += write_size;
 	if (write_size == _body.size())
@@ -313,7 +312,7 @@ void	HttpRequestPost::readBody(int fd, Socket const * const socket, bool &end)
 		else
 			protected_write_log(error_message_server(socket->getServer(),
 				std::string("ERROR: read() end of file before the end of the body at")));
-		throw ExceptionHttpStatusCode(HTTP_500); //!not sure
+		throw ExceptionHttpStatusCode(HTTP_500);
 	}
 	_body += std::string(buffer, ret);
 	_read_size += ret;
@@ -360,7 +359,7 @@ void	HttpRequestPost::processHeader(Socket const * const socket)
 	if (isAcceptedMethod(location) == false)
 		return ;
 	if (!location.getCanUpload())
-		throw_http_err_with_log(HTTP_403, "ERROR: can not upload body"); //!not sure
+		throw_http_err_with_log(HTTP_403, "ERROR: can not upload body");
 	_filename = getUri(location.getRootPath());
 	_setBodyReadType(socket->getServer().getClientMaxBodySize());
 	CgiLocation cgi_location;
@@ -397,7 +396,6 @@ void	HttpRequestPost::_initResponse( Socket const * const socket,
 	}
 	if (!_has_cgi)
 		response.addField("Content-Length", "0");
-		//add location with uri;
 }
 
 void	HttpRequestPost::generateResponse( Socket const * const socket,
