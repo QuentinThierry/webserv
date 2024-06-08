@@ -29,6 +29,24 @@ Cluster::~Cluster()
 	}
 	for (t_iter_sockets it = _sockets.begin(); it != _sockets.end(); it++)
 		close(it->getFd());
+	_map_sockets.clear();
+	_sockets.clear();
+	_map_cgi.clear();
+	_fd_write.clear();
+}
+
+void	Cluster::clear()
+{
+	for (t_iter_map_sockets it = _map_sockets.begin(); it != _map_sockets.end(); it++)
+	{
+		close(it->first);
+	}
+	for (t_iter_sockets it = _sockets.begin(); it != _sockets.end(); it++)
+		close(it->getFd());
+	_map_sockets.clear();
+	_sockets.clear();
+	_map_cgi.clear();
+	_fd_write.clear();
 }
 
 Cluster::Cluster(std::vector<Server> servers)

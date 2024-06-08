@@ -149,7 +149,6 @@ static char const **create_cgi_env(HttpRequest const &request, Server const &ser
 		env[3]  = alloc_str("GATEWAY_INTERFACE=CGI/1.1");
 		env[4] = alloc_str("PATH_INFO=" + file_name);
 		env[5]  = alloc_str("PATH_TRANSLATED=" + file_name);
-		env[6] = alloc_str("");
 		if (is_get && *request.getMethod() == "GET")
 			env[6]  = alloc_str("QUERY_STRING=" + dynamic_cast<HttpRequestGet const &>(request).getQueryString());
 		else if (is_get && *request.getMethod() == "HEAD")
@@ -209,18 +208,31 @@ void Cgi::exec(std::string cgi_path, std::string file_name, HttpRequest const &r
 			char const **env = create_cgi_env(request, server, file_name);
 			if (env)
 			{
-				char const *args[3];
-				args[0] = alloc_str(cgi_path);
-				args[1] = alloc_str(file_name);
-				args[2] = NULL;
+				char const *args[3] = {0};
+				try
+				{
+					args[0] = alloc_str(cgi_path);
+					args[1] = alloc_str(file_name);
+					args[2] = NULL;
+				}
+				catch (std::exception &e)
+				{
+					free_env(env);
+					if (args[0])
+						delete [] args[0];
+					if (args[1])
+						delete [] args[1];
+					throw Cgi::NExceptionChildFail();
+				}
 				if (_cluster != NULL)
-					_cluster->~Cluster();
+					_cluster->clear();
 				close(g_err_log_fd);
+				g_err_log_fd = -1;
 				execve(cgi_path.c_str(), (char * const *)args,
 					(char **)env);
 				free_env(env);
-				delete(args[0]);
-				delete(args[1]);
+				delete [] args[0];
+				delete [] args[1];
 			}
 		}
 		throw Cgi::NExceptionChildFail();

@@ -47,6 +47,7 @@ HttpExchange::~HttpExchange()
 {
 	if (_request != NULL)
 		delete(_request);
+	_request = NULL;
 }
 
 void HttpExchange::_copyRequest(e_http_method method, HttpRequest const * request)

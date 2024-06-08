@@ -36,6 +36,7 @@ class Cluster
 		Socket const	*getMatchingSocket(int fd, std::string server_name) const;
 		void			switchHttpExchangeToWrite(int fd);
 		void			addCgi(Cgi *, HttpExchange *);
+		void			clear();
 
 	private:
 		Cluster();
@@ -49,6 +50,7 @@ class Cluster
 		void			_acceptNewConnection(Socket const & socket);
 		void			_checkTimeout();
 		void			_setMaxFd();
+
 
 		t_sockets			_sockets; //fd listening
 		t_map_sockets		_map_sockets; //fd create with accept => read and write
