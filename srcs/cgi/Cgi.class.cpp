@@ -3,6 +3,7 @@
 #include "HttpRequestPost.class.hpp"
 #include "HttpRequestGet.class.hpp"
 #include "HttpRequestHead.class.hpp"
+#include "Cluster.class.hpp"
 
 Cgi::Cgi()
 {
@@ -11,6 +12,17 @@ Cgi::Cgi()
 	this->_pipe_input[WRITE] = -1;
 	this->_pipe_output[READ] = -1;
 	this->_pipe_output[WRITE] = -1;
+	this->_cluster = NULL;
+}
+
+Cgi::Cgi(Cluster &cluster)
+{
+	this->_pid = -1;
+	this->_pipe_input[READ] = -1;
+	this->_pipe_input[WRITE] = -1;
+	this->_pipe_output[READ] = -1;
+	this->_pipe_output[WRITE] = -1;
+	_cluster = &cluster;
 }
 
 int Cgi::getPid() const
@@ -201,10 +213,11 @@ void Cgi::exec(std::string cgi_path, std::string file_name, HttpRequest const &r
 				args[0] = alloc_str(cgi_path);
 				args[1] = alloc_str(file_name);
 				args[2] = NULL;
-
-				std::cerr << execve(cgi_path.c_str(), (char * const *)args,
-					(char **)env) <<std::endl;
-				protected_write_log("ERROR: cgi execution fail");
+				if (_cluster != NULL)
+					_cluster->~Cluster();
+				close(g_err_log_fd);
+				execve(cgi_path.c_str(), (char * const *)args,
+					(char **)env);
 				free_env(env);
 				delete(args[0]);
 				delete(args[1]);

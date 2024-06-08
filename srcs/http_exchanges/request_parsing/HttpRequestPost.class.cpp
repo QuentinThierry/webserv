@@ -4,9 +4,9 @@
 
 std::vector<std::string> HttpRequestPost::_busyFile = std::vector<std::string>();
 
-HttpRequestPost::HttpRequestPost (std::string const & str_request)
+HttpRequestPost::HttpRequestPost (std::string const & str_request, Cluster & cluster)
 	throw (ExceptionHttpStatusCode)
-	: HttpRequest(), _cgi()
+	: HttpRequest(), _cgi(cluster)
 {
 	std::stringstream	stream_request (str_request);
 

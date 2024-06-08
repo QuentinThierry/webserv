@@ -1,8 +1,8 @@
 #include "HttpRequestGet.class.hpp"
 
-HttpRequestGet::HttpRequestGet (std::string const & str_request)
+HttpRequestGet::HttpRequestGet (std::string const & str_request, Cluster &cluster)
 	throw (ExceptionHttpStatusCode)
-	: HttpRequest(), _cgi(), _has_cgi(false)
+	: HttpRequest(), _cgi(cluster), _has_cgi(false)
 {
 	std::stringstream	stream_request (str_request);
 
